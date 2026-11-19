@@ -279,7 +279,7 @@ local function hud(s,ui,w,h)
     end
     lg.setColor(0.49,0.63,0.71)
     centered("WASD muovi | SHIFT scatto | CTRL controlla/proteggi | SPAZIO passa | TIENI SPAZIO tira",w/2,h-24)
-    centered("Q+SPAZIO uno-due | E chiama | F2 tattica "..
+    centered("Q + SPAZIO uno-due | E chiama | F2 tattica "..
         (s.autoCoachEnabled and "AUTO" or "STABILE")..
         " | T rapporto | P pausa | R reset | F1 debug | F11 schermo",w/2,h-12)
     if ui.charging then
