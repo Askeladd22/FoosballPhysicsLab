@@ -2,8 +2,8 @@
 
 **Project:** Football Physics Lab
 **Milestone:** v0.2.3 — Passaggi e ricezione
-**Phase:** 08 — Rinvii dal fondo e vista 2D
-**Plan:** 08-01, implementazione richiesta dall'utente
+**Phase:** 09 — Reverse engineering camera 2D FM24
+**Plan:** 09-01, implementazione richiesta dall'utente
 **Loop:** UNIFY_PARTIAL — implementazione e verifiche automatiche PASS; UAT umano NOT_RUN
 **Working tree:** main, modifiche locali sulla baseline `ec81c18`; nessun commit o push in questa fase
 **Updated:** 2026-11-19

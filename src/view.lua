@@ -23,7 +23,12 @@ end
 local function layout(f)
     local w,h=lg.getDimensions()
     local top,bottom=100,100
-    local scale=min((w-94)/f.w,(h-top-bottom)/f.h)
+    -- FM24 cameras_match.jsb / two_d_classic: length_border=10,
+    -- width_border=14. We interpret these as total world-space margins;
+    -- FM24's runtime viewport calculation is not yet verified (see docs).
+    -- Fit the surroundings too, so nets and touchlines survive resizing.
+    local lengthBorder,widthBorder=10,14
+    local scale=min(w/(f.w+lengthBorder),(h-top-bottom)/(f.h+widthBorder))
     local pitchW,pitchH=scale*f.w,scale*f.h
     local ox=(w-pitchW)/2
     local oy=top+(h-top-bottom-pitchH)/2
