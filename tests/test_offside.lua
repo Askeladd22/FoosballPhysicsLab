@@ -104,7 +104,8 @@ assert(dual.setPiece.kind=="offside" and dual.offsideCount[2]==1)
 local contest,a,off,op=fixture(1)
 assert(Sim.kick(contest,a,90,34,0.7,"pass"))
 off.x,off.y=90,34;op.x,op.y=92,34
-contest.ball.x,contest.ball.y=93,34;contest.ball.vx,contest.ball.vy=0,0
+contest.ball.x,contest.ball.y=off.x+off.r+contest.ball.r+0.55,34
+contest.ball.vx,contest.ball.vy=0,0
 Sim.step(contest,dt,{x=1})
 assert(contest.setPiece and contest.setPiece.kind=="offside","challenge not penalised")
 contest.players=contest.testRoster
