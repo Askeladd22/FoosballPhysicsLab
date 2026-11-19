@@ -27,6 +27,10 @@ jobs:
         run: ${{ matrix.lua }} tests/test_tactics.lua
       - name: Team outlets and replacement cover
         run: ${{ matrix.lua }} tests/test_team_shape.lua
+      - name: Physical escape from touchline rails
+        run: ${{ matrix.lua }} tests/test_touchline_escape.lua
+      - name: Goal kicks and human goalkeeper
+        run: ${{ matrix.lua }} tests/test_goal_kicks.lua
       - name: Permanent goalkeeper and midfield roles
         run: ${{ matrix.lua }} tests/test_roles.lua
       - name: Prematch role selection through actual callbacks

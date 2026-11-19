@@ -50,11 +50,11 @@ local function drawPitch(f,ox,oy,scale)
     lg.scale(scale)
     lg.setColor(0.18,0.40,0.24)
     lg.rectangle("fill",-4,-4,f.w+8,f.h+8)
-    lg.setColor(0.16,0.35,0.235)
+    lg.setColor(0.22,0.43,0.24)
     lg.rectangle("fill",0,0,f.w,f.h)
     for i=0,11 do
         if i%2==0 then
-            lg.setColor(0.18,0.397,0.26,0.72)
+            lg.setColor(0.25,0.47,0.27,0.45)
             lg.rectangle("fill",i*f.w/12,0,f.w/12,f.h)
         end
     end
@@ -71,6 +71,15 @@ local function drawPitch(f,ox,oy,scale)
     lg.rectangle("line",f.w-5.2,f.h/2-7.8,5.2,15.6)
     lg.circle("fill",11,f.h/2,0.17)
     lg.circle("fill",f.w-11,f.h/2,0.17)
+    -- Penalty arcs, drawn only outside the penalty areas.
+    for _,side in ipairs({1,-1}) do
+        local cx=side==1 and 11 or f.w-11
+        for i=-22,21 do
+            local a,b=i*0.045,(i+1)*0.045
+            lg.line(cx+side*9.15*math.cos(a),f.h/2+9.15*math.sin(a),
+                cx+side*9.15*math.cos(b),f.h/2+9.15*math.sin(b))
+        end
+    end
     -- Semi-transparent mesh and accurate post highlights.
     drawNet(-4.4,f.h/2-f.goalHalf,4.4,2*f.goalHalf,scale)
     drawNet(f.w,f.h/2-f.goalHalf,4.4,2*f.goalHalf,scale)
@@ -97,7 +106,8 @@ local function drawPlayer(p,s,scale,ox,oy,debug)
         lg.setLineWidth(2.2)
         lg.circle("line",px,py,rr+4.2)
     end
-    if p.team==1 then lg.setColor(0.105,0.45,0.91)
+    if p.role=="GK" then lg.setColor(0.95,0.67,0.12)
+    elseif p.team==1 then lg.setColor(0.105,0.45,0.91)
     else lg.setColor(0.82,0.22,0.245) end
     lg.circle("fill",px,py,rr)
     lg.setColor(0.97,0.98,0.97)
@@ -107,18 +117,18 @@ local function drawPlayer(p,s,scale,ox,oy,debug)
     local number=tostring(p.number)
     lg.setColor(1,1,1)
     centered(number,px,py-fonts.number:getHeight()/2)
-    -- FM27-inspired feet indicate facing without a large direction arrow.
+    -- A compact facing tick keeps the numbered classic 2D discs uncluttered.
     local fx,fy=playerFacing(p)
     local tx,ty=-fy,fx
     local front=rr*0.78
     local separation=rr*0.23
-    for _,sign in ipairs({-1,1}) do
+    for _,sign in ipairs({0}) do
         local footX=px+fx*front+tx*separation*sign
         local footY=py+fy*front+ty*separation*sign
         lg.setColor(0.02,0.045,0.035,0.85)
-        lg.circle("fill",footX+0.5,footY+0.5,2.2)
+        lg.circle("fill",footX+0.5,footY+0.5,1.3)
         lg.setColor(0.96,0.95,0.89,0.9)
-        lg.circle("fill",footX,footY,1.35)
+        lg.circle("fill",footX,footY,0.8)
     end
     if debug and p~=s.controlled then
         lg.setColor(1,1,1,0.23)
@@ -134,6 +144,7 @@ local function drawBall(s,scale,ox,oy,debug)
     lg.setColor(0.01,0.025,0.015,0.57)
     lg.ellipse("fill",bx+2.3,by+3.3,radius*1.22,radius*0.85)
     lg.setColor(1,1,1)
+    lg.circle("fill",bx,by,radius+0.8)
     if ballTexture then
         local k=2*radius/ballTexture:getWidth()
         lg.draw(ballTexture,bx,by,0,k,k,ballTexture:getWidth()/2,ballTexture:getHeight()/2)
@@ -208,7 +219,11 @@ function View.draw(s,ui)
         centered("PAUSA",w/2,oy-28)
     elseif s.phase=="kickoff" or s.phase=="restart" then
         lg.setColor(1,1,1,0.9)
-        centered(s.phase=="kickoff" and "CALCIO D'INIZIO" or "RIMESSA",w/2,oy-28)
+        local goalKick=s.setPiece and s.setPiece.kind=="goal_kick"
+        local message=s.phase=="kickoff" and "CALCIO D'INIZIO" or
+            (goalKick and "RINVIO DAL FONDO" or "RIPRESA DAL FONDO")
+        if goalKick and s.setPiece.taker==s.controlled then message=message.."  |  SPAZIO per battere" end
+        centered(message,w/2,oy-20)
     end
     -- Slim match information and controls.
     lg.setColor(0.055,0.075,0.065,0.95)

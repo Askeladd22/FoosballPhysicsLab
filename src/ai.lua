@@ -145,6 +145,22 @@ end
 local function chooseAction(s,p)
     local b,f=s.ball,s.field
     local attack=p.team==1 and 1 or -1
+    -- At a rail the normal approach behind an inward kick is outside the pitch.
+    -- Use the existing physical rebound instead of chasing an unreachable spot.
+    if b.vx*b.vx+b.vy*b.vy<9 then
+        local endline=b.x<b.r+1.5 and -1 or
+            (b.x>f.w-b.r-1.5 and 1 or nil)
+        -- Outside the goal mouth, finish crossing the endline normally. This
+        -- also handles corners where neither inward approach is reachable.
+        if endline and abs(b.y-f.h/2)>f.goalHalf+b.r+f.postRadius then
+            return b.x+endline*10,b.y,0.65,"escape"
+        end
+        local edge=b.y<b.r+1.5 and -1 or
+            (b.y>f.h-b.r-1.5 and 1 or nil)
+        if edge then
+            return b.x+attack*8,b.y+edge*10,0.65,"escape"
+        end
+    end
     local goalX=attack==1 and f.w+2 or -2
     local distanceToGoal=abs(goalX-b.x)
     if distanceToGoal<25 and

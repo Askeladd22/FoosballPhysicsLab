@@ -2,14 +2,14 @@
 
 **Project:** Football Physics Lab
 **Milestone:** v0.2.3 — Passaggi e ricezione
-**Phase:** 06 — Team shape, confronto FM24
-**Plan:** 06-01, richiesta di analisi FM24 e miglioramento del progetto
+**Phase:** 08 — Rinvii dal fondo e vista 2D
+**Plan:** 08-01, implementazione richiesta dall'utente
 **Loop:** UNIFY_PARTIAL — implementazione e verifiche automatiche PASS; UAT umano NOT_RUN
 **Working tree:** main, modifiche locali sulla baseline `ec81c18`; nessun commit o push in questa fase
 **Updated:** 2026-11-19
 
 ## Verificato
-- Tutte le nove suite locali passano nel LuaJIT installato con LÖVE (LuaJIT 2.1.1700008891 / Lua 5.1).
+- Tutte le undici suite locali passano nel LuaJIT installato con LÖVE (LuaJIT 2.1.1700008891 / Lua 5.1).
 - Passaggio originale a 40 unità eseguito dall'IA e ricevuto fisicamente; traiettorie a 5 distanze e 4 velocità iniziali, con rifiuto esplicito della combinazione irraggiungibile.
 - Riceventi fermi/in corsa, entrambe le squadre, rispetto del controllo umano, intercetti precoci e cancellazione degli intenti verificati.
 - Partite da 180 secondi con input scriptato RM e GK, ciascuna ripetuta per determinismo; contabilità dei passaggi coerente a ogni tick.
@@ -41,3 +41,9 @@
 
 ## Prossima azione unica
 Eseguire un playtest umano della build corrente: una partita RM e una GK, annotando appoggi disponibili, copertura e occasioni offensive.
+
+## Aggiornamento fase 07
+Calci fisici di uscita da sponde e angoli implementati. Dieci suite PASS, inclusi quattro angoli e sponde speculari. Prove in phases/07-touchline-escape/07-01-SUMMARY.md. Riavviare LÖVE per il playtest della build aggiornata.
+
+## Aggiornamento fase 08
+Rinvii IA/umano e vista 2D implementati. Undici suite PASS; rendering reale alle tre risoluzioni. Prove in phases/08-goal-kicks-view/08-01-SUMMARY.md. Prossimo passo: playtest del rinvio manuale GK e della leggibilità in movimento.

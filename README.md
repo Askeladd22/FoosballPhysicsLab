@@ -81,3 +81,9 @@ See [TacticalPlayGuide.md](docs/TacticalPlayGuide.md) for the adapted 5v5 princi
 ## Team coordination
 
 AI teammates now share a per-team support map: separate outlets, space reserved for the receiver and replacement cover when the defender presses. Physical movement and fixed human control are preserved. See [FM24 comparison and evidence](docs/FM24-Match-Engine-Review.md) for the limited local analysis, official sources and our original adaptation. Run `luajit tests/test_team_shape.lua` for targeted scenarios. Nine local LuaJIT suites pass; human tactical balance remains unverified.
+
+## Goal kicks and classic 2D view
+
+After an attacker last touches the ball over the opposing endline outside the goal, the defending goalkeeper takes a goal kick from the goal area. AI keepers restart automatically; as the human goalkeeper, press Space after the short countdown (C enables charging). Opponents are moved outside the area. Defender-last-touch exits still use simplified attacking restarts; full corners are not implemented.
+
+The original renderer now takes visual cues from FM24 2D Classic: brighter turf, penalty arcs, clearer keeper discs and ball contrast. No FM assets were imported. Eleven local LuaJIT suites pass, including tests/test_goal_kicks.lua.

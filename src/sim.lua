@@ -186,14 +186,22 @@ local function prepareRestart(s,side)
     Passing.finish(s,"missed","out")
     local b,f=s.ball,s.field
     local team=s.lastTouch==1 and 2 or 1
+    local defending=side=="left" and 1 or 2
+    local goalKick=team==defending
     local x=clamp(b.x,8,f.w-8)
     local y=clamp(b.y,8,f.h-8)
     -- Only goal-line restarts remain. Touchlines act as solid rails.
     if side=="left" then x=4.75
     else x=f.w-4.75 end
+    if goalKick then y=f.h/2+(b.y<f.h/2 and -5 or 5) end
     b.x,b.y=x,y
     b.vx,b.vy=0,0
     local taker=takerForTeam(s,team,b,side)
+    if goalKick then
+        for _,p in ipairs(s.players) do
+            if p.team==team and p.role=="GK" then taker=p; break end
+        end
+    end
     local gap=taker.r+b.r+0.48
     if side=="left" then
         taker.x,taker.y=x-gap,y
@@ -206,6 +214,10 @@ local function prepareRestart(s,side)
     -- Dead-ball repositioning keeps players from standing on the ball.
     for _,p in ipairs(s.players) do
         if p~=taker then
+            if goalKick and p.team~=team then
+                p.x=side=="left" and max(p.x,19) or min(p.x,f.w-19)
+                p.vx,p.vy=0,0
+            end
             local dx,dy=p.x-b.x,p.y-b.y
             local d=sqrt(dx*dx+dy*dy)
             local clearance=p.r+b.r+3.0
@@ -220,7 +232,7 @@ local function prepareRestart(s,side)
     s.phase="restart"
     s.phaseClock=0.72
     s.restartCount=s.restartCount+1
-    s.setPiece={kind="restart",side=side,team=team,taker=taker}
+    s.setPiece={kind=goalKick and "goal_kick" or "restart",side=side,team=team,taker=taker}
     s.setPieceProtect=0
     s.setPieceTaker=nil
 end
@@ -240,7 +252,7 @@ local function activateSetPiece(s)
     end
     -- Set pieces are explicit, physical passes. A bad follow-up cannot
     -- instantly reset the ball to the same throw-in and loop forever.
-    local kicked=Sim.kick(s,spec.taker,tx,ty,0.68,"pass")
+    local kicked=Sim.kick(s,spec.taker,tx,ty,spec.kind=="goal_kick" and 0.95 or 0.68,"pass")
     if kicked then
         s.setPieceTaker=spec.taker
         s.setPieceProtect=0.72
@@ -280,7 +292,20 @@ function Sim.step(s,dt,input)
     if s.phase=="fulltime" or s.phase=="paused" then return end
     if s.phase=="kickoff" or s.phase=="restart" then
         s.phaseClock=s.phaseClock-dt
-        if s.phaseClock<=0 then activateSetPiece(s) end
+        if s.phaseClock<=0 then
+            local spec=s.setPiece
+            if spec and spec.kind=="goal_kick" and spec.taker==s.controlled then
+                if input.kick then
+                    s.phase="play"
+                    if Sim.kick(s,s.controlled,nil,nil,input.kick,"kick") then
+                        s.setPieceTaker=s.controlled
+                        s.setPieceProtect=0.72
+                        s.setPiece=nil
+                        s.aiTimer=0
+                    else s.phase="restart" end
+                end
+            else activateSetPiece(s) end
+        end
         return
     end
     s.elapsed=s.elapsed+dt

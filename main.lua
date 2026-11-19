@@ -94,7 +94,8 @@ function love.update(dt)
         return
     end
     dt=math.min(dt,0.05)
-    if ui.charging and match.phase=="play" then
+    if ui.charging and (match.phase=="play" or
+        (match.phase=="restart" and match.setPiece and match.setPiece.taker==match.controlled)) then
         ui.charge=math.min(0.6,ui.charge+dt)
     end
     accumulator=math.min(accumulator+dt,0.1)

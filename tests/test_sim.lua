@@ -130,7 +130,7 @@ for _,side in ipairs({"left","right"}) do
     r.ball.x=side=="left" and -3 or r.field.w+3
     r.ball.y=15
     Sim.step(r,dt,{x=0,y=0})
-    check(r.phase=="restart" and r.setPiece.kind=="restart" and
+    check(r.phase=="restart" and r.setPiece.kind==(side=="right" and "goal_kick" or "restart") and
           r.setPiece.side==side and r.setPiece.team==2,
           "AC-2: incorrectly assigned goal-line restart "..side)
     local taker=r.setPiece.taker

@@ -84,3 +84,9 @@ Play the current build once as RM and once as GK, using E and the receiving mark
 - **ASSUMED:** spacing 8 and cover depth 16 suit this pitch; neither is an FM24 coefficient.
 - **UNVERIFIED:** attacking balance after greater defensive cover; two deterministic scripted matches ended 0–0.
 - **NEXT:** human RM/GK playtest; retain the physical ball and single controlled disc.
+
+## Continuità presso i bordi
+Implementati calci fisici contro la sponda e uscite dal fondo fuori porta per liberare palle lente. Parametri provvisori, dieci suite PASS; verifica umana dei due casi fotografati ancora necessaria.
+
+## Rinvii e vista 2D
+Deciso e implementato: rinvio dal fondo al portiere dopo ultimo tocco attaccante; esecuzione manuale per GK umano. Le altre riprese restano semplificate. Vista originale ispirata alla 2D Classic FM24, senza import di asset. Undici suite e rendering reale verificati; UAT umano pendente.
