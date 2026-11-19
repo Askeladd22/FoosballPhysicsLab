@@ -316,7 +316,7 @@ local function chooseAction(s,p)
     local shotX,shotY,shotPower,shotRisk,goalDistance=shotOption(s,p)
     if shotX then options[#options+1]={x=shotX,y=shotY,power=shotPower,action="shot",
         score=0.86+0.25*(1-clamp(goalDistance/33,0,1))-0.14*clamp(shotRisk/9,0,1)
-            +(q and (q.shooting or 0)*0.14 or 0)} end
+            +(q and (q.shooting or 0)*0.2 or 0)} end
     local mate,score,risk,plan=passOption(s,p)
     if mate and score>-7 and risk<9+(q and (q.risk or 0)*2 or 0) then
         local utility=0.32+0.36*clamp((score+8)/22,0,1)+0.18*pressure
