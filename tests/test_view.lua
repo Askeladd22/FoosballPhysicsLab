@@ -41,8 +41,12 @@ for _,resolution in ipairs({{1280,800},{920,610},{1920,1080}}) do
 end
 s.phase="play"
 View.draw(s,{mode="charge",charging=true,charge=0.3,debug=false})
+local keeperMatch=Sim.new("GK")
+View.draw(keeperMatch,{mode="instant",charging=false,charge=0,
+    debug=false,chooseRole=true})
+assert(keeperMatch.controlled.role=="GK","GK renderer changed selected role")
 assert(s.controlled==id,"rendering changed controlled player")
 assert(counts.ball>=16,"Etrusco ball was not drawn")
 assert(counts.circles>=160,"discs or feet failed to render")
 assert(counts.field>=16,"field failed to render")
-print("PASS: FM27-style 2D renderer smoke at 3 resolutions and 5 match phases")
+print("PASS: classic 2D renderer, prematch role selection and GK HUD")
