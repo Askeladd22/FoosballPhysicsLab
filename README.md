@@ -1,6 +1,6 @@
 # Football Physics Lab — Match Lab v0.2.1
 
-Prototype of a **single-player, top-down tactical football game** built in LÖVE2D (Lua). One disc is permanently under player control; four teammates and five opponents are controlled by simple tactical AI. A full individual career is the long-term goal, not yet implemented.
+Prototype of a **single-player, top-down tactical football game** built in LÖVE2D (Lua). One blue disc, chosen before kickoff (#1 GK or #10 midfielder), remains under player control; four teammates and five opponents are controlled by simple tactical AI. A full individual career is the long-term goal, not yet implemented.
 
 ## Run
 
@@ -12,7 +12,9 @@ To compare the earlier ball-control sandbox, run `love legacy/physics_lab_01`.
 
 | Key | Action |
 | --- | --- |
-| WASD / arrows | Move your blue #10 disc |
+| 1 / 2 (prematch) | Play goalkeeper #1 / midfielder #10 |
+| Tab | Start a new match with another role |
+| WASD / arrows | Move your selected disc |
 | Space | Shoot using contact geometry |
 | C | Toggle instant / charged kick |
 | E | Ask an AI teammate for a pass (not guaranteed) |
@@ -26,7 +28,7 @@ To compare the earlier ball-control sandbox, run `love legacy/physics_lab_01`.
 
 **2D view:** Football Manager 27 classic-style top-down presentation, with small numbered discs, feet-based orientation, more visible ball shadow and semi-transparent nets. Original renderer and UI; no Football Manager artwork is included.
 
-**Prototype rules:** 5v5 including keepers, open play with goals and a countdown clock. A designated kicker now starts and restarts play with a physical pass directed into the field; restarts are intentionally simplified, without full fouls/offside/throw-ins. There is no multiplayer and no player switching.
+**Prototype rules:** 5v5 including keepers, open play with goals and a countdown clock. A designated kicker starts play; **the top/bottom touchlines temporarily bounce the ball back into the field instead of producing throw-ins**. The side goal-lines still award a simplified restart when there is no goal. **AI passes and kickoff passes have 35% more impulse; normal shots/manual kicks are unchanged.** Offside and fouls remain out of scope. There is no multiplayer and no player switching.
 
 ## Architecture
 
@@ -35,7 +37,8 @@ To compare the earlier ball-control sandbox, run `love legacy/physics_lab_01`.
 - `src/ai.lua`: basic five-a-side roles, pressing, support, goalkeeper coverage, passing decisions.
 - `src/view.lua`: resolution-independent FM27-inspired classic 2D field, feet-oriented players, Etrusco ball, shadow, nets and compact HUD.
 - `assets/etrusco_unico.png`: small transparent texture prepared from user-supplied 1990 Etrusco Unico reference image.
-- `tests/test_sim.lua`: headless match regressions for kickoff, steering, passes, four boundaries, scoring and determinism.
+- `tests/test_sim.lua`: headless match regressions for kickoff, steering, passes, sideline bounces, goal-line restarts, scoring and determinism.
+- `tests/test_boundary_passing.lua`: sideline bounce and pass-only impulse ratio regressions.
 - `tests/test_view.lua`: mocked 2D rendering smoke tests at 3 resolutions; not a visual substitute.
 - `legacy/physics_lab_01/main.lua`: earlier physics lab, kept for comparison.
 
