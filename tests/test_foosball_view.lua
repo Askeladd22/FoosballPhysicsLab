@@ -4,7 +4,7 @@ local mouseCaptured=false
 local currentFont
 local function noop(...) end
 local graphics={}
-for _,name in ipairs({"setDefaultFilter","setColor","print","rectangle","line","circle",
+for _,name in ipairs({"setDefaultFilter","setColor","print","rectangle","line","circle","polygon",
                       "setLineWidth","clear","push","pop","translate","scale"}) do
     graphics[name]=noop
 end
@@ -34,6 +34,13 @@ assert(#drawing>6,"game never rendered")
 local foundTitle=false
 for _,s in ipairs(drawing) do if s:find("FOOSBALL LAB",1,true) then foundTitle=true end end
 assert(foundTitle,"lab HUD title missing")
+local footHint=false
+for _,s in ipairs(drawing) do
+    if s:find("faccia di tiro",1,true) then footHint=true end
+    assert(not s:find("→",1,true) and not s:find("←",1,true),
+        "unsupported directional arrow glyph in text")
+end
+assert(footHint,"new strike-face explanation not visible")
 love.mousemoved(0,0,70,-55)
 love.keypressed("1",nil,false)
 love.keypressed("4",nil,false)

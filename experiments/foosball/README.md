@@ -47,3 +47,7 @@ Only after a human playtest, decide whether the mouse mapping needs inertia/snap
 
 ## End-stop and striking-face tuning
 The **square/flat shoe** is both the drawn impact surface and the physical collision rectangle. Its bright leading edge points toward the opponent's goal, and the currently selected figure shows a short yellow attack arrow. The rod travels to the figure-to-cushion limit, or the goalkeeper's mechanical bearing. On contact with the upper/lower stop, its velocity is zeroed and the end-guide bumper compresses visibly. `F1` displays the exact foot collision rectangle. Try the two ends of rod 4 and 10 deliberate flat-face strikes.
+
+
+## Visual clarity pass (PAUL 17)
+The player figure now inclines with the same physically projected foot position used for collision, with the pivot still on the vertical rod. Team colors remain visible when selected; only the active foot edge receives an outline and one central arrow. The HUD uses readable **DESTRA/SINISTRA** labels rather than Unicode arrow glyphs unavailable in some default fonts. The wood rim is fitted below a dedicated title strip and above a footer at 900×650 and larger windows. Try `F1` to inspect the collision rectangle and compare screenshots at 900×650 and 1280×850. This is an optical model of axial rotation, not full 3D body rendering.
