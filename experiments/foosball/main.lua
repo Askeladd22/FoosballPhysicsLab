@@ -69,11 +69,32 @@ local function rods()
             paint(colors.gold,0.12)
             lg.rectangle("fill",r.x-19,-13,38,Model.H+26)
         end
+        -- Through-table shaft and its fixed chassis guides.
         paint(colors.metal,current and 0.9 or 0.46)
         lg.setLineWidth(current and 5 or 3)
-        lg.line(r.x,-20,r.x,Model.H+23)
+        lg.line(r.x,-24,r.x,Model.H+28)
+        for _,y in ipairs({-10,Model.H+10}) do
+            paint({0.075,0.085,0.09})
+            lg.circle("fill",r.x,y,13)
+            paint(colors.metal)
+            lg.circle("line",r.x,y,12)
+            paint(c,current and 0.95 or 0.7)
+            lg.rectangle("fill",r.x-5,y-8,10,16,3,3)
+        end
+        -- Bumper compression clearly indicates which side hit the mechanical stop.
+        if r.stopPulse>0 or r.stopSide~=0 then
+            local y=r.stopSide<0 and -10 or Model.H+10
+            local pulse=r.stopPulse/0.22
+            paint(colors.gold,0.3+0.6*pulse)
+            lg.rectangle("fill",r.x-17,y-7,34,14,5,5)
+            if current then
+                paint(colors.gold,0.3*pulse)
+                lg.circle("line",r.x,y,18+12*(1-pulse))
+            end
+        end
+        -- Grip attached to the shaft, distinct from the fixed guide.
         paint(c,current and 0.95 or 0.7)
-        lg.rectangle("fill",r.x-11,Model.H+14,22,36,5,5)
+        lg.rectangle("fill",r.x-11,Model.H+18,22,32,5,5)
         if current then
             paint(colors.gold)
             lg.rectangle("fill",r.x-17,Model.H+43,34,13,6,6)
@@ -82,24 +103,39 @@ local function rods()
         end
         for j=1,#r.offsets do
             local fx,fy=Model.foot(r,j)
-            -- The body sits on the rod; the shoe sweeps horizontally as it rotates.
-            paint({0,0,0},0.24)
-            lg.rectangle("fill",r.x-12,fy-12,25,31,6,6)
+            local left,top,fw,fh=Model.footRect(r,j)
+            local direction=r.team==1 and 1 or -1
+            -- Readable figure: head / torso / moving leg / flat striking shoe.
+            paint({0.01,0.06,0.07},0.35)
+            lg.rectangle("fill",r.x-11,fy-14,23,35,6,6)
             paint(c)
-            lg.rectangle("fill",r.x-11,fy-17,22,34,5,5)
-            paint(colors.cream,0.55)
-            lg.rectangle("fill",r.x-5,fy-3,10,6,2,2)
-            paint({0.06,0.13,0.14},0.5)
+            lg.rectangle("fill",r.x-9,fy-13,18,27,5,5)
+            paint(colors.cream)
+            lg.circle("fill",r.x,fy-16,6)
+            paint({0.07,0.12,0.13},0.75)
             lg.setLineWidth(4)
-            lg.line(r.x,fy,fx,fy)
-            paint(c)
-            lg.circle("fill",fx,fy,Model.FOOT_RADIUS)
-            paint(colors.cream,0.76)
-            lg.circle("line",fx,fy,Model.FOOT_RADIUS)
+            lg.line(r.x,fy+7,fx,fy+7)
+            -- Shoe rectangle is identical to the simulation collision box.
+            paint({0.01,0.06,0.07},0.4)
+            lg.rectangle("fill",left+3,top+3,fw,fh,4,4)
+            paint(current and colors.gold or c)
+            lg.rectangle("fill",left,top,fw,fh,3,3)
+            -- Deliberately bright FLAT front edge (not a misleading round dot).
+            local front=direction==1 and left+fw or left
+            paint(colors.cream,1)
+            lg.setLineWidth(current and 4 or 3)
+            lg.line(front,top+2,front,top+fh-2)
+            if current then
+                paint(colors.gold,0.75)
+                local tip=front+direction*10
+                lg.line(front,fy,tip,fy)
+                lg.line(tip,fy,tip-direction*5,fy-5)
+                lg.line(tip,fy,tip-direction*5,fy+5)
+            end
             if debugDraw then
-                paint(colors.gold,0.7)
-                local dir=r.team==1 and 1 or -1
-                lg.line(fx,fy,fx+dir*Model.FOOT_REACH*math.cos(r.angle)*r.omega*0.11,
+                paint(colors.gold,0.75)
+                lg.rectangle("line",left,top,fw,fh)
+                lg.line(fx,fy,fx+direction*Model.FOOT_REACH*math.cos(r.angle)*r.omega*0.11,
                     fy+r.vy*0.11)
             end
         end
@@ -130,7 +166,11 @@ local function hud(w,h)
     local _,boardY,scale=transform()
     local bottom=boardY+Model.H*scale+67
     local angle=math.floor(r.angle*180/math.pi+0.5)
-    text("ASTA "..match.selected.."  •  "..r.kind.."   |   rotazione "..angle.."°",45,bottom,fonts.normal,colors.cream)
+    text("ASTA "..match.selected.."  •  "..r.kind.."   |   rotazione "..angle..
+        "°   |   PIEDE → (ciano) / ← (arancio)",45,bottom,fonts.normal,colors.cream)
+    if r.stopPulse>0 then
+        text("FINE CORSA • TAMPONE",650,bottom,fonts.small,colors.gold)
+    end
     local captured=love.mouse.getRelativeMode()
     local help=captured and "MOUSE CATTURATO • ESC per sbloccare" or
         "Muovi il mouse per giocare • clic per catturarlo e non fermarti ai bordi"

@@ -43,3 +43,7 @@ Headless verification from repo root: `lua5.4 tests/test_foosball.lua` or `luaji
 ## Next design decision
 
 Only after a human playtest, decide whether the mouse mapping needs inertia/snap-to-contact assistance, whether the player should control 1 or 4 rods, and whether a career-focused foosball game deserves a standalone repository. Never fold the foosball logic into existing `src/sim.lua` without a separate decision.
+
+
+## End-stop and striking-face tuning
+The **square/flat shoe** is both the drawn impact surface and the physical collision rectangle. Its bright leading edge points toward the opponent's goal, and the currently selected figure shows a short yellow attack arrow. The rod travels to the figure-to-cushion limit, or the goalkeeper's mechanical bearing. On contact with the upper/lower stop, its velocity is zeroed and the end-guide bumper compresses visibly. `F1` displays the exact foot collision rectangle. Try the two ends of rod 4 and 10 deliberate flat-face strikes.
