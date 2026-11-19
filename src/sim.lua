@@ -60,7 +60,11 @@ local function resetPositions(s,kickoffTeam)
     s.pressers={}
     s.presserSince={}
 end
-function Sim.new()
+function Sim.new(controlRole)
+    -- Select one permanent human-controlled disc for the entire match.
+    -- Default remains RM for backward compatibility with Physics/Match Labs.
+    controlRole=controlRole or "RM"
+    assert(controlRole=="RM" or controlRole=="GK", "unsupported controlled role")
     local s={
         field={w=120,h=70,goalHalf=8,postRadius=0.6},
         params={
@@ -88,9 +92,10 @@ function Sim.new()
                 targetX=x,targetY=y,decision="hold"
             }
             s.players[#s.players+1]=p
-            if team==1 and r[1]=="RM" then s.controlled=p end
+            if team==1 and r[1]==controlRole then s.controlled=p end
         end
     end
+    assert(s.controlled, "missing controlled player")
     resetPositions(s,1)
     s.kick=function(p,tx,ty,power,action)
         return Sim.kick(s,p,tx,ty,power,action)
