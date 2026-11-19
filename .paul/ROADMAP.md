@@ -6,7 +6,7 @@
 - [x] Initial playable match loop, score, clock and HUD (code written; gameplay UAT pending).
 - [x] Code fix proposed for unstable movement, kickoff/restart logic and basic passing (headless CI PASS; LÖVE UAT pending).
 - [x] FM27-inspired classic 2D view in code, with mocked renderer smoke PASS (visual UAT pending).
-- [ ] Physics and gameplay refinement from actual playtests.
+- [x] First tactical-support and back-pass logic with headless scenarios (PR #6, CI PASS; UAT pending).\n- [x] Prematch goalkeeper or midfielder selection with fixed control (PR #6, CI PASS; UAT pending).\n- [ ] Verify these changes in a real 5v5 game before progressing.\n- [ ] Physics and gameplay refinement from actual playtests.
 - [ ] Verify all acceptance criteria in LÖVE and close the milestone.
 
 ## Milestone v0.3 — Career Foundation (not started)
