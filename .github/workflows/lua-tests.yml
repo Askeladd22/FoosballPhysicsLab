@@ -87,3 +87,5 @@ jobs:
         run: ${{ matrix.lua }} tests/test_foosball_view.lua
       - name: Foosball screen fit and pose consistency
         run: ${{ matrix.lua }} tests/test_foosball_layout.lua
+      - name: Foosball neon glass palette and glow
+        run: ${{ matrix.lua }} tests/test_foosball_theme.lua

@@ -83,3 +83,10 @@ Verifica finale 19 novembre 2026: tutte le 30 suite LuaJIT PASS, incluse due par
 
 ## Phase 14 branch: Gameplay Recovery (not merged)
 A separate experimental branch introduces directional human passing, shorter retry buffer with HUD feedback, smaller 11v11 discs/ball, support-intent deadband, F2 coach A/B, and restored top/bottom arena rails. All prior phases on main remain preserved; PR/CI and human UAT must be checked before adopting these changes. Foosball remains a distinct, unimplemented alternative.
+
+
+## Product decision — 2026-11-20 / PAUL phase 18
+**Active secondary experiment:** Foosball Lab (mouse rod translation/rotation, physical ball, simple IA, rapid single-player games).
+**11vs11:** FROZEN / NO NEW GAMEPLAY DEVELOPMENT. Retain every source file, Git history, branch, CI check and document, without archiving or deleting this shared repository; running its tests is regression preservation, not active feature development.
+**Art direction accepted:** smoked tempered glass, graphite chassis, controlled cyan/coral neon; glow ON by default with G toggle for perceptual A/B.
+**UAT:** native glass look, long-session readability, foosball enjoyment unverified. **Current task:** see [PAUL 18-01 PLAN](phases/18-foosball-glass/18-01-PLAN.md).
