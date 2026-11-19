@@ -2,7 +2,7 @@
 project: Football Physics Lab
 project_type: custom/game-development
 status: exploring
-plan_version: "0.2.1"
+plan_version: "0.2.2"
 last_updated: 2026-11-19
 ---
 
@@ -20,6 +20,8 @@ Players who want simple direct controls, emergent ball physics, tactical movemen
 - Top-down, readable field inspired by the supplied tactical match screenshot.
 - FM27-inspired **classic 2D match view** (smaller numbered discs, feet-based facing cues, ball shadow, transparent nets), with original art and HUD.
 - Physical ball: no magnetic possession or automatic dribbling.
+- Temporary **arena rules**: no throw-ins; top/bottom touchlines are bouncy boundaries while goals and goal-line restarts still work.
+- Pass-only physical kick impulse multiplier set to **1.35**, shot/manual kick strength unchanged; provisional playtest value.
 - Individual player career as a later milestone.
 
 ## Prototype assumptions (to validate)
@@ -45,7 +47,8 @@ Multiplayer, full career, transfer markets, data persistence, 11v11, complex sub
 | Ball control difficult or too elastic | Repeated close-touch playtests, compare with legacy lab |
 | Teammates cluster or oscillate | Sticky press assignment, velocity steering and regression scenarios |
 | Input or physics depends on resolution | Run fixed-step simulation independent of drawing and vary window size |
-| Kickoff or boundary restart loops | Designated taker, inward ball impulse and four-side regression tests; LÖVE UAT |
+| Kickoff or goal-line restart loops | Designated taker and endline regressions; LÖVE UAT |
+| Excessive rebounds or long passes | Bouncy touchline and pass-only physics tests; adjust multiplier based on manual playtest |
 | Sprite rights unclear | Prototype only; verify rights or replace for release |
 
 ## Milestones
