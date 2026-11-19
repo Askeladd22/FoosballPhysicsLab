@@ -1,10 +1,8 @@
-# Football Physics Lab — NEON 11
+# Football Physics Lab — Foosball Lab active / NEON 11 frozen
 
-Prototype of a **single-player, top-down tactical football game** built in LÖVE2D (Lua). One disc is permanently under player control; ten teammates and eleven opponents are controlled by tactical AI. Before kickoff, choose whether to play as the **goalkeeper #1** or the **midfielder #10**. A full individual career is the long-term goal, not yet implemented.
+**Current experimental focus: [Foosball Lab](experiments/foosball/README.md)** — a compact single-player LÖVE2D foosball prototype with mouse-driven rod translation and rotation, simple opponent AI, physical ball, and quick matches. Run `love experiments/foosball`. The visual identity is **smoked tempered glass + restrained neon glow**; press **G** to compare glow ON/OFF.
 
-## Foosball mouse-rod experiment (separate game)
-
-The [Foosball Mouse Rod Lab](experiments/foosball/README.md) is an **independent** LÖVE2D prototype: move the mouse **up/down to slide the selected rod** and **left/right to rotate it and physically strike the ball**. Run `love experiments/foosball`. This experiment does **not** replace NEON 11.
+**Preserved, but frozen:** NEON 11 is the earlier single-player 11vs11 football experiment. Its implementation, history, tests, branches, and documentation remain available. Launch `love .` to inspect it, but **no new 11vs11 gameplay, tactical roles or career features are planned** during the foosball experiment. This is not a deletion and does not rebrand the original simulation.
 
 ## Run
 

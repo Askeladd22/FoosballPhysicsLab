@@ -2,11 +2,16 @@
 local drawing={}
 local mouseCaptured=false
 local currentFont
+local glowCalls=0
 local function noop(...) end
 local graphics={}
 for _,name in ipairs({"setDefaultFilter","setColor","print","rectangle","line","circle","polygon",
                       "setLineWidth","clear","push","pop","translate","scale"}) do
     graphics[name]=noop
+end
+function graphics.setBlendMode(mode,alphaMode)
+    assert(mode=="alpha" or mode=="add","unsupported blend mode")
+    if mode=="add" then glowCalls=glowCalls+1 end
 end
 function graphics.newFont(size)
     return {size=size,getWidth=function(self,s) return #s*(self.size*0.53) end}
@@ -31,6 +36,7 @@ love.load()
 love.update(1/60)
 love.draw()
 assert(#drawing>6,"game never rendered")
+assert(glowCalls>0,"glass/neon rendering never used selective additive glow")
 local foundTitle=false
 for _,s in ipairs(drawing) do if s:find("FOOSBALL LAB",1,true) then foundTitle=true end end
 assert(foundTitle,"lab HUD title missing")
@@ -41,6 +47,23 @@ for _,s in ipairs(drawing) do
         "unsupported directional arrow glyph in text")
 end
 assert(footHint,"new strike-face explanation not visible")
+local glassLabel=false
+for _,s in ipairs(drawing) do
+    if s:find("NEON GLASS",1,true) then glassLabel=true end
+end
+assert(glassLabel,"new glass-theme HUD label not found")
+love.keypressed("g",nil,false)
+local before=glowCalls
+drawing={}
+love.draw()
+assert(glowCalls==before,"glow disable still drew additive light")
+local glowOff=false
+for _,s in ipairs(drawing) do if s:find("glow OFF",1,true) then glowOff=true end end
+assert(glowOff,"toggle failed to show glow OFF")
+love.keypressed("g",nil,false)
+drawing={}
+love.draw()
+assert(glowCalls>before,"glow did not return on re-enable")
 love.mousemoved(0,0,70,-55)
 love.keypressed("1",nil,false)
 love.keypressed("4",nil,false)

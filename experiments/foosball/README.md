@@ -51,3 +51,9 @@ The **square/flat shoe** is both the drawn impact surface and the physical colli
 
 ## Visual clarity pass (PAUL 17)
 The player figure now inclines with the same physically projected foot position used for collision, with the pivot still on the vertical rod. Team colors remain visible when selected; only the active foot edge receives an outline and one central arrow. The HUD uses readable **DESTRA/SINISTRA** labels rather than Unicode arrow glyphs unavailable in some default fonts. The wood rim is fitted below a dedicated title strip and above a footer at 900×650 and larger windows. Try `F1` to inspect the collision rectangle and compare screenshots at 900×650 and 1280×850. This is an optical model of axial rotation, not full 3D body rendering.
+
+
+## Neon Glass identity (PAUL phase 18)
+The Foosball Lab default look now uses a **dark graphite chassis**, **smoked teal tempered-glass playfield**, layered translucent highlights, selectively illuminated cyan-white etched lines and goals, cyan human figures, warm coral opponents, amber active-rod accents, and a crisp high-contrast warm-white ball. This is **stylized 2D glass**, not a physically refractive surface. The glow uses cheap additive primitive passes: there are no required textures, shaders, downloaded assets, career menus or new gameplay systems.
+
+Press **G** to toggle neon glow **ON/OFF** without altering the physics or controls. Compare each setting when tracking a moving ball or reading which foot can make contact. `F1` continues to show exact collision geometry. This is a **visual experiment**: check the native LÖVE result and manual control feel before considering the art direction validated. Launch unchanged: `love experiments/foosball`.
