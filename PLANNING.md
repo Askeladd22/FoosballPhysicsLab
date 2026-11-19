@@ -2,7 +2,7 @@
 project: Football Physics Lab
 project_type: custom/game-development
 status: exploring
-plan_version: "0.2.2"
+plan_version: "0.2.3"
 last_updated: 2026-11-19
 ---
 
@@ -28,7 +28,7 @@ Players who want simple direct controls, emergent ball physics, tactical movemen
 - 5v5 including goalkeepers is sufficient to test positional play.
 - 120×70 simulation units and a field-fitting camera give readable space.
 - Fixed 120 Hz simulation and independent view coordinates provide useful consistency.
-- Team AI with dynamic support lanes, triangle geometry, rotation into vacant space, pressure-aware pass scoring and back-pass selection is enough for a first tactical playtest (still unverified in real LÖVE gameplay).
+- Team AI with dynamic support lanes, pressure-aware passing, physically reachable trajectories and coordinated reception is enough for a tactical playtest. Scenario and scripted full-match tests pass; human match quality remains unverified.
 - Ball and player movement parameters remain provisional, adjustable in game.
 
 ## In scope for Match Lab v0.2
@@ -59,8 +59,21 @@ Multiplayer, full career, transfer markets, data persistence, 11v11, complex sub
 5. Career foundation: persistent player, clubs, roles and seasonal loop.
 
 ## Quality gate
-WARN: v0.2.1 regression tests for game flow and a mocked renderer pass, but meaningful human LÖVE playtesting is still required for dribbling, tactical AI, and actual FM27-style 2D readability.
+WARN: v0.2.3 passes eight LuaJIT suites, including trajectories and full scripted matches as GK/RM. The actual LÖVE renderer was checked at three resolutions. Meaningful human playtesting remains necessary for dribbling, tactical balance and receiving feel; scripted receptions do not establish fun or stable possession.
 
 ## Next action
-Play a full match as GK from merged PR #6 and record defensive movement, clearances, teammate rotation and off-ball play; also verify the FM27-inspired view.
-\n## SEED decision update — v0.2.2\n- **DECIDED:** GK #1 and RM #10 prematch role selection; a single human-controlled disc remains fixed through the match.\n- **IMPLEMENTED (scenario-tested):** dynamic support targets, lateral lanes, lane rotation, pressure-aware back-pass selection, safe E requests.\n- **UNVERIFIED:** full-match tactical quality, goalkeeper experience and real LÖVE render/UI behavior.\n- **DEFERRED:** wall-based techniques, complex corner tactics, career progression and skill assists.\n
+Play the current build once as RM and once as GK, using E and the receiving marker; record missed receptions and whether teammates provide useful passing options.
+
+## SEED decision update — v0.2.2
+- **DECIDED:** GK #1 and RM #10 prematch role selection; a single human-controlled disc remains fixed through the match.
+- **IMPLEMENTED (scenario-tested):** dynamic support targets, lateral lanes, lane rotation, pressure-aware back-pass selection, safe E requests.
+- **UNVERIFIED:** full-match tactical quality, goalkeeper experience and real LÖVE render/UI behavior.
+- **DEFERRED:** wall-based techniques, complex corner tactics, career progression and skill assists.
+
+## SEED decision update — v0.2.3
+- **DECIDED:** implement the approved passing/reception/feedback increment; retain the physical ball and fixed human role.
+- **IMPLEMENTED:** variable AI pass power and lead, physical contact-angle check, temporary receiving intent, per-team pass outcomes and visible call/receiver feedback.
+- **ASSUMED:** constant receiver velocity is a useful short-term lead estimate; arrival speed near 8 simulation units/s is a provisional tuning target.
+- **VERIFIED:** isolated trajectories, original 40-unit pass, moving receivers, both teams, interceptions and lifecycle; deterministic 180-second scripted matches for both human roles.
+- **UNVERIFIED:** human enjoyment, difficulty and practical completion rates. No inference of improved completion rates from different scripted scenarios.
+- **DEFERRED:** assisted first touch, new manual passing controls and career systems. Details: `.paul/phases/05-pass-reception/05-01-SUMMARY.md`.

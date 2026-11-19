@@ -1,14 +1,10 @@
 -- Match Lab v0.2.1 - headless, deterministic simulation.
 -- A physical ball, no possession magnetism, one permanent human-controlled disc.
 local AI = require("src.ai")
+local Passing = require("src.passing")
 local Sim = {}
 local sqrt, exp, min, max, abs = math.sqrt, math.exp, math.min, math.max, math.abs
 local function clamp(x,a,b) return max(a,min(b,x)) end
-local function norm(x,y)
-    local length=sqrt(x*x+y*y)
-    if length<0.000001 then return 0,0 end
-    return x/length,y/length
-end
 local function distance(a,b)
     local dx,dy=a.x-b.x,a.y-b.y
     return sqrt(dx*dx+dy*dy)
@@ -29,6 +25,7 @@ local function takerForTeam(s,team,ball,side)
     return best
 end
 local function resetPositions(s,kickoffTeam)
+    Passing.finish(s,"missed","goal")
     kickoffTeam=kickoffTeam or 1
     for _,p in ipairs(s.players) do
         p.x,p.y=p.homeX,p.homeY
@@ -96,9 +93,10 @@ function Sim.new(controlRole)
         end
     end
     assert(s.controlled, "missing controlled player")
+    Passing.reset(s)
     resetPositions(s,1)
-    s.kick=function(p,tx,ty,power,action)
-        return Sim.kick(s,p,tx,ty,power,action)
+    s.kick=function(p,tx,ty,power,action,plan)
+        return Sim.kick(s,p,tx,ty,power,action,plan)
     end
     return s
 end
@@ -106,33 +104,29 @@ function Sim.restart(s)
     s.score[1],s.score[2]=0,0
     s.elapsed,s.totalKicks,s.passAttempts,s.shotAttempts,s.restartCount=0,0,0,0,0
     s.lastAction=""
+    s.aiPassAttempts=0
+    Passing.reset(s)
     resetPositions(s,1)
 end
 -- Kicks have an impulse, not an ownership or auto-pass animation.
-function Sim.kick(s,p,tx,ty,power,action)
+function Sim.kick(s,p,tx,ty,power,action,plan)
     if s.phase~="play" or p.cooldown>0 then return false end
     local b=s.ball
     local dx,dy=b.x-p.x,b.y-p.y
     local d=sqrt(dx*dx+dy*dy)
     if d<0.0001 or d>p.r+b.r+1.05 then return false end
-    local nx,ny=dx/d,dy/d
-    if tx and ty then
-        local ax,ay=norm(tx-b.x,ty-b.y)
-        if ax*nx+ay*ny>0.25 then
-            nx,ny=norm(nx*0.52+ax*0.48,ny*0.52+ay*0.48)
-        end
-    end
-    local approach=max(0,p.vx*nx+p.vy*ny)
-    local categoryMultiplier=action=="pass" and s.params.passMultiplier or 1
-    local impulse=s.params.kickSpeed*clamp(power or 1,0.45,1.35)
-        *categoryMultiplier+approach*0.12
-    b.vx,b.vy=b.vx+nx*impulse,b.vy+ny*impulse
+    Passing.touch(s,p)
+    Passing.finish(s,"missed","replaced")
+    b.vx,b.vy=Passing.kickVelocity(s,p,tx,ty,power,action)
     p.cooldown=0.34
     s.totalKicks=s.totalKicks+1
     s.lastTouch=p.team
     s.lastKickTime=s.elapsed
     s.lastAction=action or "kick"
-    if action=="pass" then s.passAttempts=s.passAttempts+1 end
+    if action=="pass" then
+        s.passAttempts=s.passAttempts+1
+        Passing.begin(s,p,plan)
+    end
     if action=="shot" then s.shotAttempts=s.shotAttempts+1 end
     return true
 end
@@ -189,6 +183,7 @@ local function moveDisc(s,p,dt)
     p.cooldown=max(0,p.cooldown-dt)
 end
 local function prepareRestart(s,side)
+    Passing.finish(s,"missed","out")
     local b,f=s.ball,s.field
     local team=s.lastTouch==1 and 2 or 1
     local x=clamp(b.x,8,f.w-8)
@@ -292,8 +287,10 @@ function Sim.step(s,dt,input)
     if s.elapsed>=s.limit then
         s.elapsed=s.limit
         s.phase="fulltime"
+        Passing.finish(s,"missed","fulltime")
         return
     end
+    Passing.update(s)
     s.setPieceProtect=max(0,s.setPieceProtect-dt)
     if s.setPieceProtect==0 then s.setPieceTaker=nil end
     s.requestTimer=max(0,s.requestTimer-dt)
@@ -320,8 +317,11 @@ function Sim.step(s,dt,input)
     b.x,b.y=b.x+b.vx*dt,b.y+b.vy*dt
     for _,p in ipairs(s.players) do
         local collided,speed=resolvePair(p,b,s.params.restitution)
-        if collided and speed>1.5 and s.elapsed-s.lastKickTime>0.22 then
-            s.lastTouch=p.team
+        if collided then
+            local received=Passing.touch(s,p)
+            if received or (speed>1.5 and s.elapsed-s.lastKickTime>0.22) then
+                s.lastTouch=p.team
+            end
         end
     end
     if input.kick then Sim.kick(s,human,nil,nil,input.kick) end

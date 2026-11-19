@@ -22,7 +22,7 @@ function View.load()
 end
 local function layout(f)
     local w,h=lg.getDimensions()
-    local top,bottom=100,76
+    local top,bottom=100,100
     local scale=min((w-94)/f.w,(h-top-bottom)/f.h)
     local pitchW,pitchH=scale*f.w,scale*f.h
     local ox=(w-pitchW)/2
@@ -148,6 +148,20 @@ local function drawBall(s,scale,ox,oy,debug)
         lg.line(bx,by,bx+b.vx*scale*0.18,by+b.vy*scale*0.18)
     end
 end
+local function drawPassTarget(s,scale,ox,oy,debug)
+    local pass=s.activePass
+    if not pass or not pass.receiver or (pass.team~=1 and not debug) then return end
+    local p=pass.receiver
+    lg.setColor(0.3,0.95,0.88,0.9)
+    lg.setLineWidth(1.5)
+    lg.circle("line",ox+p.x*scale,oy+p.y*scale,p.r*scale+7)
+    if p==s.controlled or debug then
+        local tx,ty=ox+pass.targetX*scale,oy+pass.targetY*scale
+        lg.circle("line",tx,ty,4)
+        lg.line(tx-7,ty,tx+7,ty)
+        lg.line(tx,ty-7,tx,ty+7)
+    end
+end
 function View.draw(s,ui)
     local f=s.field
     local scale,ox,oy,w,h,pitchW,pitchH=layout(f)
@@ -164,6 +178,7 @@ function View.draw(s,ui)
     lg.rectangle("fill",ox-14,oy-14,pitchW+28,pitchH+28)
     drawPitch(f,ox,oy,scale)
     for _,p in ipairs(s.players) do drawPlayer(p,s,scale,ox,oy,ui.debug) end
+    drawPassTarget(s,scale,ox,oy,ui.debug)
     drawBall(s,scale,ox,oy,ui.debug)
     -- Compact top scoreboard, not a management-heavy Football Manager HUD.
     local barY=10
@@ -197,19 +212,38 @@ function View.draw(s,ui)
     end
     -- Slim match information and controls.
     lg.setColor(0.055,0.075,0.065,0.95)
-    lg.rectangle("fill",0,h-67,w,67)
+    lg.rectangle("fill",0,h-91,w,91)
     lg.setColor(0.31,0.68,0.9)
-    lg.rectangle("fill",0,h-67,7,67)
+    lg.rectangle("fill",0,h-91,7,91)
     lg.setFont(fonts.label)
     lg.setColor(0.96,0.97,0.95)
     local role=s.controlled.role=="GK" and "Portiere" or "Centrocampista"
-    lg.print(string.format("BLU  #%d  |  %s",s.controlled.number,role),22,h-55)
-    lg.setColor(0.80,0.84,0.8)
-    centered(string.format("Passaggi: %d  |  Tiri: %d  |  Calci: %d",
-        s.passAttempts or 0,s.shotAttempts or 0,s.totalKicks or 0),w/2,h-55)
+    lg.print(string.format("BLU  #%d  |  %s",s.controlled.number,role),22,h-80)
     lg.setFont(fonts.small)
+    for team=1,2 do
+        local stats=s.passStats[team]
+        lg.setColor(0.86,0.9,0.87)
+        lg.print(string.format("%s  Ricevuti: %d/%d  |  Intercettati: %d  |  Persi: %d",
+            team==1 and "BLU" or "ROSSI",stats.completed,stats.attempts,
+            stats.intercepted,stats.missed),team==1 and 22 or w/2+12,h-54)
+    end
+    local feedback
+    if s.activePass and s.activePass.receiver==s.controlled then
+        feedback="Passaggio per te: vai incontro alla palla"
+    elseif s.requestTimer>0 then
+        feedback="Richiesta inviata: smarcati per ricevere"
+    elseif s.passFeedback and s.elapsed-s.passFeedback.at<1.8 then
+        local event=s.passFeedback
+        local labels={completed="ricevuto",intercepted="intercettato",missed="perso"}
+        feedback=(event.team==1 and "BLU" or "ROSSI")..": passaggio "..labels[event.result]
+        if event.number then feedback=feedback.." da #"..event.number end
+    end
+    if feedback then
+        lg.setColor(0.5,0.95,0.88)
+        lg.print(feedback,w/2,h-78)
+    end
     lg.setColor(0.82,0.85,0.8)
-    centered("WASD muovi  |  SPAZIO calcia  |  E passaggio  |  C tiro  |  P pausa  |  R riavvia  |  TAB nuovo ruolo  |  F1 debug",w/2,h-28)
+    centered("WASD muovi  |  SPAZIO calcia  |  E chiama  |  C tiro  |  P pausa  |  R riavvia  |  TAB nuovo ruolo  |  F1 debug",w/2,h-24)
     if ui.debug then
         lg.setFont(fonts.small)
         lg.setColor(1,1,1,0.88)
@@ -218,9 +252,9 @@ function View.draw(s,ui)
     end
     if ui.mode=="charge" and ui.charging then
         lg.setColor(0.08,0.08,0.08,0.85)
-        lg.rectangle("fill",w/2-56,h-81,112,7,3,3)
+        lg.rectangle("fill",w/2-56,h-105,112,7,3,3)
         lg.setColor(0.99,0.77,0.20)
-        lg.rectangle("fill",w/2-56,h-81,112*(ui.charge/0.6),7,3,3)
+        lg.rectangle("fill",w/2-56,h-105,112*(ui.charge/0.6),7,3,3)
     end
     if ui.chooseRole then
         lg.setColor(0.02,0.04,0.04,0.78)

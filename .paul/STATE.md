@@ -1,31 +1,33 @@
 # PAUL State — Football Physics Lab
 
 **Project:** Football Physics Lab
-**Milestone:** v0.2.2 — Tactical positioning and playable GK
-**Phase:** 03 — Tactical Intelligence
-**Loop:** UNIFY_PARTIAL — gameplay merged via PR #6, both CI suites PASS, LÖVE UAT NOT_RUN
-**Branch for follow-up tests/docs:** test/goalkeeper-selection-and-tactics-docs
-**Gameplay PR:** https://github.com/Askeladd22/FootballPhysicsLab/pull/6 (merged)
-**Tests and documentation PR:** https://github.com/Askeladd22/FootballPhysicsLab/pull/7 (draft)
+**Milestone:** v0.2.3 — Passaggi e ricezione
+**Phase:** 05 — Pass reception
+**Plan:** 05-01, approvato dall'utente con «Implementa»
+**Loop:** UNIFY_PARTIAL — implementazione e verifiche automatiche PASS; UAT umano NOT_RUN
+**Working tree:** main, modifiche locali sulla baseline `41de0a8`; nessun commit o push in questa fase
 **Updated:** 2026-11-19
 
-## Verified
-- PR #6 merged into main (observed on GitHub).
-- Run #44554353825: Lua headless CI SUCCESS on game logic, tactical support, role model and basic renderer checks.
-- New callback-level role-selection and prematch-overlay smoke tests in PR #7: GitHub Actions run #44555581190 completed SUCCESS.
-- Selected human role is GK #1 or RM #10 from prematch screen; the other nine discs remain AI controlled.
+## Verificato
+- Tutte le otto suite locali passano nel LuaJIT installato con LÖVE (LuaJIT 2.1.1700008891 / Lua 5.1).
+- Passaggio originale a 40 unità eseguito dall'IA e ricevuto fisicamente; traiettorie a 5 distanze e 4 velocità iniziali, con rifiuto esplicito della combinazione irraggiungibile.
+- Riceventi fermi/in corsa, entrambe le squadre, rispetto del controllo umano, intercetti precoci e cancellazione degli intenti verificati.
+- Partite da 180 secondi con input scriptato RM e GK, ciascuna ripetuta per determinismo; contabilità dei passaggi coerente a ogni tick.
+- Rendering reale LÖVE fuori schermo a 920×610, 1280×800 e 1920×1080; HUD controllato visivamente alle prime due risoluzioni.
+- Workflow CI aggiornato per Lua 5.4 e LuaJIT; nuova CI remota non eseguita.
 
-## Not verified
-- Manual LÖVE 5v5 playtest as goalkeeper and midfielder.
-- Real rendering legibility at multiple resolutions and team-movement quality.
-- Actual pass completion statistics during entire matches.
-- Etrusco Unico reference design rights for commercial redistribution.
+## Non verificato e limiti
+- Playtest umano completo da portiere e centrocampista, divertimento e bilanciamento.
+- LuaLS assente: revisione manuale del sorgente, nessuna diagnostica LSP dichiarata.
+- Le statistiche contano il primo contatto utile, non il possesso stabile. Le frequenze delle partite scriptate non rappresentano il comportamento dei giocatori.
+- Anticipo a velocità costante e velocità d'arrivo desiderata restano parametri provvisori.
+- Diritti dell'asset Etrusco per distribuzione commerciale: invariati e non verificati.
 
-## Plans and summary
-- .paul/phases/03-tactical-intelligence/03-01-PLAN.md
-- .paul/phases/03-tactical-intelligence/03-02-PLAN.md
-- .paul/phases/03-tactical-intelligence/03-01-02-SUMMARY.md
-- docs/TacticalPlayGuide.md
+## Artefatti
+- .paul/phases/05-pass-reception/05-01-PLAN.md
+- .paul/phases/05-pass-reception/05-01-SUMMARY.md
+- README.md, PLANNING.md, docs/TacticalPlayGuide.md
+- Le prove storiche delle fasi 03 e 04 restano nei rispettivi SUMMARY.
 
-## Single next action
-Play one full match as blue GK #1 and report any issue with positioning, clearances, opponent attacks or teammate movement.
+## Prossima azione unica
+Eseguire un playtest umano della build corrente: una partita RM e una GK, annotando ricezioni mancate, smarcamenti utili e chiarezza del feedback.

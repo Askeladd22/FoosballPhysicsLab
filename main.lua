@@ -1,4 +1,4 @@
--- Football Physics Lab - Match Lab v0.2
+-- Football Physics Lab - Match Lab v0.2.3
 -- Single-player, fixed-step physics, one permanently controlled disc.
 local Sim=require("src.sim")
 local View=require("src.view")
@@ -12,7 +12,7 @@ local function axis(positive,negative)
     return (positive and 1 or 0)-(negative and 1 or 0)
 end
 function love.load()
-    love.window.setTitle("Football Physics Lab - Match Lab 0.2.1")
+    love.window.setTitle("Football Physics Lab - Match Lab 0.2.3")
     love.window.setMode(1280,800,{vsync=1,resizable=true,minwidth=920,minheight=610})
     match=Sim.new()
     View.load()

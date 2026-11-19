@@ -1,6 +1,7 @@
 -- Match Lab v0.2.1: autonomous football with stable steering and physical passing.
 local AI={}
 local Tactics=require("src.tactics")
+local Passing=require("src.passing")
 local sqrt,min,max,abs=math.sqrt,math.min,math.max,math.abs
 local function clamp(v,a,b) return max(a,min(b,v)) end
 local function length(x,y) return sqrt(x*x+y*y) end
@@ -47,7 +48,7 @@ end
 local function passOption(s,p)
     local b=s.ball
     local attack=p.team==1 and 1 or -1
-    local best,bestScore,bestRisk=nil,-math.huge,math.huge
+    local best,bestScore,bestRisk,bestPlan=nil,-math.huge,math.huge,nil
     local closestToBall=math.huge
     for _,enemy in ipairs(s.players) do
         if enemy.team~=p.team then
@@ -58,11 +59,11 @@ local function passOption(s,p)
     local pressured=closestToBall<10
     for _,mate in ipairs(s.players) do
         if mate.team==p.team and mate~=p then
-            local leadX=clamp(mate.x+mate.vx*0.18,4,s.field.w-4)
-            local leadY=clamp(mate.y+mate.vy*0.18,6,s.field.h-6)
-            local dx,dy=leadX-b.x,leadY-b.y
-            local d=length(dx,dy)
-            if d>5.5 and d<48 then
+            local plan=Passing.plan(s,p,mate)
+            if plan then
+                local leadX,leadY=plan.targetX,plan.targetY
+                local dx,dy=leadX-b.x,leadY-b.y
+                local d=length(dx,dy)
                 local risk=laneRisk(s,b.x,b.y,leadX,leadY,p.team)
                 local receiverGap=math.huge
                 for _,enemy in ipairs(s.players) do
@@ -88,11 +89,12 @@ local function passOption(s,p)
                 if leadY<9 or leadY>s.field.h-9 then score=score-4 end
                 if score>bestScore then
                     best,bestScore,bestRisk=mate,score,risk
+                    bestPlan=plan
                 end
             end
         end
     end
-    return best,bestScore,bestRisk
+    return best,bestScore,bestRisk,bestPlan
 end
 -- Only the genuinely closest appropriate player presses; sticky assignment
 -- prevents alternating pressers every 100 ms when distances are comparable.
@@ -149,11 +151,9 @@ local function chooseAction(s,p)
        laneRisk(s,b.x,b.y,goalX,f.h/2,p.team)<8 then
         return goalX,f.h/2,1.0,"shot"
     end
-    local mate,score,risk=passOption(s,p)
+    local mate,score,risk,plan=passOption(s,p)
     if mate and score>-7 and risk<9 then
-        local tx=clamp(mate.x+mate.vx*0.18,4,f.w-4)
-        local ty=clamp(mate.y+mate.vy*0.18,7,f.h-7)
-        return tx,ty,0.70,"pass"
+        return plan.aimX,plan.aimY,plan.power,"pass",plan
     end
     local tx,ty=safeForward(s,p.team)
     return tx,ty,0.55,"advance"
@@ -164,12 +164,23 @@ function AI.update(s)
     local chosen=pressers(s)
     for _,p in ipairs(s.players) do
         if p~=s.controlled then
-            if p==s.setPieceTaker and s.setPieceProtect>0 then
+            local pass=s.activePass
+            if pass and pass.receiver and pass.team==p.team then
+                if p==pass.receiver then
+                    local x,y=Passing.receivePoint(s,p)
+                    toward(s,p,x,y)
+                    p.decision="receive"
+                else
+                    local x,y=Tactics.supportPoint(s,p)
+                    toward(s,p,x,y)
+                    p.decision="support"
+                end
+            elseif p==s.setPieceTaker and s.setPieceProtect>0 then
                 local x,y=Tactics.supportPoint(s,p)
                 toward(s,p,x,y)
                 p.decision="recover"
             elseif p==chosen[p.team] then
-                local tx,ty,power,action=chooseAction(s,p)
+                local tx,ty,power,action,plan=chooseAction(s,p)
                 local ux,uy=norm(tx-b.x,ty-b.y)
                 local dx,dy=b.x-p.x,b.y-p.y
                 local d=length(dx,dy)
@@ -177,8 +188,11 @@ function AI.update(s)
                 local face=ux*nx+uy*ny
                 -- A player must approach the correct side of the ball.
                 -- Never change the ball's direction without contact.
-                if d<=p.r+b.r+0.95 and face>0.59 and p.cooldown<=0 then
-                    if s.kick(p,tx,ty,power,action) then
+                if d<=p.r+b.r+0.95 and face>0.59 and p.cooldown<=0
+                    and (not plan or Passing.canLaunch(s,p,plan)) then
+                    if s.kick(p,tx,ty,power,action,plan) then
+                        local x,y=Tactics.supportPoint(s,p)
+                        toward(s,p,x,y)
                         p.decision=action
                         if action=="pass" then
                             s.aiPassAttempts=(s.aiPassAttempts or 0)+1

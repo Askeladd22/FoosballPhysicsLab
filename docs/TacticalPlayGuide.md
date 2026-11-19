@@ -13,9 +13,9 @@ Una squadra schiera **GK, DF, LM, RM, ST**. Il giocatore controlla **un solo dis
 | Triangoli e rombi | I centrocampisti cercano corsie laterali distinte, il difensore offre sostegno arretrato e la punta profondità |
 | Ruoli non rigidi | I target seguono la palla e cambiano in attacco, neutralità e difesa |
 | Rotazione nei vuoti | Quando #10 occupa la corsia di un compagno, il compagno sceglie un supporto alternativo |
-| Anticipare l'azione | Il supporto tiene conto della posizione della palla prima dell'arrivo del passaggio |
-| Passing / back-passing | Si valuta progresso, rischio di intercettazione, pressione sul ricevente e appoggio arretrato libero |
-| Chiama passaggio (E) | #10 è favorito solo se la sua linea è sufficientemente sicura; il compagno non è obbligato |
+| Anticipare l'azione | Potenza e anticipo dipendono dalla fisica; il ricevente IA cerca un punto di incontro sulla traiettoria mentre gli altri offrono supporto |
+| Passing / back-passing | Si valuta raggiungibilità, progresso, rischio di intercettazione, pressione sul ricevente e appoggio arretrato libero |
+| Chiama passaggio (E) | Il disco umano è favorito solo se la linea è sicura e il passaggio raggiungibile; la richiesta ha conferma visiva ma non obbliga il compagno |
 | Difesa | Un incaricato pressa e gli altri mantengono coperture tra pallone e porta |
 
 Il sistema non garantisce che ogni azione sia tatticamente ottimale: la qualità del calcio collettivo è ancora da verificare durante partite complete.
@@ -35,5 +35,7 @@ Il sistema non garantisce che ogni azione sia tatticamente ottimale: la qualità
 3. Segui con **F1** le destinazioni dell'IA: cerca triangoli, ampiezza e sostegno arretrato.
 4. Giocando da portiere, muoviti con **WASD** e usa **Spazio** per rinviare. La palla non si aggancia automaticamente.
 5. **R** riavvia con lo stesso ruolo; **TAB** abbandona il match e apre una nuova selezione.
+6. Un anello turchese indica il destinatario blu. Se sei tu, vai incontro al pallone: la croce indica il punto previsto e non muove automaticamente il disco.
+7. Leggi i contatori di ciascuna squadra: **Ricevuti = contatti utili/tentativi**, **Intercettati = primo tocco avversario**, **Persi = azioni scadute o interrotte**. Una ricezione non garantisce il mantenimento del possesso. I passaggi ancora in volo sono inclusi nei tentativi; i calci manuali non sono classificati come passaggi.
 
 **Nota UAT:** la guida documenta l'intenzione delle regole e quanto è presente nel codice. I test automatici verificano scenari deterministici ma non sostituiscono un playtest in LÖVE2D.
