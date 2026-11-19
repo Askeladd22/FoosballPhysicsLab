@@ -17,7 +17,16 @@ local function norm(x,y)
 end
 -- Velocity control includes braking, unlike a full-strength direction chase.
 -- Returning analog input (0..1) is important: sim.lua must not normalize it.
-local function toward(s,p,x,y)
+local function toward(s,p,x,y,steady)
+    if steady then
+        local ox,oy=p.supportX,p.supportY
+        if ox and oy and length(x-ox,y-oy)<1.75 and length(p.x-ox,p.y-oy)<8 then
+            x,y=ox,oy
+        end
+        p.supportX,p.supportY=x,y
+    else
+        p.supportX,p.supportY=nil,nil
+    end
     local dx,dy=x-p.x,y-p.y
     local d=length(dx,dy)
     p.targetX,p.targetY=x,y
@@ -40,7 +49,7 @@ local laneRisk=Space.laneRisk
 function AI.reset(s)
     s.aiPassMemory={}
     s.aiTransition=nil
-    for _,p in ipairs(s.players) do p.aiIntent=nil;p.aiScores=nil end
+    for _,p in ipairs(s.players) do p.aiIntent=nil;p.aiScores=nil;p.supportX=nil;p.supportY=nil end
 end
 function AI.noteKick(s,p,action,plan)
     s.aiPassMemory=s.aiPassMemory or {}
@@ -379,12 +388,12 @@ function AI.update(s)
                     p.decision="receive"
                 else
                     local x,y=support(p)
-                    toward(s,p,x,y)
+                    toward(s,p,x,y,true)
                     p.decision="support"
                 end
             elseif p==s.setPieceTaker and s.setPieceProtect>0 then
                 local x,y=support(p)
-                toward(s,p,x,y)
+                toward(s,p,x,y,true)
                 p.decision="recover"
             elseif p==chosen[p.team] then
                 local tx,ty,power,action,plan=chooseAction(s,p)
@@ -439,7 +448,7 @@ function AI.update(s)
                 end
             else
                 local x,y=support(p)
-                toward(s,p,x,y)
+                toward(s,p,x,y,true)
                 local target=teamTargets[p.team][p]
                 p.decision=p.role=="GK" and "goalkeeper" or
                     (target and target.mark and "mark_zone") or

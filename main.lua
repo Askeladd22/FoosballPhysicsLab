@@ -79,6 +79,8 @@ function love.keypressed(key,_,isrepeat)
         end
     elseif key=="f1" then
         ui.debug=not ui.debug
+    elseif key=="f2" and not isrepeat then
+        match.autoCoachEnabled=not match.autoCoachEnabled
     elseif key=="n" then
         match.params.maxSpeed=math.max(4.5,match.params.maxSpeed-0.4)
     elseif key=="m" then

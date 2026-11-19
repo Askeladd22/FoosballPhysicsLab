@@ -129,6 +129,7 @@ assert(unstable.coaches[1].nextReview==nextReview,"coach advanced while paused")
 
 -- Exercise the production Sim.step hook, not just calls to the coach module.
 local integrated=fixture("compact")
+integrated.autoCoachEnabled=true
 integrated.aiTimer=-1000 -- Keep the observed block still until coaching reacts.
 local human=integrated.controlled
 for _=1,3100 do

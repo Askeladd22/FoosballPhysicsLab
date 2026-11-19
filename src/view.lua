@@ -162,6 +162,18 @@ local function drawBall(s,scale,ox,oy,debug)
         tint(orange,0.8);lg.line(bx,by,bx+b.vx*scale*0.18,by+b.vy*scale*0.18)
     end
 end
+local function drawHumanAim(s,scale,ox,oy)
+    if s.phase~="play" then return end
+    local p,b=s.controlled,s.ball
+    local dx,dy=p.x-b.x,p.y-b.y
+    if dx*dx+dy*dy>(p.r+b.r+3.5)^2 then return end
+    local vx,vy=p.facingX or 1,p.facingY or 0
+    local sx,sy=ox+b.x*scale,oy+b.y*scale
+    local ex,ey=sx+vx*11*scale,sy+vy*11*scale
+    tint(cyan,0.45);lg.setLineWidth(1.5)
+    lg.line(sx,sy,ex,ey)
+    lg.circle("line",ex,ey,3)
+end
 local function drawPassTarget(s,scale,ox,oy,debug)
     local pass=s.activePass
     if not pass or not pass.receiver or (pass.team~=1 and not debug) then return end
@@ -237,15 +249,16 @@ local function hud(s,ui,w,h)
         lg.setFont(fonts.micro);tint(cyan);lg.print(controlHint,w/2-116,h-47)
     end
     local feedback
-    if s.activePass and s.activePass.receiver==s.controlled then feedback="Passaggio per te: vai incontro"
-    elseif s.combinationFeedback and s.combinationFeedback.expires>s.elapsed and
+    if s.actionFeedback and s.actionFeedback.expires>s.elapsed then feedback=s.actionFeedback.message end
+    if not feedback and s.activePass and s.activePass.receiver==s.controlled then feedback="Passaggio per te: vai incontro"
+    elseif not feedback and s.combinationFeedback and s.combinationFeedback.expires>s.elapsed and
         s.combinationFeedback.player==s.controlled then
         local kind=s.combinationFeedback.kind
         local labels={one_two_run="Uno-due: attacca lo spazio",one_two_return="Uno-due: torna incontro",
             one_two_complete="Uno-due completato"}
         feedback=labels[kind]
-    elseif s.requestTimer>0 then feedback="Richiesta inviata: cerca spazio"
-    elseif s.passFeedback and s.elapsed-s.passFeedback.at<1.8 then
+    elseif not feedback and s.requestTimer>0 then feedback="Richiesta inviata: cerca spazio"
+    elseif not feedback and s.passFeedback and s.elapsed-s.passFeedback.at<1.8 then
         local e=s.passFeedback
         local labels={completed="ricevuto",intercepted="intercettato",missed="perso"}
         feedback=(e.team==1 and "CYAN" or "ARANCIO")..": passaggio "..labels[e.result]
@@ -266,7 +279,9 @@ local function hud(s,ui,w,h)
     end
     lg.setColor(0.49,0.63,0.71)
     centered("WASD muovi | SHIFT scatto | CTRL controlla/proteggi | SPAZIO passa | TIENI SPAZIO tira",w/2,h-24)
-    centered("Q + SPAZIO uno-due | E chiama | T allenatore IA | P pausa | R reset | TAB nuovo match | F1 debug | F11 schermo",w/2,h-12)
+    centered("Q + SPAZIO uno-due | E chiama | F2 tattica "..
+        (s.autoCoachEnabled and "AUTO" or "STABILE")..
+        " | T rapporto | P pausa | R reset | F1 debug | F11 schermo",w/2,h-12)
     if ui.charging then
         lg.setColor(0.05,0.1,0.15);lg.rectangle("fill",w/2-60,h-68,120,4)
         local shooting=ui.charge>=0.18
@@ -291,6 +306,7 @@ function View.draw(s,ui)
         for y=oy,oy+ph-7,14 do lg.line(x,y,x,min(y+7,oy+ph)) end
     end
     for _,p in ipairs(s.players) do drawPlayer(p,s,scale,ox,oy,ui.debug) end
+    drawHumanAim(s,scale,ox,oy)
     drawPassTarget(s,scale,ox,oy,ui.debug)
     drawBall(s,scale,ox,oy,ui.debug)
     scoreboard(s,w);hud(s,ui,w,h);status(s,w,h)
