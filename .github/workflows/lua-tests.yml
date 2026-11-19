@@ -77,3 +77,7 @@ jobs:
         run: ${{ matrix.lua }} tests/test_main_roles.lua
       - name: Mocked 2D view smoke
         run: ${{ matrix.lua }} tests/test_view.lua
+      - name: Foosball independent LÖVE modules syntax
+        run: for source in experiments/foosball/*.lua; do luac5.4 -p "$source" || exit 1; done
+      - name: Foosball mouse rods and ball physics
+        run: ${{ matrix.lua }} tests/test_foosball.lua
