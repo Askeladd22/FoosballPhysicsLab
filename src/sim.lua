@@ -82,6 +82,8 @@ local function resetPositions(s,kickoffTeam)
     s.aiTimer=0
     s.pressers={}
     s.presserSince={}
+    s.pendingHumanPass=nil
+    s.actionFeedback=nil
 end
 function Sim.new(controlRole,teamSize)
     -- Select one permanent human-controlled disc for the entire match.
@@ -101,11 +103,12 @@ function Sim.new(controlRole,teamSize)
             restitution=0.36,playerRestitution=0.16,
             wallBounce=0.64,kickSpeed=26,passMultiplier=1.35
         },
-        ball={x=60,y=35,vx=0,vy=0,r=0.83,mass=0.65},
+        ball={x=60,y=35,vx=0,vy=0,r=teamSize==11 and 0.62 or 0.83,mass=0.65},
         players={},score={0,0},elapsed=0,limit=300,phase="kickoff",clockStarted=false,
         offsideCount={0,0},
         phaseClock=0,aiTimer=0,requestTimer=0,lastTouch=0,
-        controlled=nil,totalKicks=0,passAttempts=0,shotAttempts=0,
+        controlled=nil,autoCoachEnabled=false,pendingHumanPass=nil,actionFeedback=nil,
+        totalKicks=0,passAttempts=0,shotAttempts=0,
         restartCount=0,lastAction="",lastKickTime=-100,
         pressers={},presserSince={},setPiece=nil,setPieceProtect=0
     }
@@ -118,8 +121,8 @@ function Sim.new(controlRole,teamSize)
                 team=team,role=r[1],number=r[2],
                 homeX=x,homeY=y,x=x,y=y,
                 vx=0,vy=0,moveX=0,moveY=0,
-                r=1.32,mass=3.1,cooldown=0,sprinting=false,
-                targetX=x,targetY=y,decision="hold"
+                r=teamSize==11 and 1.10 or 1.32,mass=3.1,cooldown=0,sprinting=false,
+                targetX=x,targetY=y,decision="hold",facingX=team==1 and 1 or -1,facingY=0
             }
             s.players[#s.players+1]=p
             if team==1 and r[1]==controlRole then s.controlled=p end
@@ -149,11 +152,18 @@ function Sim.restart(s)
 end
 -- Kicks have an impulse, not an ownership or auto-pass animation.
 function Sim.kick(s,p,tx,ty,power,action,plan)
-    if s.phase~="play" or p.cooldown>0 then return false end
+    if s.phase~="play" then return false end
+    if p.cooldown>0 then
+        if p==s.controlled then s.actionFeedback={message="Calcio in recupero",expires=s.elapsed+0.65} end
+        return false
+    end
     local b=s.ball
     local dx,dy=b.x-p.x,b.y-p.y
     local d=sqrt(dx*dx+dy*dy)
-    if d<0.0001 or d>p.r+b.r+1.05 then return false end
+    if d<0.0001 or d>p.r+b.r+1.05 then
+        if p==s.controlled then s.actionFeedback={message="Avvicinati alla palla per passare",expires=s.elapsed+0.8} end
+        return false
+    end
     if Offside.involved(s,p) then awardOffside(s,p); return false end
     if s.directRestart and s.directRestart.taker~=p then s.directRestart=nil end
     Combinations.onTouch(s,p)
@@ -170,7 +180,24 @@ function Sim.kick(s,p,tx,ty,power,action,plan)
         goalFactor<=Passing.travelFactor(s.params.ballDrag,8) and
         abs(b.y+b.vy*goalFactor-s.field.h/2)<s.field.goalHalf+b.r
     Offside.touch(s,p,not save,exempt)
-    b.vx,b.vy=Passing.kickVelocity(s,p,tx,ty,power,action)
+    if action=="pass" and p==s.controlled and tx and ty then
+        -- A manual pass uses the chosen aim vector but still requires real ball contact.
+        -- AI passes retain their contact-geometry planner unchanged.
+        local ax,ay=tx-b.x,ty-b.y
+        local n=sqrt(ax*ax+ay*ay)
+        if n>0.0001 then
+            ax,ay=ax/n,ay/n
+            local approach=max(0,p.vx*ax+p.vy*ay)
+            local impulse=s.params.kickSpeed*clamp(power or 1,0.45,1.35)*
+                s.params.passMultiplier+approach*0.12
+            b.vx,b.vy=b.vx+ax*impulse,b.vy+ay*impulse
+        else
+            b.vx,b.vy=Passing.kickVelocity(s,p,tx,ty,power,action)
+        end
+    else
+        b.vx,b.vy=Passing.kickVelocity(s,p,tx,ty,power,action)
+    end
+    if p==s.controlled then s.actionFeedback=nil end
     p.cooldown=0.34
     s.totalKicks=s.totalKicks+1
     s.lastTouch=p.team
@@ -188,15 +215,23 @@ function Sim.kick(s,p,tx,ty,power,action,plan)
 end
 -- A tap seeks a physically reachable teammate in the current contact direction.
 -- No teleport, forced possession or movement of the human receiver is used.
-function Sim.pass(s,p,oneTwo)
+function Sim.pass(s,p,oneTwo,aimX,aimY)
+    local ax,ay=aimX or p.facingX or 1,aimY or p.facingY or 0
+    local d=sqrt(ax*ax+ay*ay)
+    if d<0.0001 then ax,ay=p.team==1 and 1 or -1,0 else ax,ay=ax/d,ay/d end
     local best,cost=nil,math.huge
     for _,mate in ipairs(s.players) do
         if mate.team==p.team and mate~=p and not Offside.inPosition(s,mate) then
             local plan=Passing.plan(s,p,mate)
-            if plan and Passing.canLaunch(s,p,plan) then
-                local risk=AI.laneRisk(s,s.ball.x,s.ball.y,plan.targetX,plan.targetY,p.team)
-                local value=distance(mate,s.ball)+risk*3
-                if value<cost then best,cost=plan,value end
+            if plan then
+                local dx,dy=plan.targetX-s.ball.x,plan.targetY-s.ball.y
+                local distance=sqrt(dx*dx+dy*dy)
+                local alignment=distance>0 and (dx*ax+dy*ay)/distance or -1
+                if alignment>=0.55 then
+                    local risk=AI.laneRisk(s,s.ball.x,s.ball.y,plan.targetX,plan.targetY,p.team)
+                    local value=(1-alignment)*24+distance*0.12+risk*2.5
+                    if value<cost then best,cost=plan,value end
+                end
             end
         end
     end
@@ -204,8 +239,9 @@ function Sim.pass(s,p,oneTwo)
         best.oneTwo=oneTwo==true
         return Sim.kick(s,p,best.aimX,best.aimY,best.power,"pass",best)
     end
-    return Sim.kick(s,p,nil,nil,0.52,"pass")
+    return Sim.kick(s,p,s.ball.x+ax*15,s.ball.y+ay*15,0.72,"pass")
 end
+
 local function resolvePair(a,b,restitution)
     local dx,dy=b.x-a.x,b.y-a.y
     local d2=dx*dx+dy*dy
@@ -372,6 +408,16 @@ local function activateSetPiece(s,power)
     s.aiTimer=0
 end
 -- Earliest complete crossing in the step wins, including diagonal corner exits.
+local function bounceTouchlines(s)
+    local b,f=s.ball,s.field
+    if b.y<b.r then
+        b.y=b.r
+        b.vy=abs(b.vy)*s.params.wallBounce
+    elseif b.y>f.h-b.r then
+        b.y=f.h-b.r
+        b.vy=-abs(b.vy)*s.params.wallBounce
+    end
+end
 local function outOfPlay(s,oldX,oldY)
     local b,f=s.ball,s.field
     local side,bestT=nil,math.huge
@@ -381,8 +427,6 @@ local function outOfPlay(s,oldX,oldY)
             if t<bestT then side,bestT=name,t end
         end
     end
-    cross("top",oldY,b.y,-b.r,true)
-    cross("bottom",oldY,b.y,f.h+b.r,false)
     cross("left",oldX,b.x,-b.r,true)
     cross("right",oldX,b.x,f.w+b.r,false)
     if not side then return false end
@@ -436,8 +480,9 @@ function Sim.step(s,dt,input)
         end
         return
     end
+    bounceTouchlines(s)
     if outOfPlay(s,s.ball.x,s.ball.y) then return end
-    Coach.update(s,dt)
+    if s.autoCoachEnabled then Coach.update(s,dt) end
     Passing.update(s)
     Combinations.update(s)
     s.setPieceProtect=max(0,s.setPieceProtect-dt)
@@ -452,6 +497,10 @@ function Sim.step(s,dt,input)
     end
     local human=s.controlled
     human.moveX,human.moveY=input.x or 0,input.y or 0
+    if human.moveX*human.moveX+human.moveY*human.moveY>0.01 then
+        local magnitude=sqrt(human.moveX*human.moveX+human.moveY*human.moveY)
+        human.facingX,human.facingY=human.moveX/magnitude,human.moveY/magnitude
+    end
     human.protectInput=input.protect==true and not input.pass and not input.kick
     for _,p in ipairs(s.players) do Control.update(s,p,dt) end
     human.sprinting=input.sprint==true and
@@ -479,6 +528,7 @@ function Sim.step(s,dt,input)
     end
     local oldX,oldY=b.x,b.y
     b.x,b.y=b.x+b.vx*dt,b.y+b.vy*dt
+    bounceTouchlines(s)
     if outOfPlay(s,oldX,oldY) then return end
     local contacts={}
     for _,p in ipairs(s.players) do
@@ -513,8 +563,21 @@ function Sim.step(s,dt,input)
         end
     end
     s.ballContacts=contacts
-    if input.pass then Sim.pass(s,human,input.oneTwo)
-    elseif input.kick then Sim.kick(s,human,nil,nil,input.kick,input.shot and "shot" or nil) end
+    if input.pass then
+        s.pendingHumanPass={oneTwo=input.oneTwo,aimX=human.facingX,
+            aimY=human.facingY,expires=s.elapsed+0.18}
+    end
+    if s.pendingHumanPass then
+        local pending=s.pendingHumanPass
+        if s.elapsed>pending.expires then s.pendingHumanPass=nil
+        elseif Sim.pass(s,human,pending.oneTwo,pending.aimX,pending.aimY) then
+            s.pendingHumanPass=nil
+        end
+    end
+    if input.kick then
+        s.pendingHumanPass=nil
+        Sim.kick(s,human,nil,nil,input.kick,input.shot and "shot" or nil)
+    end
     if s.phase~="play" then return end
     local f=s.field
     for _,x in ipairs({0,f.w}) do

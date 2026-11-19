@@ -79,3 +79,7 @@ un playtest umano RM/GK confrontando ruoli e istruzioni opposti.
 
 
 Verifica finale 19 novembre 2026: tutte le 30 suite LuaJIT PASS, incluse due partite complete da 300 secondi e uno-due fisici con il ritmo rallentato. Rendering nativo del rapporto allenatore: 12 catture, tre risoluzioni, con decisione automatica verificata. Il conteggio precedente di 31 includeva una suite ritmo separata non creata: la velocità è coperta dalle regressioni sprint, passaggi e partite. Ricezione IA smorzata solo al contatto, entro il limite di impulso; nessun possesso agganciato. UAT umano e CI remota non eseguiti.
+
+
+## Phase 14 branch: Gameplay Recovery (not merged)
+A separate experimental branch introduces directional human passing, shorter retry buffer with HUD feedback, smaller 11v11 discs/ball, support-intent deadband, F2 coach A/B, and restored top/bottom arena rails. All prior phases on main remain preserved; PR/CI and human UAT must be checked before adopting these changes. Foosball remains a distinct, unimplemented alternative.

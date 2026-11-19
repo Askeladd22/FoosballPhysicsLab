@@ -15,7 +15,7 @@ To compare the earlier ball-control sandbox, run `love legacy/physics_lab_01`.
 | **1 / 2 (before match)** | Choose cyan **goalkeeper #1** / **midfielder #10** |
 | WASD / arrows | Move your selected cyan disc |
 | Hold left/right Shift | Sprint: 40% more acceleration and maximum speed; release to run normally |
-| Tap Space | Pass to a physically reachable teammate, or into space |
+| Tap Space | Directional pass: aligned teammate or aimed free space (movement / last facing) |
 | Hold and release Space | Charge and shoot (0.18s threshold, maximum at 0.75s) |
 | Hold left/right Ctrl near the ball | Cushion a real contact and protect the ball at reduced speed; direction input orients the touch |
 | Hold Q while releasing a Space tap | Request a physical one-two; move your own player to offer the return |
@@ -35,7 +35,7 @@ To compare the earlier ball-control sandbox, run `love legacy/physics_lab_01`.
 
 The camera fits the unchanged **105 x 68** pitch into the window. At 920 x 610, 1280 x 800 and 1920 x 1080, the field occupies approximately **714 x 462**, **980 x 635** and **1372 x 889** pixels respectively. A larger view does not change the simulation scale or player speed.
 
-**Prototype rules:** 11 versus 11, on a 105 x 68 field with 7.32-wide goals. The AI coach assigns formations, roles, duties and instructions automatically. The whole ball must cross a line: touchlines award throw-ins to the opponents of the last toucher; goal-line exits award corners or goal kicks. Soft deflections count as touches. A direct throw-in cannot score. AI takes throw-ins/corners; the human goalkeeper takes goal kicks with Space. Sprint has no stamina meter yet.
+**Prototype rules (gameplay recovery):** 11 versus 11, 105 x 68 units and 7.32-wide goals. For this experiment the upper/lower touchlines **bounce** rather than award throw-ins; the endlines still award corners and goal kicks. Live AI coach changes are **disabled by default** to isolate the gameplay core; press **F2** to compare against the adapting tactical AI. Real contacts still govern all passes and shots.
 
 **Match clock:** five minutes from kickoff, including restarts; pause stops the clock. Offside is sampled at teammate touches and enforced on involvement, with exemptions for direct throw-ins, goal kicks and corners. Deliberate opponent play resets the phase; deflections and saves preserve it.
 
@@ -130,3 +130,5 @@ The **AI coach decides formations, roles, duties and instructions automatically*
 The tactical model provides **45 roles**, their available duties, **five formations** (4-4-2, 4-3-3, 4-2-3-1, 3-5-2, 5-2-3), **19 active team instructions** and **16 active individual instructions**. Six team rows and two individual rows remain unavailable because their required systems are absent. The coach's choices affect AI support, pressing, passing, carrying, shooting and ground crosses. They do not automate the human player's movement or Space decisions. Tactical changes preserve live bodies, score, clock and the controlled object.
 
 FM24 names and Italian labels were verified in local language resources; the behaviour coefficients and interface are original. Active position compatibility and the full locked-instruction matrix were not extracted from the FM24 engine. See [tactical centre usage and limits](docs/FM24-Tactics.md) and [role catalog and source confidence](docs/FM24-Role-Catalog.md). Human tactical balance remains unverified.
+
+**Recovery controls:** F2 toggles automatic coaching (off by default). Manual pass uses WASD/arrow direction or last facing; aim line appears near ball; brief input buffer and visible failure hint.

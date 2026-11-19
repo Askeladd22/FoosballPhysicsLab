@@ -97,16 +97,15 @@ local receiver=AI.passOption(request,reqPasser)
 check(receiver==request.controlled,
       "AC-5: pass request should help selection when lane is clear")
 
--- Sidelines now stop play and award a throw-in to the opponents.
+-- Touchline exits now rebound from arena rails without restarts.
 for _,side in ipairs({"top","bottom"}) do
     local r=Sim.new(nil,5)
-    r.phase="play"; r.setPiece=nil; r.lastTouch=1
-    r.ball.x=60; r.ball.y=side=="top" and -3 or r.field.h+3
+    r.phase="play";r.setPiece=nil;r.lastTouch=1;r.aiTimer=-1000
+    r.ball.x=60;r.ball.y=side=="top" and -3 or r.field.h+3
+    r.ball.vy=side=="top" and -8 or 8
     Sim.step(r,dt)
-    check(r.phase=="restart" and r.setPiece.kind=="throw_in" and
-        r.setPiece.team==2,"incorrect throw-in "..side)
-    tick(r,100)
-    check(r.phase=="play" and r.totalKicks==1,"throw-in failed "..side)
+    check(r.phase=="play" and not r.setPiece and r.restartCount==0,"rail stopped play "..side)
+    check(r.ball.y>=r.ball.r and r.ball.y<=r.field.h-r.ball.r,"rail failed "..side)
 end
 
 -- Existing goal-line restarts outside the posts remain intact.
@@ -161,4 +160,4 @@ Sim.restart(a)
 check(a.score[1]==0 and a.score[2]==0 and a.elapsed==0 and
       a.controlled==a.players[4],"AC-6: restart state")
 
-print("PASS: kickoff, analog steering, sticky press, real passes, two goal-line restarts, throw-ins, scoring, identity, deterministic match")
+print("PASS: kickoff, analog steering, sticky press, real passes, two goal-line restarts, arena rails, scoring, identity, deterministic match")

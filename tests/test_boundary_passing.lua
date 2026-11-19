@@ -17,19 +17,20 @@ local function ready()
     return s
 end
 
--- A partial crossing is live; the whole ball crossing stops play.
+-- Rails rebound above/below without triggering a throw-in or a pause.
 for _,edge in ipairs({"top","bottom"}) do
     local s=ready()
     s.lastTouch=1
     local b=s.ball
     b.x=60
-    b.y=edge=="top" and -b.r+0.01 or s.field.h+b.r-0.01
-    Sim.step(s,dt)
-    check(s.phase=="play","partial crossing stopped play")
     b.y=edge=="top" and -b.r-0.01 or s.field.h+b.r+0.01
+    b.vy=edge=="top" and -10 or 10
     Sim.step(s,dt)
-    check(s.phase=="restart" and s.setPiece.kind=="throw_in" and
-        s.setPiece.team==2,"whole crossing did not award opponent throw-in")
+    check(s.phase=="play" and not s.setPiece and s.restartCount==0,
+        "arena rail generated a throw-in")
+    check(b.y>=b.r and b.y<=s.field.h-b.r,"ball escaped arena rail")
+    check(edge=="top" and b.vy>0 or edge=="bottom" and b.vy<0,
+        "arena rail failed to reverse direction")
 end
 
 -- A kick of the same base power must be boosted only when classified 'pass'.
@@ -67,4 +68,4 @@ check(score.score[1]==1 and score.phase=="kickoff",
 check(score.setPiece and score.setPiece.kind=="kickoff",
       "AC-2: conceding side did not get kickoff")
 
-print("PASS: whole-ball touchline crossings, 35 percent pass-only boost, shots unchanged, goals")
+print("PASS: touchline bounce, 35 percent pass-only boost, shots unchanged, goals")

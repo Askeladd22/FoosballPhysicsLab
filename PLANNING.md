@@ -136,3 +136,9 @@ Deciso e implementato: rinvio dal fondo al portiere dopo ultimo tocco attaccante
 - **ASSUMED:** soglia tocco0.18s e carica massima0.75s sono valori iniziali da playtestare.
 - **THEN OPEN:** controllo/protezione e uno-due/sovrapposizioni, ora implementati nella fase 12. Valutazione del ruolo ancora aperta; stato corrente in docs/Football-Identity.md.
 - **UNVERIFIED:** bilanciamento umano; palle alte/colpi di testa e arbitraggio completo restano da costruire.
+
+
+## Phase 14 — Gameplay Recovery branch (2026-11-19)
+**DECIDED:** 11v11 remains available; physical ball radii and human-pass aiming adjusted in a reversible branch. Temporary arena rails restore the no-throw-ins preference. Tactical auto-coach is opt-in with F2; the existing role catalog and coach remain for comparative tests. No new career features.
+**OPEN:** A different realistic *foosball* project would need constrained rods and rotational physics, not the present mobile discs. It is a candidate for a separate small comparison prototype, not an authorized replacement of this game.
+**UAT:** human gameplay still NOT_RUN; automated tests cannot prove fun or natural movement.

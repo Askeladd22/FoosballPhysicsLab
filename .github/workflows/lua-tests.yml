@@ -43,6 +43,8 @@ jobs:
         run: ${{ matrix.lua }} tests/test_match_clock.lua
       - name: Physical AI actions
         run: ${{ matrix.lua }} tests/test_ai_match.lua
+      - name: Gameplay recovery input, physics, tactics
+        run: ${{ matrix.lua }} tests/test_gameplay_recovery.lua
       - name: Corner routines and delivery
         run: ${{ matrix.lua }} tests/test_corners.lua
       - name: Tap pass and charged shot inputs
