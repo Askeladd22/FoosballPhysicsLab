@@ -154,6 +154,10 @@ end
 -- Kicks have an impulse, not an ownership or auto-pass animation.
 function Sim.kick(s,p,tx,ty,power,action,plan)
     if s.phase~="play" then return false end
+    -- A contested poke needs one short physical travel interval before
+    -- another actor can counter-strike. Avoid same-decision-tick ping-pong.
+    if s.lastAction=="tackle" and s.lastKicker~=p and
+        s.elapsed-s.lastKickTime<0.09 then return false end
     if p.cooldown>0 then
         if p==s.controlled then s.actionFeedback={message="Calcio in recupero",expires=s.elapsed+0.65} end
         return false
