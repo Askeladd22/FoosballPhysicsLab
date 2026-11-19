@@ -1,18 +1,13 @@
 local Model=require("model")
 local Layout=require("layout")
+local Theme=require("theme")
 local lg=love.graphics
 local match
 local accumulator=0
 local STEP=1/120
 local debugDraw=false
 local fonts={}
-local colors={
-    felt={0.045,0.23,0.19},line={0.49,0.77,0.67},
-    rim={0.30,0.17,0.10},wood={0.48,0.30,0.16},
-    human={0.22,0.74,0.94},away={0.99,0.43,0.30},
-    cream={0.95,0.94,0.80},muted={0.59,0.69,0.68},
-    metal={0.69,0.79,0.78},gold={0.98,0.77,0.36}
-}
+local colors=Theme.colors
 local function paint(c,a)
     lg.setColor(c[1],c[2],c[3],a or 1)
 end
@@ -25,38 +20,7 @@ local function transform()
     return Layout.compute(lg.getDimensions())
 end
 local function pitch()
-    paint(colors.rim)
-    lg.rectangle("fill",-46,-46,Model.W+92,Model.H+92,24,24)
-    paint(colors.wood)
-    lg.rectangle("line",-43,-43,Model.W+86,Model.H+86,22,22)
-    paint(colors.felt)
-    lg.rectangle("fill",0,0,Model.W,Model.H)
-    paint(colors.line,0.22)
-    for i=0,9 do
-        if i%2==0 then lg.rectangle("fill",i*100,0,100,Model.H) end
-    end
-    paint(colors.line,0.58)
-    lg.setLineWidth(2.2)
-    lg.rectangle("line",3,3,Model.W-6,Model.H-6)
-    lg.line(Model.W/2,0,Model.W/2,Model.H)
-    lg.circle("line",Model.W/2,Model.H/2,88)
-    lg.circle("fill",Model.W/2,Model.H/2,4)
-    lg.rectangle("line",0,Model.H/2-160,160,320)
-    lg.rectangle("line",Model.W-160,Model.H/2-160,160,320)
-    lg.rectangle("line",0,Model.H/2-95,48,190)
-    lg.rectangle("line",Model.W-48,Model.H/2-95,48,190)
-    for _,edge in ipairs({-1,1}) do
-        local gx=edge==-1 and -38 or Model.W
-        paint(colors.metal,0.28)
-        lg.rectangle("fill",gx,Model.H/2-Model.GOAL_HALF,38,Model.GOAL_HALF*2)
-        paint(colors.cream,0.7)
-        lg.rectangle("line",gx,Model.H/2-Model.GOAL_HALF,38,Model.GOAL_HALF*2)
-        for i=0,5 do
-            local y=Model.H/2-Model.GOAL_HALF+i*Model.GOAL_HALF*2/5
-            paint(colors.cream,0.13)
-            lg.line(gx,y,gx+38,y)
-        end
-    end
+    Theme.drawGlassTable(lg,Model.W,Model.H,Model.GOAL_HALF)
 end
 local function rods()
     local selected=match.rods[match.selected]
@@ -64,26 +28,36 @@ local function rods()
         local c=r.team==1 and colors.human or colors.away
         local current=r==selected
         if current then
-            paint(colors.gold,0.12)
-            lg.rectangle("fill",r.x-19,-13,38,Model.H+26)
+            -- A subtle selected rod 'light pipe'; no opaque gold column.
+            paint(colors.gold,Theme.glowEnabled and 0.065 or 0.035)
+            lg.rectangle("fill",r.x-15,-15,30,Model.H+30)
+            Theme.glowLine(lg,r.x,-21,r.x,Model.H+25,colors.gold,1,0.36)
         end
         -- Through-table shaft and its fixed chassis guides.
-        paint(colors.metal,current and 0.9 or 0.46)
-        lg.setLineWidth(current and 5 or 3)
+        paint(colors.shadow,0.67)
+        lg.setLineWidth(current and 7 or 5)
+        lg.line(r.x+2,-24,r.x+2,Model.H+28)
+        paint(colors.metal,current and 0.91 or 0.52)
+        lg.setLineWidth(current and 4 or 3)
         lg.line(r.x,-24,r.x,Model.H+28)
+        paint(colors.cream,current and 0.45 or 0.19)
+        lg.setLineWidth(1)
+        lg.line(r.x-1,-24,r.x-1,Model.H+28)
         for _,y in ipairs({-10,Model.H+10}) do
-            paint({0.075,0.085,0.09})
+            paint(colors.shadow)
             lg.circle("fill",r.x,y,13)
-            paint(colors.metal)
+            paint(colors.chassisEdge)
             lg.circle("line",r.x,y,12)
-            paint(c,current and 0.95 or 0.7)
-            lg.rectangle("fill",r.x-5,y-8,10,16,3,3)
+            paint(colors.metal,0.75)
+            lg.circle("line",r.x,y,8)
+            paint(c,current and 0.95 or 0.68)
+            lg.rectangle("fill",r.x-4,y-8,8,16,3,3)
         end
         -- Bumper compression clearly indicates which side hit the mechanical stop.
         if r.stopPulse>0 or r.stopSide~=0 then
             local y=r.stopSide<0 and -10 or Model.H+10
             local pulse=r.stopPulse/0.22
-            paint(colors.gold,0.3+0.6*pulse)
+            paint(colors.gold,0.25+0.5*pulse)
             lg.rectangle("fill",r.x-17,y-7,34,14,5,5)
             if current then
                 paint(colors.gold,0.3*pulse)
@@ -91,11 +65,13 @@ local function rods()
             end
         end
         -- Grip attached to the shaft, distinct from the fixed guide.
-        paint(c,current and 0.95 or 0.7)
+        paint(colors.chassisEdge)
         lg.rectangle("fill",r.x-11,Model.H+18,22,32,5,5)
+        paint(c,current and 0.96 or 0.72)
+        lg.rectangle("fill",r.x-9,Model.H+20,18,28,5,5)
         if current then
-            paint(colors.gold)
-            lg.rectangle("fill",r.x-17,Model.H+43,34,13,6,6)
+            paint(colors.gold,0.89)
+            lg.rectangle("fill",r.x-17,Model.H+43,34,10,6,6)
             lg.setFont(fonts.small)
             lg.print(tostring(i),r.x-5,-34)
         end
@@ -107,35 +83,47 @@ local function rods()
             local central=j==math.ceil(#r.offsets/2)
             -- Socket stays on the real shaft; leg and body lean with the
             -- actual horizontal shoe projection, instead of looking detached.
-            paint({0.01,0.06,0.07},0.42)
-            lg.polygon("fill",r.x-8,fy-13,r.x+10,fy-13,
-                bodyX+11,fy+13,bodyX-9,fy+13)
-            paint(c)
+            paint(colors.shadow,0.72)
+            lg.polygon("fill",r.x-8+3,fy-13+3,r.x+10+3,fy-13+3,
+                bodyX+11+3,fy+13+3,bodyX-9+3,fy+13+3)
+            paint(c,0.90)
             lg.polygon("fill",r.x-9,fy-13,r.x+9,fy-13,
                 bodyX+8,fy+11,bodyX-8,fy+11)
-            paint({0.07,0.11,0.12})
+            paint(colors.cream,0.18)
+            lg.setLineWidth(1.3)
+            lg.line(r.x-6,fy-12,bodyX-6,fy+8)
+            paint(colors.shadow)
             lg.setLineWidth(4)
             lg.line(bodyX,fy+6,fx,fy+6)
-            paint(colors.cream)
-            lg.circle("fill",headX,headY,6)
-            paint({0.06,0.12,0.13})
-            lg.circle("line",headX,headY,6)
+            paint(c)
+            lg.circle("fill",headX,headY,7)
+            paint(colors.cream,0.72)
+            lg.circle("fill",headX-2,headY-2,2.2)
+            paint(colors.shadow,0.72)
+            lg.setLineWidth(1)
+            lg.circle("line",headX,headY,7)
             -- Same rectangle as the collision geometry; NO circular toe.
-            paint({0.01,0.06,0.07},0.4)
+            paint(colors.shadow,0.63)
             lg.rectangle("fill",left+2,top+3,fw,fh,3,3)
             paint(c)
             lg.rectangle("fill",left,top,fw,fh,3,3)
+            paint(colors.cream,0.22)
+            lg.rectangle("fill",left+2,top+2,3,fh-4,1,1)
             -- White is the physical striking edge, gold only outlines the
             -- selected rod. It must remain visibly blue/red, not all yellow.
             if current then
-                paint(colors.gold,0.9)
+                paint(colors.gold,0.91)
                 lg.setLineWidth(2)
                 lg.rectangle("line",left-1.5,top-1.5,fw+3,fh+3,3,3)
             end
             local front=direction==1 and left+fw or left
-            paint(colors.cream)
-            lg.setLineWidth(current and 4 or 3)
-            lg.line(front,top+2,front,top+fh-2)
+            if current then
+                Theme.glowLine(lg,front,top+2,front,top+fh-2,colors.cream,3,0.85)
+            else
+                paint(colors.cream)
+                lg.setLineWidth(3)
+                lg.line(front,top+2,front,top+fh-2)
+            end
             if current and central then
                 -- Only ONE arrow on the active rod: repeated arrows on five
                 -- figures read as spiky shoes in the screenshot.
@@ -158,59 +146,86 @@ local function rods()
 end
 local function drawBall()
     local b=match.ball
-    paint({0,0,0},0.34)
-    lg.circle("fill",b.x+4,b.y+5,b.r+2)
-    paint(colors.cream)
-    lg.circle("fill",b.x,b.y,b.r)
-    paint({0.09,0.17,0.16})
+    -- High contrast on every glass band. Warm white core is never transparent.
+    paint(colors.shadow,0.70)
+    lg.circle("fill",b.x+3,b.y+4,b.r+3)
+    if Theme.glowEnabled then
+        Theme.glowCircle(lg,b.x,b.y,b.r+1,colors.cream)
+    else
+        paint(colors.cream)
+        lg.circle("fill",b.x,b.y,b.r+1)
+    end
+    paint(colors.shadow,0.73)
+    lg.setLineWidth(1.4)
     lg.circle("line",b.x,b.y,b.r)
-    lg.circle("fill",b.x,b.y,3.5)
+    paint(colors.chassis)
+    lg.circle("fill",b.x,b.y,3.2)
+    paint(colors.cream,0.8)
+    lg.circle("fill",b.x-2,b.y-3,2.6)
+    local speed=math.sqrt(b.vx*b.vx+b.vy*b.vy)
+    if Theme.glowEnabled and speed>140 then
+        local factor=math.min(0.062,10/speed)
+        Theme.glowLine(lg,b.x-b.vx*factor,b.y-b.vy*factor,
+            b.x-b.vx*factor*0.34,b.y-b.vy*factor*0.34,colors.cream,1.2,0.35)
+    end
     if debugDraw then
-        paint(colors.gold,0.82)
-        lg.setLineWidth(3)
+        paint(colors.gold,0.9)
+        lg.setLineWidth(2)
         lg.line(b.x,b.y,b.x+b.vx*0.16,b.y+b.vy*0.16)
     end
 end
+
 local function hud(w,h)
     local r=match.rods[match.selected]
-    text("FOOSBALL LAB",38,22,fonts.title,colors.cream)
-    text("Mouse fisico: gesto verticale = scorrimento  |  gesto orizzontale = rotazione",40,65,fonts.normal,colors.muted)
+    text("FOOSBALL LAB",36,18,fonts.title,colors.cream)
+    text("NEON GLASS  /  MOUSE RODS",38,58,fonts.small,colors.human)
+    text("SU/GIU: scorri l'asta    SINISTRA/DESTRA: ruota e colpisci",
+        38,81,fonts.small,colors.muted)
     local score=tostring(match.score[1]).."  :  "..tostring(match.score[2])
-    text(score,w-200,21,fonts.title,colors.gold)
-    text("TU      IA",w-184,67,fonts.small,colors.muted)
-    local bottom=Layout.bounds(w,h).boardBottom+17
+    text(score,w-174,21,fonts.title,colors.cream)
+    text("TU           IA",w-166,66,fonts.small,colors.muted)
+    Theme.glowLine(lg,36,110,w-36,110,colors.etched,1,0.43)
+    local bounds=Layout.bounds(w,h)
+    local bottom=bounds.boardBottom+16
     local angle=math.floor(r.angle*180/math.pi+0.5)
+    -- An optical glass HUD plate; no heavy panels or extra menus.
+    paint(colors.chassis,0.74)
+    lg.rectangle("fill",30,bottom-8,w-60,79,9,9)
+    paint(colors.metal,0.28)
+    lg.setLineWidth(1)
+    lg.rectangle("line",30,bottom-8,w-60,79,9,9)
+    Theme.glowLine(lg,39,bottom-6,170,bottom-6,colors.gold,1.5,0.48)
     text("ASTA "..match.selected.."  /  "..r.kind.."  /  rotazione "..angle.." gradi",
         45,bottom,fonts.normal,colors.cream)
-    if r.stopPulse>0 then
-        text("FINE CORSA",w-195,bottom,fonts.small,colors.gold)
-    end
-    text("Bordo BIANCO = faccia di tiro   |   BLU verso DESTRA   /   ROSSO verso SINISTRA",
-        45,bottom+26,fonts.small,colors.muted)
+    if r.stopPulse>0 then text("FINE CORSA",w-175,bottom,fonts.small,colors.gold) end
+    text("Bordo BIANCO = faccia di tiro   /   BLU: destra   /   ROSSO: sinistra",
+        45,bottom+27,fonts.small,colors.muted)
     local captured=love.mouse.getRelativeMode()
     local help=captured and "MOUSE CATTURATO - ESC per sbloccare" or
-        "Muovi il mouse per giocare - clic per catturarlo e non fermarti ai bordi"
+        "Clic per bloccare il mouse e ruotare senza limiti"
     text(help,45,bottom+52,fonts.small,captured and colors.gold or colors.muted)
-    text("1-4 / rotella: asta    C: piede neutro    - / +: sensibilita    R: ricomincia    F1: collisioni",
-        45,h-40,fonts.small,colors.muted)
+    text("1-4 / rotella: asta     C: piede neutro     - / +: sensibilita     G: glow "..
+        (Theme.glowEnabled and "ON" or "OFF").."     R: reset     F1: debug",
+        39,h-38,fonts.small,colors.muted)
     if match.phase=="goal" or match.phase=="finished" then
         local message=match.phase=="finished" and
-            (match.lastScorer==1 and "VITTORIA! • R per una nuova partita" or "SCONFITTA! • R per riprovare") or
-            (match.lastScorer==1 and "GOL!" or "SEGNA L'IA!")
-        lg.setFont(fonts.title)
-        local width=lg.getFont():getWidth(message)
-        paint({0.04,0.09,0.09},0.91)
-        lg.rectangle("fill",(w-width)/2-22,h/2-25,width+44,68,13,13)
-        text(message,(w-width)/2,h/2-13,fonts.title,colors.gold)
+            (match.lastScorer==1 and "VITTORIA!  /  R: nuova partita" or "SCONFITTA!  /  R: riprova") or
+            (match.lastScorer==1 and "GOL!" or "GOL DELL'IA!")
+        local width=fonts.title:getWidth(message)
+        paint(colors.shadow,0.94)
+        lg.rectangle("fill",(w-width)/2-28,h/2-38,width+56,78,14,14)
+        Theme.glowFrame(lg,(w-width)/2-28,h/2-38,width+56,78,colors.human)
+        text(message,(w-width)/2,h/2-15,fonts.title,colors.cream)
     end
 end
+
 function love.load()
     lg.setDefaultFilter("linear","linear")
     fonts.title=lg.newFont(31)
     fonts.normal=lg.newFont(17)
     fonts.small=lg.newFont(14)
     match=Model.new()
-    love.window.setTitle("FOOSBALL LAB — Mouse Rods")
+    love.window.setTitle("FOOSBALL LAB | Neon Glass")
 end
 function love.update(dt)
     accumulator=accumulator+math.min(dt,0.08)
@@ -224,7 +239,8 @@ function love.update(dt)
 end
 function love.draw()
     local ox,oy,scale,w,h=transform()
-    lg.clear(0.025,0.068,0.074)
+    lg.clear(colors.background[1],colors.background[2],colors.background[3])
+    Theme.drawBackdrop(lg,w,h)
     lg.push()
     lg.translate(ox,oy)
     lg.scale(scale)
@@ -258,6 +274,8 @@ function love.keypressed(key,_,repeatKey)
         match:reset()
     elseif key=="f1" then
         debugDraw=not debugDraw
+    elseif key=="g" then
+        Theme.glowEnabled=not Theme.glowEnabled
     elseif key=="-" or key=="kp-" then
         match.mouseSensitivity.angle=math.max(0.007,match.mouseSensitivity.angle-0.002)
     elseif key=="=" or key=="+" or key=="kp+" then
