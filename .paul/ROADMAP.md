@@ -6,6 +6,7 @@
 - [x] Initial playable match loop, score, clock and HUD (code written; gameplay UAT pending).
 - [x] Code fix proposed for unstable movement, kickoff/restart logic and basic passing (headless CI PASS; LÖVE UAT pending).
 - [x] FM27-inspired classic 2D view in code, with mocked renderer smoke PASS (visual UAT pending).
+- [x] Temporary no-throw-in arena touchlines and +35% pass impulse implemented in PR #8 (automated checks and UAT tracked separately).
 - [ ] Physics and gameplay refinement from actual playtests.
 - [ ] Verify all acceptance criteria in LÖVE and close the milestone.
 
