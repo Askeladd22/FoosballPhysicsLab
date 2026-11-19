@@ -71,7 +71,7 @@ function Sim.new(controlRole)
             acceleration=115,maxSpeed=14.4,playerDrag=8.0,
             ballDrag=1.45,ballStopSpeed=0.12,
             restitution=0.36,playerRestitution=0.16,
-            wallBounce=0.64,kickSpeed=37
+            wallBounce=0.64,kickSpeed=37,passMultiplier=1.35
         },
         ball={x=60,y=35,vx=0,vy=0,r=0.83,mass=0.65},
         players={},score={0,0},elapsed=0,limit=180,phase="kickoff",
@@ -123,7 +123,9 @@ function Sim.kick(s,p,tx,ty,power,action)
         end
     end
     local approach=max(0,p.vx*nx+p.vy*ny)
-    local impulse=s.params.kickSpeed*clamp(power or 1,0.45,1.35)+approach*0.12
+    local categoryMultiplier=action=="pass" and s.params.passMultiplier or 1
+    local impulse=s.params.kickSpeed*clamp(power or 1,0.45,1.35)
+        *categoryMultiplier+approach*0.12
     b.vx,b.vy=b.vx+nx*impulse,b.vy+ny*impulse
     p.cooldown=0.34
     s.totalKicks=s.totalKicks+1
@@ -191,19 +193,14 @@ local function prepareRestart(s,side)
     local team=s.lastTouch==1 and 2 or 1
     local x=clamp(b.x,8,f.w-8)
     local y=clamp(b.y,8,f.h-8)
-    if side=="top" then y=4.75
-    elseif side=="bottom" then y=f.h-4.75
-    elseif side=="left" then x=4.75
+    -- Only goal-line restarts remain. Touchlines act as solid rails.
+    if side=="left" then x=4.75
     else x=f.w-4.75 end
     b.x,b.y=x,y
     b.vx,b.vy=0,0
     local taker=takerForTeam(s,team,b,side)
     local gap=taker.r+b.r+0.48
-    if side=="top" then
-        taker.x,taker.y=x,y-gap
-    elseif side=="bottom" then
-        taker.x,taker.y=x,y+gap
-    elseif side=="left" then
+    if side=="left" then
         taker.x,taker.y=x-gap,y
     else
         taker.x,taker.y=x+gap,y
@@ -241,10 +238,6 @@ local function activateSetPiece(s)
     local tx,ty
     if spec.kind=="kickoff" then
         tx,ty=b.x+attack*17,b.y+(spec.team==1 and -5 or 5)
-    elseif spec.side=="top" then
-        tx,ty=clamp(b.x+attack*12,12,f.w-12),f.h*0.43
-    elseif spec.side=="bottom" then
-        tx,ty=clamp(b.x+attack*12,12,f.w-12),f.h*0.57
     elseif spec.side=="left" then
         tx,ty=f.w*0.28,clamp(b.y,16,f.h-16)
     else
@@ -273,9 +266,17 @@ local function outOfPlay(s)
         resetPositions(s,1)
         return
     end
-    if b.y< -b.r then prepareRestart(s,"top")
-    elseif b.y>f.h+b.r then prepareRestart(s,"bottom")
-    elseif b.x< -b.r then prepareRestart(s,"left")
+    -- The top/bottom touchlines temporarily work as arena walls.
+    -- Clamp at the *ball radius* so that another step cannot restart play.
+    if b.y-b.r<0 then
+        b.y=b.r
+        b.vy=abs(b.vy)*s.params.wallBounce
+    elseif b.y+b.r>f.h then
+        b.y=f.h-b.r
+        b.vy=-abs(b.vy)*s.params.wallBounce
+    end
+    -- Goals above are still scored; non-goal endline exits keep restarts.
+    if b.x< -b.r then prepareRestart(s,"left")
     elseif b.x>f.w+b.r then prepareRestart(s,"right")
     end
 end
