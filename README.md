@@ -58,7 +58,7 @@ The HUD shows each team's **Ricevuti: completed/attempts**, **Intercettati** and
 
 ## Testing
 
-Run each `tests/test_*.lua` file in a separate process with Lua 5.4 or LuaJIT, for example `luajit tests/test_passing.lua` and `luajit tests/test_match_passing.lua`. The CI workflow covers both runtimes, syntax and all eight suites. Local v0.2.3 verification passed all eight suites using the installed LÖVE LuaJIT library and rendered the actual HUD at 920×610, 1280×800 and 1920×1080. Human game feel and tactical balance still require a playtest in LÖVE.
+Run each `tests/test_*.lua` file in a separate process with Lua 5.4 or LuaJIT, for example `luajit tests/test_passing.lua` and `luajit tests/test_match_passing.lua`. The CI workflow covers both runtimes, syntax and all nine suites. Local v0.2.3 verification passed all nine suites using the installed LÖVE LuaJIT library and rendered the actual HUD at 920×610, 1280×800 and 1920×1080. Human game feel and tactical balance still require a playtest in LÖVE.
 
 ## Roadmap
 
@@ -77,3 +77,7 @@ The Etrusco Unico design and marks appear in a user-provided reference. This is 
 ## Tactical guide
 
 See [TacticalPlayGuide.md](docs/TacticalPlayGuide.md) for the adapted 5v5 principles from the user-supplied positioning and off-ball guide.
+
+## Team coordination
+
+AI teammates now share a per-team support map: separate outlets, space reserved for the receiver and replacement cover when the defender presses. Physical movement and fixed human control are preserved. See [FM24 comparison and evidence](docs/FM24-Match-Engine-Review.md) for the limited local analysis, official sources and our original adaptation. Run `luajit tests/test_team_shape.lua` for targeted scenarios. Nine local LuaJIT suites pass; human tactical balance remains unverified.

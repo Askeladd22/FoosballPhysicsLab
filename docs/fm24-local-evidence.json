@@ -1,0 +1,193 @@
+{
+  "scope": "Static configuration inspection only; binary JSB labels are not a decoded schema or runtime proof",
+  "executable": {
+    "path": "S:/Epic Games/FootballManager24/fm.exe",
+    "format": "PE x86_64",
+    "bytes": 489128448,
+    "sha256": "33e8a2e48c4986f2a15e11c4c93aca1199029d66b19bd765403eb22dea265378"
+  },
+  "files": [
+    {
+      "path": "S:\\Epic Games\\FootballManager24\\data\\simatch\\systems.cfg",
+      "bytes": 308,
+      "sha256": "bc82827de4b5d4c955a941ea7ccc8116fd24b72e7bb3926072c365626c510997",
+      "xml_root": "systems",
+      "declared_systems": [
+        "MATCH_COMPETITION_SYSTEM",
+        "MATCH_CAMERA_SYSTEM",
+        "MATCH_SOUND_SYSTEM",
+        "MATCH_TEAM_KIT_SYSTEM",
+        "MATCH_APPEARANCE_SYSTEM",
+        "MATCH_PRESSING_FACTORY",
+        "MATCH_STATS_EXTRACTOR"
+      ]
+    },
+    {
+      "path": "S:\\Epic Games\\FootballManager24\\data\\simatch\\physics\\config.xml",
+      "bytes": 218,
+      "sha256": "94065197690f526eaaf0ebe1d9afc6b018f48a8f214c87efc4edea7f4ba60147",
+      "xml_root": "record"
+    },
+    {
+      "path": "S:\\Epic Games\\FootballManager24\\data\\simatch\\physics\\physical_constraints.jsb",
+      "bytes": 5658,
+      "sha256": "6753a66fe3e391a8898d6967980403fd91cff4ac50c90babf29795c19aa3594b",
+      "selected_ascii_labels": [
+        {
+          "offset": 22,
+          "text": "acceleration_scaler"
+        },
+        {
+          "offset": 2088,
+          "text": "theoretical_max_acceleration"
+        },
+        {
+          "offset": 2156,
+          "text": "theoretical_max_diving_acceleration"
+        },
+        {
+          "offset": 2423,
+          "text": "theoretical_max_turning_rate"
+        },
+        {
+          "offset": 2457,
+          "text": "theoretical_min_acceleration"
+        },
+        {
+          "offset": 2525,
+          "text": "theoretical_min_diving_acceleration"
+        },
+        {
+          "offset": 2845,
+          "text": "acceleration_scaler"
+        },
+        {
+          "offset": 4907,
+          "text": "theoretical_max_acceleration"
+        },
+        {
+          "offset": 4975,
+          "text": "theoretical_max_diving_acceleration"
+        },
+        {
+          "offset": 5242,
+          "text": "theoretical_max_turning_rate"
+        },
+        {
+          "offset": 5276,
+          "text": "theoretical_min_acceleration"
+        },
+        {
+          "offset": 5344,
+          "text": "theoretical_min_diving_acceleration"
+        }
+      ]
+    },
+    {
+      "path": "S:\\Epic Games\\FootballManager24\\data\\simatch\\expected_goals\\models\\config.xml",
+      "bytes": 130,
+      "sha256": "99a9c18b2e28c649072c13bb0d5306dc950cc85a0f6352c341de63bc26c735a2",
+      "xml_root": "record"
+    },
+    {
+      "path": "S:\\Epic Games\\FootballManager24\\data\\simatch\\expected_goals\\models\\configs\\coefficient_output_regular.jsb",
+      "bytes": 379,
+      "sha256": "9cb35c402bc839e985d9696b7adaeb5cb275249a286298cc38ea5ef59ba6a194",
+      "selected_ascii_labels": [
+        {
+          "offset": 16,
+          "text": "fraction_of_goal_visible"
+        },
+        {
+          "offset": 42,
+          "text": "normalised_distance_to_closest_occluding_player"
+        },
+        {
+          "offset": 91,
+          "text": "normalised_distance_to_goal"
+        },
+        {
+          "offset": 162,
+          "text": "transformed_angle_from_player_facing_to_centre_of_goal"
+        },
+        {
+          "offset": 218,
+          "text": "transformed_angle_from_shot_location_to_centre_of_goal"
+        }
+      ]
+    },
+    {
+      "path": "S:\\Epic Games\\FootballManager24\\data\\simatch\\tactics\\styles.xml",
+      "bytes": 40232,
+      "sha256": "d47730fbb1fcaef3ad4f19506ca6c93010974e92acd3da2fad28d1ddfab9be51",
+      "xml_root": "record",
+      "styles": [
+        "CONTROL_POSSESSION",
+        "GEGENPRESS",
+        "TIKI_TAKA",
+        "VERTICAL_TIKI_TAKA",
+        "WING_PLAY",
+        "ROUTE_ONE",
+        "FLUID_COUNTER_ATTACK",
+        "DIRECT_COUNTER_ATTACK",
+        "CATENACCIO",
+        "PARK_THE_BUS"
+      ]
+    },
+    {
+      "path": "S:\\Epic Games\\FootballManager24\\data\\simatch\\weights.jsb",
+      "bytes": 19041,
+      "sha256": "0528f41a6ba83f369eceba80fa33c0a4a96c1e0781da07a19dd76caa9f6e10b7",
+      "selected_ascii_labels": [
+        {
+          "offset": 121,
+          "text": "TEAM_PICKING_STYLE::TPS_FIRST_TEAM_PICKING"
+        },
+        {
+          "offset": 1678,
+          "text": "TEAM_PICKING_STYLE::TPS_SEMI_RESERVE_PICKING"
+        },
+        {
+          "offset": 3237,
+          "text": "TEAM_PICKING_STYLE::TPS_SLIGHTLY_RESERVE_PICKING"
+        },
+        {
+          "offset": 4800,
+          "text": "TEAM_PICKING_STYLE::TPS_TOTAL_RESERVE_PICKING"
+        },
+        {
+          "offset": 6466,
+          "text": "TEAM_PICKING_STYLE::TPS_FIRST_TEAM_PICKING"
+        },
+        {
+          "offset": 8023,
+          "text": "TEAM_PICKING_STYLE::TPS_SEMI_RESERVE_PICKING"
+        },
+        {
+          "offset": 9582,
+          "text": "TEAM_PICKING_STYLE::TPS_SLIGHTLY_RESERVE_PICKING"
+        },
+        {
+          "offset": 11145,
+          "text": "TEAM_PICKING_STYLE::TPS_TOTAL_RESERVE_PICKING"
+        },
+        {
+          "offset": 12807,
+          "text": "TEAM_PICKING_STYLE::TPS_FIRST_TEAM_PICKING"
+        },
+        {
+          "offset": 14364,
+          "text": "TEAM_PICKING_STYLE::TPS_SEMI_RESERVE_PICKING"
+        },
+        {
+          "offset": 15923,
+          "text": "TEAM_PICKING_STYLE::TPS_SLIGHTLY_RESERVE_PICKING"
+        },
+        {
+          "offset": 17486,
+          "text": "TEAM_PICKING_STYLE::TPS_TOTAL_RESERVE_PICKING"
+        }
+      ]
+    }
+  ]
+}

@@ -85,4 +85,67 @@ function Tactics.supportPoint(s,p)
     end
     return x,y,phase
 end
+-- Coordinate a team's off-ball destinations once per AI decision. These are
+-- steering targets, never player teleports or an assignment for the human.
+function Tactics.teamTargets(s,team)
+    local targets,reserved,candidates={},{},{}
+    local human=s.controlled
+    if human.team==team then reserved[#reserved+1]={human.x,human.y} end
+    local pass=s.activePass
+    local receiver=pass and pass.team==team and pass.receiver
+    if receiver then
+        reserved[#reserved+1]={receiver.x,receiver.y}
+        reserved[#reserved+1]={pass.targetX,pass.targetY}
+    end
+    -- While receiving, the original presser also returns to team support.
+    local presser=not receiver and s.pressers[team] or nil
+    for _,p in ipairs(s.players) do
+        if p.team==team and p~=human and p~=receiver and p~=presser then
+            candidates[#candidates+1]=p
+        end
+    end
+    local guard
+    for _,p in ipairs(candidates) do
+        if p.role~="GK" and (not guard or
+            (team==1 and p.x<guard.x) or (team==2 and p.x>guard.x)) then
+            guard=p
+        end
+    end
+    -- Reserve the covering player first, then assign distinct nearby outlets.
+    table.sort(candidates,function(a,b)
+        if a==guard then return b~=guard end
+        if b==guard then return false end
+        return a.number<b.number
+    end)
+    for _,p in ipairs(candidates) do
+        local x,y=Tactics.supportPoint(s,p)
+        local cover=p==guard
+        if cover then
+            if team==1 then x=min(x,clamp(s.ball.x-16,4,s.field.w-4))
+            else x=max(x,clamp(s.ball.x+16,4,s.field.w-4)) end
+        end
+        if p.role~="GK" then
+            local bestX,bestY,bestScore=x,y,-math.huge
+            for ix=-2,2 do
+                for iy=-3,3 do
+                    local tx=clamp(x+ix*8,4,s.field.w-4)
+                    local ty=clamp(y+iy*8,7,s.field.h-7)
+                    if cover then
+                        if team==1 then tx=min(tx,x) else tx=max(tx,x) end
+                    end
+                    local gap=math.huge
+                    for _,point in ipairs(reserved) do
+                        gap=min(gap,distance(tx,ty,point[1],point[2]))
+                    end
+                    local score=-distance(tx,ty,x,y)-max(0,8-gap)*100
+                    if score>bestScore then bestX,bestY,bestScore=tx,ty,score end
+                end
+            end
+            x,y=bestX,bestY
+        end
+        targets[p]={x=x,y=y,cover=cover}
+        reserved[#reserved+1]={x,y}
+    end
+    return targets
+end
 return Tactics

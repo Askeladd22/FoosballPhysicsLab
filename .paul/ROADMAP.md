@@ -25,3 +25,8 @@
 
 ## Main risk
 A physically faithful disc simulator may not automatically produce convincing football tactics. Validate gameplay before adding career systems.
+
+## Phase 06 — Team coordination
+- [x] Local FM24 evidence and official-source comparison documented.
+- [x] Coordinated support destinations and replacement defensive cover; nine LuaJIT suites PASS.
+- [ ] Human playtest of attacking opportunities versus improved cover.

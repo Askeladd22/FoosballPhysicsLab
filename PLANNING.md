@@ -77,3 +77,10 @@ Play the current build once as RM and once as GK, using E and the receiving mark
 - **VERIFIED:** isolated trajectories, original 40-unit pass, moving receivers, both teams, interceptions and lifecycle; deterministic 180-second scripted matches for both human roles.
 - **UNVERIFIED:** human enjoyment, difficulty and practical completion rates. No inference of improved completion rates from different scripted scenarios.
 - **DEFERRED:** assisted first touch, new manual passing controls and career systems. Details: `.paul/phases/05-pass-reception/05-01-SUMMARY.md`.
+
+## SEED decision update — coordinated team shape
+- **DECIDED:** use documented FM24 positional-play principles for an original 5v5 support coordinator.
+- **IMPLEMENTED:** shared team targets, receiver-space reservation and replacement cover; tests PASS.
+- **ASSUMED:** spacing 8 and cover depth 16 suit this pitch; neither is an FM24 coefficient.
+- **UNVERIFIED:** attacking balance after greater defensive cover; two deterministic scripted matches ended 0–0.
+- **NEXT:** human RM/GK playtest; retain the physical ball and single controlled disc.

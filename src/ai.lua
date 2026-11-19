@@ -162,6 +162,12 @@ function AI.update(s)
     if s.phase~="play" then return end
     local b,f=s.ball,s.field
     local chosen=pressers(s)
+    local teamTargets={Tactics.teamTargets(s,1),Tactics.teamTargets(s,2)}
+    local function support(p)
+        local target=teamTargets[p.team][p]
+        if target then return target.x,target.y end
+        return Tactics.supportPoint(s,p)
+    end
     for _,p in ipairs(s.players) do
         if p~=s.controlled then
             local pass=s.activePass
@@ -171,12 +177,12 @@ function AI.update(s)
                     toward(s,p,x,y)
                     p.decision="receive"
                 else
-                    local x,y=Tactics.supportPoint(s,p)
+                    local x,y=support(p)
                     toward(s,p,x,y)
                     p.decision="support"
                 end
             elseif p==s.setPieceTaker and s.setPieceProtect>0 then
-                local x,y=Tactics.supportPoint(s,p)
+                local x,y=support(p)
                 toward(s,p,x,y)
                 p.decision="recover"
             elseif p==chosen[p.team] then
@@ -191,7 +197,7 @@ function AI.update(s)
                 if d<=p.r+b.r+0.95 and face>0.59 and p.cooldown<=0
                     and (not plan or Passing.canLaunch(s,p,plan)) then
                     if s.kick(p,tx,ty,power,action,plan) then
-                        local x,y=Tactics.supportPoint(s,p)
+                        local x,y=support(p)
                         toward(s,p,x,y)
                         p.decision=action
                         if action=="pass" then
@@ -208,7 +214,7 @@ function AI.update(s)
                     p.decision="approach_"..action
                 end
             else
-                local x,y=Tactics.supportPoint(s,p)
+                local x,y=support(p)
                 toward(s,p,x,y)
                 p.decision=p.role=="GK" and "goalkeeper" or
                     (s.lastTouch==p.team and "support" or "cover")

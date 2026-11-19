@@ -25,6 +25,8 @@ jobs:
         run: ${{ matrix.lua }} tests/test_match_passing.lua
       - name: Tactical AI scenarios
         run: ${{ matrix.lua }} tests/test_tactics.lua
+      - name: Team outlets and replacement cover
+        run: ${{ matrix.lua }} tests/test_team_shape.lua
       - name: Permanent goalkeeper and midfield roles
         run: ${{ matrix.lua }} tests/test_roles.lua
       - name: Prematch role selection through actual callbacks
