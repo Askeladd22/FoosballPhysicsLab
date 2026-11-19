@@ -99,3 +99,30 @@ end
 local a,b=replay(),replay()
 for i=1,#a do assert(nearly(a[i],b[i]),"nondeterministic play at index "..i) end
 print("PASS: foosball mouse input axes, controlled rods, angular ball impulse, walls, goals, AI, determinism")
+
+-- Mechanical travel reaches a cushion/guide stop, not an invisible clamp.
+local stop=M.new()
+local sr=stop.rods[4]
+stop:mouseMoved(0,2000)
+for _=1,270 do stop:step(dt) end
+assert(sr.stopCount>=1 and sr.stopSide==1,"rod never contacts lower mechanical bumper")
+assert(nearly(sr.slide,sr.travel) and nearly(sr.vy,0),"end-stop did not arrest slide")
+local oldStops=sr.stopCount
+for _=1,50 do stop:step(dt) end
+assert(sr.stopCount==oldStops,"holding at bumper repeats collision every tick")
+stop:mouseMoved(0,-2000)
+for _=1,270 do stop:step(dt) end
+assert(sr.stopSide==-1 and sr.stopCount==oldStops+1,"upper cushion end-stop missing")
+-- The front striking face is flat and bounds the real collision volume.
+local shape=M.new()
+local foot=shape.rods[4]
+local fx,fy=M.foot(foot,2)
+local rx,ry,w,h=M.footRect(foot,2)
+assert(nearly(fx,rx+w/2) and nearly(fy,ry+h/2),"visual collision does not match foot")
+assert(w>0 and h>0 and h>w,"shoe must read as a flat vertical striking surface")
+-- Deterministic normal impact at the actual front rectangle, no round-contact shortcut.
+shape.ball.x,shape.ball.y=rx+w+shape.ball.r-0.5,fy
+shape.ball.vx,shape.ball.vy=-240,0
+shape:step(dt)
+assert(shape.ball.vx>0 and shape.hits>0,"flat forward face cannot reflect incoming ball")
+print("PASS: mechanical rod bumpers, flat visible foot collision")

@@ -4,7 +4,9 @@ local M={}
 M.W,M.H=1000,560
 M.GOAL_HALF=94
 M.BALL_RADIUS=10
-M.FOOT_RADIUS=13
+M.FOOT_RADIUS=13 -- legacy nominal radius; geometry below owns the collision
+M.FOOT_HALF_WIDTH=10
+M.FOOT_HALF_HEIGHT=14
 M.FOOT_REACH=30
 local W,H=M.W,M.H
 local abs,min,max,sin,cos,sqrt,exp=math.abs,math.min,math.max,math.sin,math.cos,math.sqrt,math.exp
@@ -25,9 +27,16 @@ local layout={
 local Game={}
 Game.__index=Game
 local function newRod(def)
+    -- The nearest figure reaches the cushion before an arbitrary invisible travel clamp.
+    -- Single-figure goalkeeper retains a mechanical bearing stop, like a real table.
+    local outer=0
+    for _,offset in ipairs(def.offsets) do outer=max(outer,abs(offset)) end
+    local cushion=H/2-outer-M.FOOT_HALF_HEIGHT-5
+    local travel=#def.offsets==1 and min(132,cushion) or max(0,cushion)
     return {
-        team=def.team,kind=def.kind,x=def.x,offsets=def.offsets,travel=def.travel,
+        team=def.team,kind=def.kind,x=def.x,offsets=def.offsets,travel=travel,
         slide=0,targetSlide=0,vy=0,angle=-0.70,targetAngle=-0.70,omega=0,
+        stopSide=0,stopPulse=0,stopCount=0,
         nextStrike=0,strikeUntil=-1,aiChoice=1
     }
 end
@@ -37,6 +46,11 @@ end
 function M.foot(rod,index)
     local direction=rod.team==1 and 1 or -1
     return rod.x+direction*M.FOOT_REACH*sin(rod.angle),figureY(rod,index)
+end
+function M.footRect(rod,index)
+    local x,y=M.foot(rod,index)
+    return x-M.FOOT_HALF_WIDTH,y-M.FOOT_HALF_HEIGHT,
+        M.FOOT_HALF_WIDTH*2,M.FOOT_HALF_HEIGHT*2
 end
 function M.new()
     local self=setmetatable({},Game)
@@ -110,11 +124,29 @@ local function updateAI(s)
     end
 end
 local function stepRod(r,dt)
+    -- A real rod hits a mechanical end-stop; the impulse is not silently discarded.
+    r.stopPulse=max(0,(r.stopPulse or 0)-dt)
     -- Critically damped targets prevent teleporting or rotating instantly with dx/dy.
     local accel=(r.targetSlide-r.slide)*120-r.vy*19
     r.vy=clamp(r.vy+accel*dt,-620,620)
-    r.slide=clamp(r.slide+r.vy*dt,-r.travel,r.travel)
-    if r.slide==-r.travel and r.vy<0 or r.slide==r.travel and r.vy>0 then r.vy=0 end
+    local nextSlide=r.slide+r.vy*dt
+    local side=nextSlide<=-r.travel and -1 or nextSlide>=r.travel and 1 or 0
+    -- Springs approach a clamped target asymptotically: snap the final 0.55px
+    -- only when the user is actively asking to push into the end stop.
+    if r.targetSlide>=r.travel-0.001 and nextSlide>=r.travel-0.55 then side=1 end
+    if r.targetSlide<=-r.travel+0.001 and nextSlide<=-r.travel+0.55 then side=-1 end
+    if side~=0 then
+        r.slide=side*r.travel
+        r.vy=0
+        if r.stopSide~=side then
+            r.stopPulse=0.22
+            r.stopCount=r.stopCount+1
+        end
+        r.stopSide=side
+    else
+        r.slide=nextSlide
+        if abs(r.slide)<r.travel-2 then r.stopSide=0 end
+    end
     local acceleration=(r.targetAngle-r.angle)*180-r.omega*20
     r.omega=clamp(r.omega+acceleration*dt,-19,19)
     r.angle=clamp(r.angle+r.omega*dt,limits.min,limits.max)
@@ -122,30 +154,48 @@ local function stepRod(r,dt)
 end
 local function contact(s,rod,i)
     local b=s.ball
-    local fx,fy=M.foot(rod,i)
-    local dx,dy=b.x-fx,b.y-fy
-    local collisionRadius=b.r+M.FOOT_RADIUS
+    -- Closest-point circle versus the EXACT foot rectangle drawn on screen.
+    local left,top,width,height=M.footRect(rod,i)
+    local nearestX=clamp(b.x,left,left+width)
+    local nearestY=clamp(b.y,top,top+height)
+    local dx,dy=b.x-nearestX,b.y-nearestY
     local d2=dx*dx+dy*dy
-    if d2>=collisionRadius*collisionRadius then return end
-    local d=sqrt(d2)
+    if d2>=b.r*b.r then return end
     local direction=rod.team==1 and 1 or -1
-    local nx,ny
-    if d<0.00001 then nx,ny=direction,0;d=0.00001
-    else nx,ny=dx/d,dy/d end
-    -- Dynamic body is the ball. The figure's constrained contact point drives it.
+    local nx,ny,d
+    if d2<0.000001 then
+        -- If the ball centre penetrates, separate along its nearest face,
+        -- not from an imaginary round foot. Bias a perfect tie toward attack.
+        local dl=b.x-left
+        local dr=left+width-b.x
+        local dt=b.y-top
+        local db=top+height-b.y
+        local nearest=min(dl,dr,dt,db)
+        if nearest==dl and direction<0 or nearest==dr and direction>0 then
+            nx,ny=direction,0
+        elseif nearest==dl then nx,ny=-1,0
+        elseif nearest==dr then nx,ny=1,0
+        elseif nearest==dt then nx,ny=0,-1
+        else nx,ny=0,1 end
+        d=-nearest
+    else
+        d=sqrt(d2)
+        nx,ny=dx/d,dy/d
+    end
     local vx=direction*M.FOOT_REACH*cos(rod.angle)*rod.omega
     local vy=rod.vy
-    b.x=b.x+nx*(collisionRadius-d+0.02)
-    b.y=b.y+ny*(collisionRadius-d+0.02)
+    b.x=b.x+nx*(b.r-d+0.02)
+    b.y=b.y+ny*(b.r-d+0.02)
     local approach=(b.vx-vx)*nx+(b.vy-vy)*ny
     if approach<-3 then
         local impulse=-(1+0.78)*approach
         b.vx=b.vx+nx*impulse
         b.vy=b.vy+ny*impulse
         s.hits=s.hits+1
-        s.lastHit={team=rod.team,kind=rod.kind,clock=s.clock}
+        s.lastHit={team=rod.team,kind=rod.kind,clock=s.clock,face=nx,side=ny}
     end
 end
+
 function Game:goal(team)
     if self.phase~="play" then return end
     self.score[team]=self.score[team]+1
