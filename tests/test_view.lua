@@ -35,8 +35,10 @@ love={graphics={
     draw=function() counts.ball=counts.ball+1 end
 }}
 local View=require("src.view")
+local Camera=require("src.camera")
 View.load()
 local s=Sim.new()
+s.limit=300
 local id=s.controlled
 local function hasText(expected)
     for _,text in ipairs(texts) do if text:find(expected,1,true) then return true end end
@@ -44,10 +46,17 @@ local function hasText(expected)
 end
 for _,resolution in ipairs({{1280,800},{920,610},{1920,1080}}) do
     w,h=resolution[1],resolution[2]
+    local scale,ox,oy,_,_,pw,ph=Camera.fit(s.field,w,h)
+    assert(math.abs(pw/ph-105/68)<1e-10,"camera distorted field aspect")
+    assert(ox-4.2*scale>=0 and ox+pw+4.2*scale<=w,"nets clipped")
+    assert(oy-3.5*scale>=0 and oy+ph+3.5*scale<h-52,"thrower apron covered by HUD")
+    local previousScale=math.min((w-32)/(105+10),(h-78-84)/(68+6))
+    assert(scale>previousScale*1.05,"field did not gain usable screen area")
     for _,phase in ipairs({"kickoff","play","restart","paused","fulltime"}) do
         s.phase=phase
         View.draw(s,{mode="instant",charging=false,charge=0,debug=true})
     end
+    s.phase="play"
     s.passStats[1]={attempts=123,completed=100,intercepted=20,missed=3}
     s.passStats[2]={attempts=100,completed=90,intercepted=8,missed=2}
     s.activePass={team=1,receiver=s.controlled,targetX=55,targetY=35}
@@ -65,9 +74,52 @@ for _,resolution in ipairs({{1280,800},{920,610},{1920,1080}}) do
         s.passFeedback={team=2,result=result,number=10,at=s.elapsed}
         View.draw(s,{mode="instant",charging=false,charge=0,debug=false})
     end
+    s.phase="restart"
+    s.setPiece={kind="offside",team=2,taker=s.players[12]}
+    texts={}
+    View.draw(s,{mode="instant",charging=false,charge=0,debug=false})
+    assert(hasText("FUORIGIOCO") and hasText("ARANCIO"),"offside restart label missing")
+    s.elapsed=0
+    texts={}
+    View.draw(s,{mode="instant",charging=false,charge=0,debug=false})
+    assert(hasText("05:00"),"countdown should begin at five minutes")
+    s.elapsed=299.2
+    texts={}
+    View.draw(s,{mode="instant",charging=false,charge=0,debug=false})
+    assert(hasText("00:01"),"countdown must not show zero prematurely")
+    assert(s.elapsed==299.2,"rendering mutated the match clock")
+    s.elapsed=0
+    s.phase="play"
+    s.controlled.protectInput=true
+    texts={}
+    View.draw(s,{mode="context",charging=false,charge=0,debug=false})
+    assert(hasText("CTRL controlla/proteggi") and hasText("Q + SPAZIO uno-due"),"new controls missing")
+    assert(hasText("CONTROLLO"),"control-ready status missing")
+    s.controlled.shielding=true
+    texts={}
+    View.draw(s,{mode="context",charging=false,charge=0,debug=false})
+    assert(hasText("PROTEZIONE"),"shield status missing")
+    s.controlled.controlFlash=0.18
+    texts={}
+    View.draw(s,{mode="context",charging=false,charge=0,debug=false})
+    assert(hasText("PRIMO CONTROLLO"),"first-touch feedback missing")
+    s.controlled.protectInput,s.controlled.shielding,s.controlled.controlFlash=false,false,0
+    s.passFeedback=nil
+    s.combinationFeedback={kind="one_two_run",player=s.controlled,expires=s.elapsed+2}
+    texts={}
+    View.draw(s,{mode="context",charging=false,charge=0,debug=false})
+    assert(hasText("Uno-due: attacca lo spazio"),"one-two instruction missing")
+    s.combinationFeedback=nil
+    texts={}
+    View.draw(s,{mode="context",charging=true,charge=0.1,debug=false})
+    assert(hasText("SPAZIO passa") and hasText("TIENI SPAZIO tira"),"tap/hold controls missing")
+    assert(hasText("PASSAGGIO") and not hasText("C carica"),"old shooting-mode prompt retained")
+    texts={}
+    View.draw(s,{mode="context",charging=true,charge=0.3,debug=false})
+    assert(hasText("TIRO / rilascia SPAZIO"),"hold shooting feedback missing")
 end
 s.phase="play"
-View.draw(s,{mode="charge",charging=true,charge=0.3,debug=false})
+View.draw(s,{mode="context",charging=true,charge=0.75,debug=false})
 local keeperMatch=Sim.new("GK")
 View.draw(keeperMatch,{mode="instant",charging=false,charge=0,
     debug=false,chooseRole=true})
@@ -76,4 +128,4 @@ assert(s.controlled==id,"rendering changed controlled player")
 assert(counts.ball>=16,"Etrusco ball was not drawn")
 assert(counts.circles>=160,"discs or feet failed to render")
 assert(counts.field>=16,"field failed to render")
-print("PASS: classic 2D renderer, prematch role selection and GK HUD")
+print("PASS: neon 2D renderer, three resolutions, offside label, countdown and role HUD")

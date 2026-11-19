@@ -11,7 +11,7 @@ local function tick(s,n,input)
 end
 
 -- Kick-off roles, no initial overlap and unchanged player identity.
-local s=Sim.new()
+local s=Sim.new(nil,5)
 check(#s.players==10,"AC-6: 5v5 must spawn ten discs")
 check(s.controlled==s.players[4],"AC-6: controlled player must stay blue #10")
 check(s.players[1].role=="GK" and s.players[6].role=="GK","missing keepers")
@@ -32,7 +32,7 @@ check(s.lastTouch==1 and s.ball.vx>0,"AC-3: blue kickoff goes right")
 check(s.controlled==controlled,"AC-6: control switched at kickoff")
 
 -- Analog control must not be normalized to max acceleration.
-local slow,fast=Sim.new(),Sim.new()
+local slow,fast=Sim.new(nil,5),Sim.new(nil,5)
 slow.phase,fast.phase="play","play"
 slow.setPiece,fast.setPiece=nil,nil
 Sim.step(slow,dt,{x=0.2,y=0})
@@ -41,7 +41,7 @@ check(slow.controlled.vx>0 and slow.controlled.vx<fast.controlled.vx*0.3,
       "AC-1: partial input was normalized")
 
 -- Near the support anchor: brake rather than switching left/right at full speed.
-local stable=Sim.new()
+local stable=Sim.new(nil,5)
 stable.phase="play"
 local defender=stable.players[2]
 defender.x,defender.y=22.2,35
@@ -49,7 +49,7 @@ defender.vx,defender.vy=0,0
 AI.update(stable)
 check(math.sqrt(defender.moveX^2+defender.moveY^2)<0.2,
       "AC-2: player must brake at anchor")
-local hold=Sim.new()
+local hold=Sim.new(nil,5)
 hold.phase="play"
 AI.update(hold)
 local prev=hold.pressers[2]
@@ -61,7 +61,7 @@ AI.update(hold)
 check(hold.pressers[2]==prev,"AC-2: pressing assignment switched too early")
 
 -- A free passing lane must create a real physical AI pass.
-local pass=Sim.new()
+local pass=Sim.new(nil,5)
 pass.phase="play"
 pass.setPiece=nil
 pass.setPieceProtect=0
@@ -82,7 +82,7 @@ check(pass.aiPassAttempts==1 and pass.passAttempts==1,
       "AC-5: available teammate was not passed to")
 check(pass.ball.vx>1,"AC-5: AI pass must physically move ball forward")
 
-local request=Sim.new()
+local request=Sim.new(nil,5)
 request.phase="play"
 request.ball.x,request.ball.y=50,35
 local reqPasser=request.players[2]
@@ -97,32 +97,21 @@ local receiver=AI.passOption(request,reqPasser)
 check(receiver==request.controlled,
       "AC-5: pass request should help selection when lane is clear")
 
--- Temporary arena rails: no throw-ins on top or bottom.
+-- Sidelines now stop play and award a throw-in to the opponents.
 for _,side in ipairs({"top","bottom"}) do
-    local r=Sim.new()
-    r.phase="play"
-    r.setPiece=nil  -- Discard prematch kickoff: this scenario tests open play.
-    r.lastTouch=1
-    r.ball.x=60
-    r.ball.vx=0
-    r.ball.vy=side=="top" and -15 or 15
-    r.ball.y=side=="top" and -3 or r.field.h+3
-    Sim.step(r,dt,{x=0,y=0})
-    check(r.phase=="play" and r.restartCount==0 and r.setPiece==nil,
-          "AC-1: touchline should not create a throw-in "..side)
-    check(r.ball.y>=r.ball.r and r.ball.y<=r.field.h-r.ball.r,
-          "AC-1: ball should remain inside touchline "..side)
-    check((side=="top" and r.ball.vy>0) or
-          (side=="bottom" and r.ball.vy<0),
-          "AC-1: ball should bounce toward the pitch "..side)
-    tick(r,18)
-    check(r.phase=="play" and r.restartCount==0,
-          "AC-1: touchline loop after bounce "..side)
+    local r=Sim.new(nil,5)
+    r.phase="play"; r.setPiece=nil; r.lastTouch=1
+    r.ball.x=60; r.ball.y=side=="top" and -3 or r.field.h+3
+    Sim.step(r,dt)
+    check(r.phase=="restart" and r.setPiece.kind=="throw_in" and
+        r.setPiece.team==2,"incorrect throw-in "..side)
+    tick(r,100)
+    check(r.phase=="play" and r.totalKicks==1,"throw-in failed "..side)
 end
 
 -- Existing goal-line restarts outside the posts remain intact.
 for _,side in ipairs({"left","right"}) do
-    local r=Sim.new()
+    local r=Sim.new(nil,5)
     r.phase="play"
     r.lastTouch=1
     r.setPiece=nil
@@ -130,7 +119,7 @@ for _,side in ipairs({"left","right"}) do
     r.ball.x=side=="left" and -3 or r.field.w+3
     r.ball.y=15
     Sim.step(r,dt,{x=0,y=0})
-    check(r.phase=="restart" and r.setPiece.kind==(side=="right" and "goal_kick" or "restart") and
+    check(r.phase=="restart" and r.setPiece.kind==(side=="right" and "goal_kick" or "corner") and
           r.setPiece.side==side and r.setPiece.team==2,
           "AC-2: incorrectly assigned goal-line restart "..side)
     local taker=r.setPiece.taker
@@ -150,19 +139,19 @@ for _,side in ipairs({"left","right"}) do
 end
 
 -- Goals, clocks, restarts, deterministic fixed-step simulation remain valid.
-local goal=Sim.new()
+local goal=Sim.new(nil,5)
 goal.phase="play"
 goal.ball.x,goal.ball.y=goal.field.w+goal.ball.r+1,goal.field.h/2
 Sim.step(goal,dt,{x=0,y=0})
 check(goal.score[1]==1 and goal.phase=="kickoff" and
       goal.setPiece.team==2,"AC-6: goal must give kickoff to conceding side")
 
-local timed=Sim.new()
+local timed=Sim.new(nil,5)
 timed.phase="play"
 timed.elapsed=timed.limit-dt/2
 Sim.step(timed,dt,{x=0,y=0})
 check(timed.phase=="fulltime","AC-6: fulltime trigger")
-local a,b=Sim.new(),Sim.new()
+local a,b=Sim.new(nil,5),Sim.new(nil,5)
 tick(a,800,{x=0.7,y=-0.3})
 tick(b,800,{x=0.7,y=-0.3})
 check(math.abs(a.ball.x-b.ball.x)<1e-8 and
@@ -172,4 +161,4 @@ Sim.restart(a)
 check(a.score[1]==0 and a.score[2]==0 and a.elapsed==0 and
       a.controlled==a.players[4],"AC-6: restart state")
 
-print("PASS: kickoff, analog steering, sticky press, real passes, two goal-line restarts, touchline rails, scoring, identity, deterministic match")
+print("PASS: kickoff, analog steering, sticky press, real passes, two goal-line restarts, throw-ins, scoring, identity, deterministic match")

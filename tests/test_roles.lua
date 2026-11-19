@@ -7,11 +7,11 @@ local function check(ok,msg) if not ok then error(msg,2) end end
 local function tick(s,n,input)
     for _=1,n do Sim.step(s,dt,input or {x=0,y=0}) end
 end
-local default=Sim.new()
+local default=Sim.new(nil,5)
 check(default.controlled==default.players[4] and
       default.controlled.number==10 and default.controlled.role=="RM",
       "default human should remain blue midfielder #10")
-local goal=Sim.new("GK")
+local goal=Sim.new("GK",5)
 local keeper=goal.players[1]
 check(goal.controlled==keeper and keeper.number==1 and keeper.team==1,
       "goalkeeper must be blue #1")

@@ -6,7 +6,7 @@ local Passing=require("src.passing")
 local dt=1/120
 local function check(ok,msg) if not ok then error(msg,2) end end
 local function fixture(distance)
-    local s=Sim.new("GK")
+    local s=Sim.new("GK",5)
     s.phase="play"; s.setPiece=nil; s.lastTouch=1
     local p,r=s.players[2],s.players[3]
     s.controlled.x,s.controlled.y=4,65
@@ -125,7 +125,7 @@ check(human.passStats[1].completed==1 and human.controlled==hr,"AC-2: human rece
 
 -- An opposing physical touch immediately intercepts, even during old touch grace.
 local intercepted,ip,ir=fixture(25)
-local opponent=Sim.new().players[7]
+local opponent=Sim.new(nil,5).players[7]
 opponent.x,opponent.y=23,35
 intercepted.players[#intercepted.players+1]=opponent
 launch(intercepted,ip,ir)

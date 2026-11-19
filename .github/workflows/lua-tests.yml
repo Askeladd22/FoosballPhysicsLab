@@ -17,7 +17,7 @@ jobs:
         run: for source in main.lua src/*.lua tests/test_*.lua; do luac5.4 -p "$source" || exit 1; done
       - name: Headless match tests
         run: ${{ matrix.lua }} tests/test_sim.lua
-      - name: Touchline rails and passing power
+      - name: Whole-ball crossings and passing power
         run: ${{ matrix.lua }} tests/test_boundary_passing.lua
       - name: Reachable passes and physical receptions
         run: ${{ matrix.lua }} tests/test_passing.lua
@@ -27,10 +27,48 @@ jobs:
         run: ${{ matrix.lua }} tests/test_tactics.lua
       - name: Team outlets and replacement cover
         run: ${{ matrix.lua }} tests/test_team_shape.lua
-      - name: Physical escape from touchline rails
+      - name: Approach balls at the touchlines
         run: ${{ matrix.lua }} tests/test_touchline_escape.lua
       - name: Goal kicks and human goalkeeper
         run: ${{ matrix.lua }} tests/test_goal_kicks.lua
+      - name: Eleven-a-side formation
+        run: ${{ matrix.lua }} tests/test_eleven.lua
+      - name: Sprint and release
+        run: ${{ matrix.lua }} tests/test_sprint.lua
+      - name: Football restarts and goal restrictions
+        run: ${{ matrix.lua }} tests/test_football_rules.lua
+      - name: Offside phases and exemptions
+        run: ${{ matrix.lua }} tests/test_offside.lua
+      - name: Five minute clock
+        run: ${{ matrix.lua }} tests/test_match_clock.lua
+      - name: Physical AI actions
+        run: ${{ matrix.lua }} tests/test_ai_match.lua
+      - name: Corner routines and delivery
+        run: ${{ matrix.lua }} tests/test_corners.lua
+      - name: Tap pass and charged shot inputs
+        run: ${{ matrix.lua }} tests/test_space_actions.lua
+      - name: First touch and contested shielding
+        run: ${{ matrix.lua }} tests/test_ball_control.lua
+      - name: One-twos and overlapping runs
+        run: ${{ matrix.lua }} tests/test_dynamic_team.lua
+      - name: Role duties and zonal marking
+        run: ${{ matrix.lua }} tests/test_role_tactics.lua
+      - name: FM24 role vocabulary and duties
+        run: ${{ matrix.lua }} tests/test_football_roles.lua
+      - name: Tactical configuration and state preservation
+        run: ${{ matrix.lua }} tests/test_tactical_settings.lua
+      - name: Configured tactical behaviour
+        run: ${{ matrix.lua }} tests/test_tactical_behaviour.lua
+      - name: Automatic coach decisions and stable plans
+        run: ${{ matrix.lua }} tests/test_coach.lua
+      - name: Tactical panel through controller callbacks
+        run: ${{ matrix.lua }} tests/test_tactics_panel.lua
+      - name: Contextual action choices and pass memory
+        run: ${{ matrix.lua }} tests/test_ai_choices.lua
+      - name: Runner ball priority and short carrying touch
+        run: ${{ matrix.lua }} tests/test_runner_ball.lua
+      - name: Opponent-aware passing outlets
+        run: ${{ matrix.lua }} tests/test_support_space.lua
       - name: Permanent goalkeeper and midfield roles
         run: ${{ matrix.lua }} tests/test_roles.lua
       - name: Prematch role selection through actual callbacks

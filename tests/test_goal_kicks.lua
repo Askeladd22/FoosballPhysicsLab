@@ -3,7 +3,7 @@ local Sim=require("src.sim")
 for _,side in ipairs({"left","right"}) do
     local defender=side=="left" and 1 or 2
     for _,role in ipairs({"GK","RM"}) do
-        local s=Sim.new(role)
+        local s=Sim.new(role,5)
         s.phase="play"; s.setPiece=nil; s.lastTouch=3-defender
         s.ball.x=side=="left" and -2 or 122; s.ball.y=10
         Sim.step(s,1/120)
@@ -23,10 +23,10 @@ for _,side in ipairs({"left","right"}) do
         assert(side=="left" and s.ball.vx>0 or side=="right" and s.ball.vx<0)
         assert(s.controlled.role==role)
     end
-    local s=Sim.new(); s.phase="play"; s.setPiece=nil; s.lastTouch=defender
+    local s=Sim.new(nil,5); s.phase="play"; s.setPiece=nil; s.lastTouch=defender
     s.ball.x=side=="left" and -2 or 122; s.ball.y=10
     Sim.step(s,1/120)
-    assert(s.setPiece.kind=="restart" and s.setPiece.team==3-defender,
+    assert(s.setPiece.kind=="corner" and s.setPiece.team==3-defender,
         "defender touch incorrectly awarded goal kick")
 end
 print("PASS: goal kicks, keeper selection, opponent clearance, manual GK and mirrored exits")

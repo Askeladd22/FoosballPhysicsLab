@@ -5,7 +5,7 @@ local AI=require("src.ai")
 local function d(a,b) return math.sqrt((a.x-b.x)^2+(a.y-b.y)^2) end
 for _,team in ipairs({1,2}) do
     for _,ballY in ipairs({2,35,68}) do
-        local s=Sim.new("GK")
+        local s=Sim.new("GK",5)
         s.phase="play"; s.setPiece=nil; s.lastTouch=team
         s.ball.x,s.ball.y=60,ballY
         local defender=s.players[team==1 and 2 or 7]
@@ -32,7 +32,7 @@ for _,team in ipairs({1,2}) do
         assert(guard,"missing replacement cover")
     end
 end
-local s=Sim.new("GK")
+local s=Sim.new("GK",5)
 s.phase="play"; s.setPiece=nil; s.lastTouch=1
 local receiver=s.players[3]
 s.activePass={team=1,receiver=receiver,targetX=53,targetY=20,expires=2}

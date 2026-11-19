@@ -8,7 +8,7 @@ local function check(ok,msg) if not ok then error(msg,2) end end
 local function d(x,y,u,v) return sqrt((x-u)^2+(y-v)^2) end
 
 -- Wide midfielders, an outlet behind the ball and a striker ahead.
-local s=Sim.new()
+local s=Sim.new(nil,5)
 s.phase="play"; s.lastTouch=1; s.ball.x,s.ball.y=60,35
 local lm,rm,df,st=s.players[3],s.players[4],s.players[2],s.players[5]
 local lx,ly=Tactics.supportPoint(s,lm)
@@ -24,7 +24,7 @@ check(lx>=4 and rx<=s.field.w-4 and by>=7 and fy<=s.field.h-7,
       "AC-1: support targets must remain on the pitch")
 
 -- If human occupies a colleague's passing lane, that colleague rotates.
-local rotated=Sim.new()
+local rotated=Sim.new(nil,5)
 rotated.phase="play"; rotated.lastTouch=1
 rotated.ball.x,rotated.ball.y=66,35
 local midfielder=rotated.players[3]
@@ -38,7 +38,7 @@ local nx2,ny2=Tactics.supportPoint(rotated,midfielder)
 check(nx==nx2 and ny==ny2,"AC-2: rotation was non-deterministic")
 
 -- Defensive shape keeps a protector behind the ball; press is still assigned.
-local defend=Sim.new()
+local defend=Sim.new(nil,5)
 defend.phase="play"; defend.lastTouch=1
 defend.ball.x,defend.ball.y=62,35
 local redDef=defend.players[7]
@@ -51,7 +51,7 @@ check(redDef.targetX~=nil and redDef.targetY~=nil,
       "AC-3: defender lacks movement target")
 
 -- Forward runner is tightly screened; safe backward outlet must be selected.
-local pressure=Sim.new()
+local pressure=Sim.new(nil,5)
 pressure.phase="play"; pressure.lastTouch=1
 pressure.ball.x,pressure.ball.y=70,35
 local passer=pressure.players[2]
@@ -68,7 +68,7 @@ check(recipient and recipient.x<pressure.ball.x,
       "AC-4: a safe back-pass should beat a marked forward outlet")
 
 -- A call for the ball influences selection only if the lane is safe.
-local called=Sim.new()
+local called=Sim.new(nil,5)
 called.phase="play"; called.lastTouch=1
 called.ball.x,called.ball.y=70,35
 local deliverer=called.players[2]
@@ -88,7 +88,7 @@ choice=AI.passOption(called,deliverer)
 check(choice~=called.controlled,"AC-5: a marked call must not force a pass")
 
 -- No player swap or accidental human steering via team tactics.
-local goal=Sim.new("GK")
+local goal=Sim.new("GK",5)
 goal.phase="play"; goal.lastTouch=1
 local keeper=goal.controlled
 keeper.moveX,keeper.moveY=0.25,0.1

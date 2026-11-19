@@ -5,7 +5,7 @@ local function check(ok,msg) if not ok then error(msg,2) end end
 local function run(role)
     local s=Sim.new(role)
     local human=s.controlled
-    for tick=1,36000 do
+    for tick=1,37000 do
         local tx,ty
         if role=="GK" then tx,ty=6,math.max(27,math.min(43,s.ball.y))
         else tx,ty=s.ball.x-2.6,s.ball.y end
@@ -34,7 +34,7 @@ local function run(role)
             "AC-3: team attempts do not match total")
         if s.phase=="fulltime" then break end
     end
-    check(s.phase=="fulltime" and s.elapsed==180,"match did not finish")
+    check(s.phase=="fulltime" and s.elapsed==300,"match did not finish in five minutes")
     check(not s.activePass,"fulltime retained receiving intent")
     local a,b=s.passStats[1],s.passStats[2]
     check(a.completed+b.completed>0,"no physical receptions during full match")
@@ -46,5 +46,5 @@ end
 for _,role in ipairs({"RM","GK"}) do
     local first=run(role)
     check(run(role)==first,"full-match result was not deterministic")
-    print("PASS: 180s scripted match "..first)
+    print("PASS: 300s scripted match "..first)
 end

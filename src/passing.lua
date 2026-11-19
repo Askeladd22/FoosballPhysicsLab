@@ -27,7 +27,10 @@ function Passing.kickVelocity(s,p,tx,ty,power,action)
     end
     local approach=max(0,p.vx*nx+p.vy*ny)
     local multiplier=action=="pass" and s.params.passMultiplier or 1
-    local impulse=s.params.kickSpeed*clamp(power or 1,0.45,1.35)
+    -- A deliberate dribble touch is shorter than a pass or shot. Keep the
+    -- existing input/pass bounds while honouring the carry planner's power.
+    local minimum=action=="advance" and 0.32 or 0.45
+    local impulse=s.params.kickSpeed*clamp(power or 1,minimum,1.35)
         *multiplier+approach*0.12
     return b.vx+nx*impulse,b.vy+ny*impulse
 end
@@ -47,7 +50,8 @@ function Passing.plan(s,p,receiver)
     local best,bestCost=nil,math.huge
     -- A small bounded search accounts for lead, drag and incoming ball velocity.
     -- Prefer a receivable arrival speed, rather than maximum power for every pass.
-    for tick=5,40 do
+    -- A calmer ball needs a longer flight window to keep long passes viable.
+    for tick=5,50 do
         local time=tick*0.05
         local tx=clamp(receiver.x+receiver.vx*time,receiver.r,s.field.w-receiver.r)
         local ty=clamp(receiver.y+receiver.vy*time,receiver.r,s.field.h-receiver.r)

@@ -1,4 +1,4 @@
--- Temporary arena touchlines and stronger AI passes.
+-- Football touchlines and stronger AI passes.
 package.path="./?.lua;./?/init.lua;"..package.path
 local Sim=require("src.sim")
 local dt=1/120
@@ -10,34 +10,26 @@ local function check(condition,message)
 end
 
 local function ready()
-    local s=Sim.new()
+    local s=Sim.new(nil,5)
     s.phase="play"
     s.setPiece=nil
     s.aiTimer=-1000 -- avoid autonomous AI decisions during isolated tests
     return s
 end
 
--- Both sidelines bounce inwards without time loss, dead ball, or a throw-in.
+-- A partial crossing is live; the whole ball crossing stops play.
 for _,edge in ipairs({"top","bottom"}) do
-    for _,speed in ipairs({0,8,32,76}) do
-        local s=ready()
-        local b=s.ball
-        b.x=60
-        b.y=edge=="top" and b.r-0.3 or s.field.h-b.r+0.3
-        b.vx=0
-        b.vy=edge=="top" and -speed or speed
-        local clock=s.elapsed
-        Sim.step(s,dt,{x=0,y=0})
-        check(s.phase=="play" and s.restartCount==0,
-            "AC-1: unexpected throw-in at "..edge)
-        check(near(b.y,edge=="top" and b.r or s.field.h-b.r),
-            "AC-1: ball was not clamped to the pitch "..edge)
-        check((edge=="top" and b.vy>=0) or
-              (edge=="bottom" and b.vy<=0),
-            "AC-1: touchline did not bounce inward")
-        check(s.elapsed>clock,"AC-1: game clock stopped at touchline")
-        check(not s.setPiece,"AC-1: created set-piece on touchline")
-    end
+    local s=ready()
+    s.lastTouch=1
+    local b=s.ball
+    b.x=60
+    b.y=edge=="top" and -b.r+0.01 or s.field.h+b.r-0.01
+    Sim.step(s,dt)
+    check(s.phase=="play","partial crossing stopped play")
+    b.y=edge=="top" and -b.r-0.01 or s.field.h+b.r+0.01
+    Sim.step(s,dt)
+    check(s.phase=="restart" and s.setPiece.kind=="throw_in" and
+        s.setPiece.team==2,"whole crossing did not award opponent throw-in")
 end
 
 -- A kick of the same base power must be boosted only when classified 'pass'.
@@ -75,4 +67,4 @@ check(score.score[1]==1 and score.phase=="kickoff",
 check(score.setPiece and score.setPiece.kind=="kickoff",
       "AC-2: conceding side did not get kickoff")
 
-print("PASS: touchline bounces at 4 speeds, 35 percent pass-only boost, shots unchanged, goals")
+print("PASS: whole-ball touchline crossings, 35 percent pass-only boost, shots unchanged, goals")

@@ -1,0 +1,477 @@
+{
+  "scope": "Role names and localised labels observed in shipped language tables; not proof of active role/duty availability, locked instructions or engine implementation.",
+  "executable": {
+    "path": "S:/Epic Games/FootballManager24/fm.exe",
+    "sha256": "33e8a2e48c4986f2a15e11c4c93aca1199029d66b19bd765403eb22dea265378",
+    "identity_method": "REA open_binary"
+  },
+  "archive": {
+    "path": "S:/Epic Games/FootballManager24/data/shared.fmf",
+    "sha256": "48e188579933bcd423617675d80b1cad15f1fdf300bf4ffe4c5fbf8ee6c53dfc",
+    "format": "FMF v2, parsed directory records and Zstandard frames"
+  },
+  "language_members": [
+    "shared/languages/english.ltc",
+    "shared/languages/italian.ltc",
+    "shared/languages/changes/english.ltc",
+    "shared/languages/changes/italian.ltc"
+  ],
+  "method": "Parse LTC indexed keys and UTF-8 variant strings, then apply changes by key; role list matched to exact labels. Offsets are decoded LTC offsets, not executable addresses.",
+  "roles": [
+    {
+      "key": 268732889,
+      "id": 297433,
+      "name": "Goalkeeper",
+      "english_offset": 1389201,
+      "italian": [
+        "Portiere"
+      ],
+      "italian_offset": 1625521
+    },
+    {
+      "key": 268732901,
+      "id": 297445,
+      "name": "Sweeper Keeper",
+      "english_offset": 1389432,
+      "italian": [
+        "Portiere-libero"
+      ],
+      "italian_offset": 1625864
+    },
+    {
+      "key": 268732890,
+      "id": 297434,
+      "name": "Central Defender",
+      "english_offset": 1389216,
+      "italian": [
+        "Difensore centrale"
+      ],
+      "italian_offset": 1625534
+    },
+    {
+      "key": 268732904,
+      "id": 297448,
+      "name": "Ball Playing Defender",
+      "english_offset": 1389462,
+      "italian": [
+        "Difensore che imposta"
+      ],
+      "italian_offset": 1625906
+    },
+    {
+      "key": 268904071,
+      "id": 468615,
+      "name": "No-Nonsense Centre-Back",
+      "english_offset": 11395640,
+      "italian": [
+        "Difensore senza fronzoli"
+      ],
+      "italian_offset": 12469532
+    },
+    {
+      "key": 268902225,
+      "id": 466769,
+      "name": "No-Nonsense Full-Back",
+      "english_offset": 11280467,
+      "italian": [
+        "Terzino senza fronzoli"
+      ],
+      "italian_offset": 12351300
+    },
+    {
+      "key": 268975486,
+      "id": 540030,
+      "name": "Wide Centre-Back",
+      "english_offset": 16565257,
+      "italian": [
+        "Braccetto di difesa"
+      ],
+      "italian_offset": 20236038
+    },
+    {
+      "key": 268732903,
+      "id": 297447,
+      "name": "Libero",
+      "english_offset": 1389451,
+      "italian": [
+        "Libero che avanza"
+      ],
+      "italian_offset": 1625884
+    },
+    {
+      "key": 268732891,
+      "id": 297435,
+      "name": "Full-Back",
+      "english_offset": 1389237,
+      "italian": [
+        "Terzino"
+      ],
+      "italian_offset": 1625557
+    },
+    {
+      "key": 268732892,
+      "id": 297436,
+      "name": "Wing-Back",
+      "english_offset": 1389251,
+      "italian": [
+        "Terzino fluidificante"
+      ],
+      "italian_offset": 1625569
+    },
+    {
+      "key": 268790742,
+      "id": 355286,
+      "name": "Complete Wing-Back",
+      "english_offset": 4005026,
+      "italian": [
+        "Esterno completo"
+      ],
+      "italian_offset": 4439523
+    },
+    {
+      "key": 268811951,
+      "id": 376495,
+      "name": "Inverted Wing-Back",
+      "english_offset": 5138368,
+      "italian": [
+        "Esterno invertito"
+      ],
+      "italian_offset": 5759039
+    },
+    {
+      "key": 269032390,
+      "id": 596934,
+      "name": "Inverted Full-Back",
+      "english_offset": 213421,
+      "italian": [
+        "Terzino invertito"
+      ],
+      "italian_offset": 1954425
+    },
+    {
+      "key": 268732893,
+      "id": 297437,
+      "name": "Defensive Midfielder",
+      "english_offset": 1389265,
+      "italian": [
+        "Centrocampista difensivo"
+      ],
+      "italian_offset": 1625595
+    },
+    {
+      "key": 268732905,
+      "id": 297449,
+      "name": "Deep Lying Playmaker",
+      "english_offset": 1389488,
+      "italian": [
+        "Regista arretrato"
+      ],
+      "italian_offset": 1625932
+    },
+    {
+      "key": 268732906,
+      "id": 297450,
+      "name": "Ball Winning Midfielder",
+      "english_offset": 1389513,
+      "italian": [
+        "Incontrista"
+      ],
+      "italian_offset": 1625954
+    },
+    {
+      "key": 268975488,
+      "id": 540032,
+      "name": "Anchor",
+      "english_offset": 16565285,
+      "italian": [
+        "Mediano incontrista"
+      ],
+      "italian_offset": 55963
+    },
+    {
+      "key": 268790840,
+      "id": 355384,
+      "name": "Half Back",
+      "english_offset": 4010625,
+      "italian": [
+        "Centromediano Metodista"
+      ],
+      "italian_offset": 4445427
+    },
+    {
+      "key": 268791090,
+      "id": 355634,
+      "name": "Regista",
+      "english_offset": 4030588,
+      "italian": [
+        "Regista"
+      ],
+      "italian_offset": 4466524
+    },
+    {
+      "key": 268812022,
+      "id": 376566,
+      "name": "Roaming Playmaker",
+      "english_offset": 5141464,
+      "italian": [
+        "Regista mobile"
+      ],
+      "italian_offset": 5762037
+    },
+    {
+      "key": 268873840,
+      "id": 438384,
+      "name": "Segundo Volante",
+      "english_offset": 8863069,
+      "italian": [
+        "Secondo Mediano"
+      ],
+      "italian_offset": 9835649
+    },
+    {
+      "key": 268732894,
+      "id": 297438,
+      "name": "Central Midfielder",
+      "english_offset": 1389290,
+      "italian": [
+        "Centrocampista centrale"
+      ],
+      "italian_offset": 1625647
+    },
+    {
+      "key": 268732907,
+      "id": 297451,
+      "name": "Box To Box Midfielder",
+      "english_offset": 1389541,
+      "italian": [
+        "Centrocampista di quantità"
+      ],
+      "italian_offset": 1625970
+    },
+    {
+      "key": 268732908,
+      "id": 297452,
+      "name": "Advanced Playmaker",
+      "english_offset": 1389567,
+      "italian": [
+        "Regista avanzato"
+      ],
+      "italian_offset": 1626028
+    },
+    {
+      "key": 268873836,
+      "id": 438380,
+      "name": "Mezzala",
+      "english_offset": 8863027,
+      "italian": [
+        "Mezzala"
+      ],
+      "italian_offset": 9835608
+    },
+    {
+      "key": 268873838,
+      "id": 438382,
+      "name": "Carrilero",
+      "english_offset": 8863047,
+      "italian": [
+        "Carrilero"
+      ],
+      "italian_offset": 9835628
+    },
+    {
+      "key": 268732895,
+      "id": 297439,
+      "name": "Wide Midfielder",
+      "english_offset": 1389313,
+      "italian": [
+        "Centrocampista laterale"
+      ],
+      "italian_offset": 1625697
+    },
+    {
+      "key": 268732896,
+      "id": 297440,
+      "name": "Winger",
+      "english_offset": 1389333,
+      "italian": [
+        "Ala"
+      ],
+      "italian_offset": 1625747
+    },
+    {
+      "key": 268732913,
+      "id": 297457,
+      "name": "Defensive Winger",
+      "english_offset": 1389623,
+      "italian": [
+        "Ala che pressa"
+      ],
+      "italian_offset": 1626084
+    },
+    {
+      "key": 268812120,
+      "id": 376664,
+      "name": "Wide Playmaker",
+      "english_offset": 5150183,
+      "italian": [
+        "Regista largo"
+      ],
+      "italian_offset": 5770660
+    },
+    {
+      "key": 268873834,
+      "id": 438378,
+      "name": "Inverted Winger",
+      "english_offset": 8862999,
+      "italian": [
+        "Ala invertita"
+      ],
+      "italian_offset": 9835582
+    },
+    {
+      "key": 268732898,
+      "id": 297442,
+      "name": "Attacking Midfielder",
+      "english_offset": 1389363,
+      "italian": [
+        "Centrocampista offensivo"
+      ],
+      "italian_offset": 1625778
+    },
+    {
+      "key": 268790787,
+      "id": 355331,
+      "name": "Enganche",
+      "english_offset": 4007458,
+      "italian": [
+        "Rifinitore"
+      ],
+      "italian_offset": 4442227
+    },
+    {
+      "key": 268732915,
+      "id": 297459,
+      "name": "Trequartista",
+      "english_offset": 1389644,
+      "italian": [
+        "Trequartista"
+      ],
+      "italian_offset": 1626103
+    },
+    {
+      "key": 268791110,
+      "id": 355654,
+      "name": "Shadow Striker",
+      "english_offset": 4031258,
+      "italian": [
+        "Attaccante di sostegno"
+      ],
+      "italian_offset": 4467266
+    },
+    {
+      "key": 268732897,
+      "id": 297441,
+      "name": "Inside Forward",
+      "english_offset": 1389344,
+      "italian": [
+        "Attaccante esterno"
+      ],
+      "italian_offset": 1625755
+    },
+    {
+      "key": 268812015,
+      "id": 376559,
+      "name": "Raumdeuter",
+      "english_offset": 5141290,
+      "italian": [
+        "Trovaspazi"
+      ],
+      "italian_offset": 5761846
+    },
+    {
+      "key": 268974602,
+      "id": 539146,
+      "name": "Wide Target Forward",
+      "english_offset": 16490870,
+      "italian": [
+        "Fulcro del gioco largo"
+      ],
+      "italian_offset": 55253
+    },
+    {
+      "key": 268732899,
+      "id": 297443,
+      "name": "Deep Lying Forward",
+      "english_offset": 1389388,
+      "italian": [
+        "Seconda punta"
+      ],
+      "italian_offset": 1625830
+    },
+    {
+      "key": 268732900,
+      "id": 297444,
+      "name": "Advanced Forward",
+      "english_offset": 1389411,
+      "italian": [
+        "Centravanti"
+      ],
+      "italian_offset": 1625848
+    },
+    {
+      "key": 268974364,
+      "id": 538908,
+      "name": "Target Forward",
+      "english_offset": 16480494,
+      "italian": [
+        "Fulcro del gioco"
+      ],
+      "italian_offset": 20118357
+    },
+    {
+      "key": 268732910,
+      "id": 297454,
+      "name": "Poacher",
+      "english_offset": 1389590,
+      "italian": [
+        "Uomo d'area"
+      ],
+      "italian_offset": 1626049
+    },
+    {
+      "key": 268732911,
+      "id": 297455,
+      "name": "Complete Forward",
+      "english_offset": 1389602,
+      "italian": [
+        "Punta completa"
+      ],
+      "italian_offset": 1626065
+    },
+    {
+      "key": 268904073,
+      "id": 468617,
+      "name": "Pressing Forward",
+      "english_offset": 11395675,
+      "italian": [
+        "Attaccante che pressa"
+      ],
+      "italian_offset": 12469569
+    },
+    {
+      "key": 268790801,
+      "id": 355345,
+      "name": "False Nine",
+      "english_offset": 4008541,
+      "italian": [
+        "Falso 9"
+      ],
+      "italian_offset": 4443281
+    }
+  ],
+  "unknowns": [
+    "Internal per-role decision weights",
+    "Complete active role/duty compatibility table",
+    "All locked player-instruction combinations"
+  ]
+}
