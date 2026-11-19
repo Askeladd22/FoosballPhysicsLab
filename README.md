@@ -2,6 +2,10 @@
 
 Prototype of a **single-player, top-down tactical football game** built in LÖVE2D (Lua). One disc is permanently under player control; ten teammates and eleven opponents are controlled by tactical AI. Before kickoff, choose whether to play as the **goalkeeper #1** or the **midfielder #10**. A full individual career is the long-term goal, not yet implemented.
 
+## Foosball mouse-rod experiment (separate game)
+
+The [Foosball Mouse Rod Lab](experiments/foosball/README.md) is an **independent** LÖVE2D prototype: move the mouse **up/down to slide the selected rod** and **left/right to rotate it and physically strike the ball**. Run `love experiments/foosball`. This experiment does **not** replace NEON 11.
+
 ## Run
 
 Install LÖVE 11.x and launch the repository folder with LÖVE (e.g. `love .`). The match starts after a short kickoff countdown. A match lasts **5 minutes** in this prototype.
