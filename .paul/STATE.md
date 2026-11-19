@@ -1,28 +1,31 @@
 # PAUL State
 
 **Project:** Football Physics Lab
-**Milestone:** v0.2.1 — Gameplay stability + classic 2D
-**Phase:** 02 — stabilization and visual verification
-**Loop:** APPLYING — automated checks PASS, LÖVE UAT NOT_RUN
-**Branch:** fix/matchlab-stable-setpieces-and-passes
-**Pull request:** https://github.com/Askeladd22/FootballPhysicsLab/pull/5
+**Milestone:** v0.2.2 — Tactical positioning and playable GK
+**Phase:** 03 — Tactical Intelligence
+**Loop:** UNIFY_PARTIAL — gameplay merged via PR #6, both CI suites PASS, LÖVE UAT NOT_RUN
+**Branch for follow-up tests/docs:** test/goalkeeper-selection-and-tactics-docs
+**Gameplay PR:** https://github.com/Askeladd22/FootballPhysicsLab/pull/6 (merged)
+**Tests and documentation PR:** https://github.com/Askeladd22/FootballPhysicsLab/pull/7 (draft)
 **Updated:** 2026-11-19
 
-## Verified evidence
-- GitHub Actions run 44551540530: SUCCESS on syntax, headless match tests and mocked renderer smoke.
-- Four boundary restarts, kickoff, analog steering, pressing stability and AI passing have scenario-level regressions.
-- FM27-inspired classic 2D view implemented in src/view.lua with ball shadow, feet direction and nets.
+## Verified
+- PR #6 merged into main (observed on GitHub).
+- Run #44554353825: Lua headless CI SUCCESS on game logic, tactical support, role model and basic renderer checks.
+- New callback-level role-selection and prematch-overlay smoke tests in PR #7: GitHub Actions run #44555581190 completed SUCCESS.
+- Selected human role is GK #1 or RM #10 from prematch screen; the other nine discs remain AI controlled.
 
-## Limits / UAT
-- The mocked renderer cannot verify real frame appearance in LÖVE.
-- Full-match tactical behavior and feel are NOT_RUN; do not mark gameplay ready.
-- Set pieces are intentionally simplified, not full real football rules.
-- Etrusco ball design from user reference is prototype-only pending redistribution rights.
+## Not verified
+- Manual LÖVE 5v5 playtest as goalkeeper and midfielder.
+- Real rendering legibility at multiple resolutions and team-movement quality.
+- Actual pass completion statistics during entire matches.
+- Etrusco Unico reference design rights for commercial redistribution.
 
-## Planning and partial UNIFY
-- .paul/phases/02-gameplay-stability/02-01-PLAN.md
-- .paul/phases/02-gameplay-stability/02-02-PLAN.md
-- .paul/phases/02-gameplay-stability/02-01-02-SUMMARY.md
+## Plans and summary
+- .paul/phases/03-tactical-intelligence/03-01-PLAN.md
+- .paul/phases/03-tactical-intelligence/03-02-PLAN.md
+- .paul/phases/03-tactical-intelligence/03-01-02-SUMMARY.md
+- docs/TacticalPlayGuide.md
 
-## Next action
-Play one complete three-minute 5v5 match from PR #5 in LÖVE and report movement, rimesse, passaggi and camera readability.
+## Single next action
+Play one full match as blue GK #1 and report any issue with positioning, clearances, opponent attacks or teammate movement.
