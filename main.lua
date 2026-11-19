@@ -5,7 +5,7 @@ local View=require("src.view")
 local STEP=1/120
 local accumulator=0
 local match
-local ui={mode="instant",charging=false,charge=0,debug=false}
+local ui={mode="instant",charging=false,charge=0,debug=false,chooseRole=true}
 local pendingKick,pendingCall=nil,false
 local beforePause="play"
 local function axis(positive,negative)
@@ -20,6 +20,27 @@ end
 function love.keypressed(key,_,isrepeat)
     if key=="escape" then
         love.event.quit()
+        return
+    end
+    -- Role is chosen before starting a new match. No live player swapping.
+    if ui.chooseRole then
+        if key=="1" or key=="kp1" then
+            match=Sim.new("GK")
+            ui.chooseRole=false
+            accumulator=0
+        elseif key=="2" or key=="kp2" then
+            match=Sim.new("RM")
+            ui.chooseRole=false
+            accumulator=0
+        end
+        return
+    end
+    if key=="tab" then
+        ui.chooseRole=true
+        match=Sim.new()
+        accumulator=0
+        pendingKick,pendingCall=nil,false
+        ui.charging,ui.charge=false,0
     elseif key=="r" then
         Sim.restart(match)
         accumulator=0
@@ -68,6 +89,10 @@ function love.keyreleased(key)
     end
 end
 function love.update(dt)
+    if ui.chooseRole then
+        accumulator=0
+        return
+    end
     dt=math.min(dt,0.05)
     if ui.charging and match.phase=="play" then
         ui.charge=math.min(0.6,ui.charge+dt)
