@@ -55,7 +55,7 @@ function Tactics.supportPoint(s,p)
     else
         local dx=(b.x-f.w/2)*0.17
         local dy=(b.y-mid)*0.16
-        x=p.homeX+dx
+        x=p.homeX+dx-attack*1.8
         y=p.homeY+dy
     end
 
