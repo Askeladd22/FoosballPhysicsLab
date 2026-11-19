@@ -1,21 +1,22 @@
 
-local W, H = 1080, 660
+local W, H = 1280, 800
 local STEP = 1 / 120
 local accumulator = 0
 
 local field = {
-    left = 90, right = 990,
-    top = 95, bottom = 575,
-    goalHalf = 65
+    left = 60, right = 1220,
+    top = 100, bottom = 720,
+    goalHalf = 72
 }
 
 local cfg = {
     acceleration = 1800,
     maxSpeed = 270,
     playerDrag = 6.5,
-    ballDrag = 0.65,
-    restitution = 0.82,
-    wallBounce = 0.85,
+    ballDrag = 2.0,
+    ballStopSpeed = 6,
+    restitution = 0.76,
+    wallBounce = 0.78,
     kickSpeed = 510
 }
 
@@ -33,15 +34,17 @@ end
 
 local function resetPositions()
     player = {
-        x = 360, y = 335,
+        x = field.left + (field.right - field.left) * 0.34,
+        y = (field.top + field.bottom) / 2,
         vx = 0, vy = 0,
-        r = 17, mass = 3
+        r = 15, mass = 3
     }
 
     ball = {
-        x = 540, y = 335,
+        x = (field.left + field.right) / 2,
+        y = (field.top + field.bottom) / 2,
         vx = 0, vy = 0,
-        r = 10, mass = 1
+        r = 8, mass = 1
     }
 
     charging = false
@@ -293,6 +296,12 @@ local function physicsStep(dt)
     ball.vx = ball.vx * ballDrag
     ball.vy = ball.vy * ballDrag
 
+    -- Evita lunghi scivolamenti a velocita impercettibili.
+    if ball.vx * ball.vx + ball.vy * ball.vy
+        < cfg.ballStopSpeed * cfg.ballStopSpeed then
+        ball.vx, ball.vy = 0, 0
+    end
+
     ball.x = ball.x + ball.vx * dt
     ball.y = ball.y + ball.vy * dt
 
@@ -325,6 +334,10 @@ function love.keypressed(key, _, isrepeat)
         charging = false
         queuedKick = nil
         charge = 0
+    elseif key == "j" then
+        cfg.ballDrag = math.max(0.4, cfg.ballDrag - 0.2)
+    elseif key == "k" then
+        cfg.ballDrag = math.min(6.0, cfg.ballDrag + 0.2)
     elseif key == "[" then
         cfg.kickSpeed = math.max(100, cfg.kickSpeed - 50)
     elseif key == "]" then
@@ -383,10 +396,10 @@ function love.draw()
     )
 
     lg.line(midX, field.top, midX, field.bottom)
-    lg.circle("line", midX, midY, 75)
+    lg.circle("line", midX, midY, 96)
 
-    lg.rectangle("line", field.left, midY - 92, 90, 184)
-    lg.rectangle("line", field.right - 90, midY - 92, 90, 184)
+    lg.rectangle("line", field.left, midY - 120, 118, 240)
+    lg.rectangle("line", field.right - 118, midY - 120, 118, 240)
 
     lg.rectangle(
         "line", field.left - 30,
@@ -453,14 +466,17 @@ function love.draw()
 
     lg.print(
         "Tiro: " .. shotMode
-        .. "   |   Potenza base: " .. cfg.kickSpeed,
+        .. "   |   Potenza base: " .. cfg.kickSpeed
+        .. "   |   Attrito palla: "
+        .. string.format("%.1f", cfg.ballDrag),
         30, 44
     )
 
     lg.print(
         "WASD: muovi   SPAZIO: calcia   C: modalita tiro"
-        .. "   [ ]: potenza   R: reset   F1: debug",
-        30, 609
+        .. "   [ ]: potenza   J/K: attrito palla"
+        .. "   R: reset   F1: debug",
+        30, 764
     )
 
     if mode == "charge" and charging then
@@ -481,7 +497,7 @@ function love.draw()
                 "Palla: %.1f px/s",
                 math.sqrt(ball.vx ^ 2 + ball.vy ^ 2)
             ),
-            870, 18
+            1060, 18
         )
     end
 end
