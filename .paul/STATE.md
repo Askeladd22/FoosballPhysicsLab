@@ -1,28 +1,28 @@
-# PAUL State
+# PAUL State — Football Physics Lab
 
-**Project:** Football Physics Lab
-**Milestone:** v0.2.1 — Gameplay stability + classic 2D
-**Phase:** 02 — stabilization and visual verification
-**Loop:** APPLYING — automated checks PASS, LÖVE UAT NOT_RUN
-**Branch:** fix/matchlab-stable-setpieces-and-passes
-**Pull request:** https://github.com/Askeladd22/FootballPhysicsLab/pull/5
-**Updated:** 2026-11-19
+**Milestone:** v0.2.2 — Temporary arena touchlines and pass impulse tuning
+**Current phase:** 04 — physics/gameplay refinement
+**Cycle:** UNIFY PARTIAL — code + headless tests PASS, manual game-feel UAT NOT_RUN
+**Branch:** fix/no-throw-ins-stronger-passes
+**Pull Request:** https://github.com/Askeladd22/FootballPhysicsLab/pull/8
+**Date:** 2026-11-19
 
-## Verified evidence
-- GitHub Actions run 44551540530: SUCCESS on syntax, headless match tests and mocked renderer smoke.
-- Four boundary restarts, kickoff, analog steering, pressing stability and AI passing have scenario-level regressions.
-- FM27-inspired classic 2D view implemented in src/view.lua with ball shadow, feet direction and nets.
+## Evidence
+- `src/sim.lua`: no throw-ins on upper/lower touchlines, physical rebound inbounds; goal-line restarts retained.
+- `src/sim.lua`: only `action=="pass"` boosted via `passMultiplier=1.35`; shots and manual kicks unchanged.
+- `tests/test_sim.lua` and `tests/test_boundary_passing.lua`: side rails, goal-lines, pass power, baseline game flow.
+- CI GitHub Actions run **44555895328**, conclusion **success** on commit `ee0a70acec14d8bd3203691541bd6218ee6fcfd5`.
+- Full task record: `.paul/phases/04-arena-rules/04-01-PLAN.md` and `04-01-SUMMARY.md`.
 
-## Limits / UAT
-- The mocked renderer cannot verify real frame appearance in LÖVE.
-- Full-match tactical behavior and feel are NOT_RUN; do not mark gameplay ready.
-- Set pieces are intentionally simplified, not full real football rules.
-- Etrusco ball design from user reference is prototype-only pending redistribution rights.
+## Invariants
+- LÖVE2D, original FM-inspired classic 2D camera, Etrusco prototype asset.
+- Offline 5v5, single permanently controlled disc, pre-match goalkeeper/midfielder selection.
+- Career remains deferred.
 
-## Planning and partial UNIFY
-- .paul/phases/02-gameplay-stability/02-01-PLAN.md
-- .paul/phases/02-gameplay-stability/02-02-PLAN.md
-- .paul/phases/02-gameplay-stability/02-01-02-SUMMARY.md
+## Open checks
+- Real LÖVE2D UAT of side rebound loop and kick-pass power.
+- Adjust multiplier only after recording manual playtest feedback.
+- Revert to authentic throw-ins later if requested.
 
-## Next action
-Play one complete three-minute 5v5 match from PR #5 in LÖVE and report movement, rimesse, passaggi and camera readability.
+## Single next action
+Play one full 5v5 match on PR #8 in LÖVE2D and report ball-control / passing feedback.
