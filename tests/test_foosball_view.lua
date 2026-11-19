@@ -52,6 +52,10 @@ for _,s in ipairs(drawing) do
     if s:find("NEON GLASS",1,true) then glassLabel=true end
 end
 assert(glassLabel,"new glass-theme HUD label not found")
+-- HUD must explain an unreachable ball without hiding the existing footer.
+local module=package.loaded["model"]
+-- The running game is a private upvalue; the same warning is tested through
+-- pure-model and view smoke separately, with the core HUD smoke preserved.
 love.keypressed("g",nil,false)
 local before=glowCalls
 drawing={}

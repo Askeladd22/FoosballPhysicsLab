@@ -162,6 +162,12 @@ local function drawBall()
     lg.circle("fill",b.x,b.y,3.2)
     paint(colors.cream,0.8)
     lg.circle("fill",b.x-2,b.y-3,2.6)
+    if match.deadBallTimer>0 then
+        -- A warning ring, not a magnetic force or gameplay collision.
+        paint(colors.gold,0.35+0.25*math.min(1,match.deadBallTimer/Model.DEAD_BALL_SECONDS))
+        lg.setLineWidth(2)
+        lg.circle("line",b.x,b.y,b.r+9)
+    end
     local speed=math.sqrt(b.vx*b.vx+b.vy*b.vy)
     if Theme.glowEnabled and speed>140 then
         local factor=math.min(0.062,10/speed)
@@ -198,8 +204,18 @@ local function hud(w,h)
     text("ASTA "..match.selected.."  /  "..r.kind.."  /  rotazione "..angle.." gradi",
         45,bottom,fonts.normal,colors.cream)
     if r.stopPulse>0 then text("FINE CORSA",w-175,bottom,fonts.small,colors.gold) end
-    text("Bordo BIANCO = faccia di tiro   /   BLU: destra   /   ROSSO: sinistra",
-        45,bottom+27,fonts.small,colors.muted)
+    if match.deadBallNotice and match.deadBallNotice.expires>match.clock then
+        local side=match.deadBallNotice.team==1 and "BLU" or "ROSSO"
+        text("PALLA MORTA - RIMESSA "..side.." A CENTROCAMPO",
+            45,bottom+27,fonts.small,colors.gold)
+    elseif match.deadBallTimer>0 then
+        local remain=math.max(0,Model.DEAD_BALL_SECONDS-match.deadBallTimer)
+        text(string.format("PALLA IRRAGGIUNGIBILE - RIMESSA FRA %.1f s",remain),
+            45,bottom+27,fonts.small,colors.gold)
+    else
+        text("Bordo BIANCO = faccia di tiro   /   BLU: destra   /   ROSSO: sinistra",
+            45,bottom+27,fonts.small,colors.muted)
+    end
     local captured=love.mouse.getRelativeMode()
     local help=captured and "MOUSE CATTURATO - ESC per sbloccare" or
         "Clic per bloccare il mouse e ruotare senza limiti"
