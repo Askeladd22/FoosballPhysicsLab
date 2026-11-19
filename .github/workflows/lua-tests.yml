@@ -1,0 +1,16 @@
+name: Lua match simulation
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  syntax-and-simulation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Lua 5.4
+        run: sudo apt-get update && sudo apt-get install -y lua5.4
+      - name: Syntax check
+        run: luac5.4 -p main.lua src/sim.lua src/ai.lua src/view.lua tests/test_sim.lua
+      - name: Headless match tests
+        run: lua5.4 tests/test_sim.lua
