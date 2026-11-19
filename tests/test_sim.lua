@@ -107,8 +107,8 @@ for _,side in ipairs({"top","bottom","left","right"}) do
     r.ball.x,r.ball.y=60,35
     if side=="top" then r.ball.y=-3
     elseif side=="bottom" then r.ball.y=r.field.h+3
-    elseif side=="left" then r.ball.x=-3
-    else r.ball.x=r.field.w+3 end
+    elseif side=="left" then r.ball.x,r.ball.y=-3,15
+    else r.ball.x,r.ball.y=r.field.w+3,15 end
     Sim.step(r,dt,{x=0,y=0})
     check(r.phase=="restart" and r.setPiece.kind=="restart" and
           r.setPiece.side==side and r.setPiece.team==2,
