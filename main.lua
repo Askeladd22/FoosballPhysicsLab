@@ -10,12 +10,12 @@ local field = {
 }
 
 local cfg = {
-    acceleration = 1800,
-    maxSpeed = 270,
-    playerDrag = 6.5,
+    acceleration = 1400,
+    maxSpeed = 160,
+    playerDrag = 7.5,
     ballDrag = 2.0,
     ballStopSpeed = 6,
-    restitution = 0.76,
+    restitution = 0.48,
     wallBounce = 0.78,
     kickSpeed = 510
 }
@@ -334,6 +334,10 @@ function love.keypressed(key, _, isrepeat)
         charging = false
         queuedKick = nil
         charge = 0
+    elseif key == "n" then
+        cfg.maxSpeed = math.max(100, cfg.maxSpeed - 10)
+    elseif key == "m" then
+        cfg.maxSpeed = math.min(190, cfg.maxSpeed + 10)
     elseif key == "j" then
         cfg.ballDrag = math.max(0.4, cfg.ballDrag - 0.2)
     elseif key == "k" then
@@ -466,6 +470,7 @@ function love.draw()
 
     lg.print(
         "Tiro: " .. shotMode
+        .. "   |   Disco: " .. cfg.maxSpeed .. " px/s"
         .. "   |   Potenza base: " .. cfg.kickSpeed
         .. "   |   Attrito palla: "
         .. string.format("%.1f", cfg.ballDrag),
@@ -473,10 +478,12 @@ function love.draw()
     )
 
     lg.print(
-        "WASD: muovi   SPAZIO: calcia   C: modalita tiro"
-        .. "   [ ]: potenza   J/K: attrito palla"
-        .. "   R: reset   F1: debug",
-        30, 764
+        "WASD: muovi   SPAZIO: calcia   C: modalita tiro   N/M: velocita disco",
+        30, 746
+    )
+    lg.print(
+        "[ ]: potenza tiro   J/K: attrito palla   R: reset   F1: debug",
+        30, 768
     )
 
     if mode == "charge" and charging then
