@@ -101,6 +101,7 @@ check(receiver==request.controlled,
 for _,side in ipairs({"top","bottom"}) do
     local r=Sim.new()
     r.phase="play"
+    r.setPiece=nil  -- Discard prematch kickoff: this scenario tests open play.
     r.lastTouch=1
     r.ball.x=60
     r.ball.vx=0
