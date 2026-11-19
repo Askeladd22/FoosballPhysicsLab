@@ -4,6 +4,8 @@
 - [x] Initial field + world-coordinate simulation (code written; manual tuning pending).
 - [x] Initial 5v5 AI with pressing, supporting movements and pass selection (code written; gameplay UAT pending).
 - [x] Initial playable match loop, score, clock and HUD (code written; gameplay UAT pending).
+- [x] Code fix proposed for unstable movement, kickoff/restart logic and basic passing (headless CI PASS; LÖVE UAT pending).
+- [x] FM27-inspired classic 2D view in code, with mocked renderer smoke PASS (visual UAT pending).
 - [ ] Physics and gameplay refinement from actual playtests.
 - [ ] Verify all acceptance criteria in LÖVE and close the milestone.
 

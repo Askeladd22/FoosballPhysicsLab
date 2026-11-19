@@ -2,7 +2,7 @@
 project: Football Physics Lab
 project_type: custom/game-development
 status: exploring
-plan_version: "0.2"
+plan_version: "0.2.1"
 last_updated: 2026-11-19
 ---
 
@@ -18,6 +18,7 @@ Players who want simple direct controls, emergent ball physics, tactical movemen
 - Offline single-player only.
 - One disc permanently controlled by the human.
 - Top-down, readable field inspired by the supplied tactical match screenshot.
+- FM27-inspired **classic 2D match view** (smaller numbered discs, feet-based facing cues, ball shadow, transparent nets), with original art and HUD.
 - Physical ball: no magnetic possession or automatic dribbling.
 - Individual player career as a later milestone.
 
@@ -42,9 +43,9 @@ Multiplayer, full career, transfer markets, data persistence, 11v11, complex sub
 | Risk | Test |
 | --- | --- |
 | Ball control difficult or too elastic | Repeated close-touch playtests, compare with legacy lab |
-| Teammates cluster around ball | Watch AI debug targets for several transitions |
+| Teammates cluster or oscillate | Sticky press assignment, velocity steering and regression scenarios |
 | Input or physics depends on resolution | Run fixed-step simulation independent of drawing and vary window size |
-| Scoring/restarts deadlock | Headless goal and restart assertions; manual LÖVE matches |
+| Kickoff or boundary restart loops | Designated taker, inward ball impulse and four-side regression tests; LÖVE UAT |
 | Sprite rights unclear | Prototype only; verify rights or replace for release |
 
 ## Milestones
@@ -55,7 +56,7 @@ Multiplayer, full career, transfer markets, data persistence, 11v11, complex sub
 5. Career foundation: persistent player, clubs, roles and seasonal loop.
 
 ## Quality gate
-WARN: conceptual and technical slice implemented on a draft branch, but meaningful human playtesting is still required for dribbling, tactical AI, and UI readability.
+WARN: v0.2.1 regression tests for game flow and a mocked renderer pass, but meaningful human LÖVE playtesting is still required for dribbling, tactical AI, and actual FM27-style 2D readability.
 
 ## Next action
-Run the branch using LÖVE and record first-pass feedback on speed, pass decisions and control without the ball.
+Play one full match from PR #5 in LÖVE and record feedback on AI stability, kickoffs, restarts, passing and FM27-inspired visual readability.

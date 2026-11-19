@@ -11,6 +11,8 @@ jobs:
       - name: Install Lua 5.4
         run: sudo apt-get update && sudo apt-get install -y lua5.4
       - name: Syntax check
-        run: luac5.4 -p main.lua src/sim.lua src/ai.lua src/view.lua tests/test_sim.lua
+        run: luac5.4 -p main.lua src/sim.lua src/ai.lua src/view.lua tests/test_sim.lua tests/test_view.lua
       - name: Headless match tests
         run: lua5.4 tests/test_sim.lua
+      - name: Mocked 2D view smoke
+        run: lua5.4 tests/test_view.lua
