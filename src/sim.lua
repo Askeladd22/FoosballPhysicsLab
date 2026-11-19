@@ -108,7 +108,7 @@ function Sim.new(controlRole,teamSize)
         offsideCount={0,0},
         phaseClock=0,aiTimer=0,requestTimer=0,lastTouch=0,
         controlled=nil,autoCoachEnabled=false,pendingHumanPass=nil,actionFeedback=nil,
-        totalKicks=0,passAttempts=0,shotAttempts=0,
+        totalKicks=0,passAttempts=0,shotAttempts=0,tackleAttempts=0,
         restartCount=0,lastAction="",lastKickTime=-100,
         pressers={},presserSince={},setPiece=nil,setPieceProtect=0
     }
@@ -141,6 +141,7 @@ end
 function Sim.restart(s)
     s.score[1],s.score[2]=0,0
     s.elapsed,s.totalKicks,s.passAttempts,s.shotAttempts,s.restartCount=0,0,0,0,0
+    s.tackleAttempts=0
     s.lastAction=""
     s.aiPassAttempts=0
     s.clockStarted=false
@@ -153,6 +154,10 @@ end
 -- Kicks have an impulse, not an ownership or auto-pass animation.
 function Sim.kick(s,p,tx,ty,power,action,plan)
     if s.phase~="play" then return false end
+    -- A contested poke needs one short physical travel interval before
+    -- another actor can counter-strike. Avoid same-decision-tick ping-pong.
+    if s.lastAction=="tackle" and s.lastKicker~=p and
+        s.elapsed-s.lastKickTime<0.09 then return false end
     if p.cooldown>0 then
         if p==s.controlled then s.actionFeedback={message="Calcio in recupero",expires=s.elapsed+0.65} end
         return false
@@ -209,6 +214,7 @@ function Sim.kick(s,p,tx,ty,power,action,plan)
         Passing.begin(s,p,plan)
     end
     if action=="shot" then s.shotAttempts=s.shotAttempts+1 end
+    if action=="tackle" then s.tackleAttempts=s.tackleAttempts+1 end
     Combinations.onKick(s,p,action,plan)
     AI.noteKick(s,p,action,plan)
     return true

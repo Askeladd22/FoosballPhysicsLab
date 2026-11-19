@@ -49,7 +49,10 @@ local laneRisk=Space.laneRisk
 function AI.reset(s)
     s.aiPassMemory={}
     s.aiTransition=nil
-    for _,p in ipairs(s.players) do p.aiIntent=nil;p.aiScores=nil;p.supportX=nil;p.supportY=nil end
+    for _,p in ipairs(s.players) do
+        p.aiIntent=nil;p.aiScores=nil;p.supportX=nil;p.supportY=nil
+        p.approachSide=nil
+    end
 end
 function AI.noteKick(s,p,action,plan)
     s.aiPassMemory=s.aiPassMemory or {}
@@ -256,9 +259,11 @@ local function shotOption(s,p)
     local attack=p.team==1 and 1 or -1
     local goalX=attack==1 and f.w+b.r+0.1 or -b.r-0.1
     local distance=length(goalX-b.x,f.h/2-b.y)
-    local power=1.15
+    local power=1.35
     local range=s.params.kickSpeed*power*Passing.travelFactor(s.params.ballDrag,8)
-    if distance>min(28,range-0.5) then return end
+    -- A wider physical shooting window breaks perpetual sideways recycling,
+    -- but the ball still must have sufficient speed to cross the goal line.
+    if distance>min(33,range-1.5) then return end
     local inset=max(0,f.goalHalf-b.r-0.1)
     local bestY,bestRisk=nil,math.huge
     for _,offset in ipairs({-inset,inset,0}) do
@@ -277,7 +282,7 @@ local function shotOption(s,p)
         end
         if risk<bestRisk then bestY,bestRisk=ty,risk end
     end
-    if bestRisk>7 then return end
+    if bestRisk>9 then return end
     -- Invert the existing contact/aim blend so the physical launch heads at
     -- the chosen gap, rather than collapsing every corner aim toward centre.
     local ux,uy=norm(goalX-b.x,bestY-b.y)
@@ -310,7 +315,7 @@ local function chooseAction(s,p)
     local options={}
     local shotX,shotY,shotPower,shotRisk,goalDistance=shotOption(s,p)
     if shotX then options[#options+1]={x=shotX,y=shotY,power=shotPower,action="shot",
-        score=0.62+0.28*(1-clamp(goalDistance/28,0,1))-0.15*clamp(shotRisk/7,0,1)
+        score=0.86+0.25*(1-clamp(goalDistance/33,0,1))-0.14*clamp(shotRisk/9,0,1)
             +(q and (q.shooting or 0)*0.2 or 0)} end
     local mate,score,risk,plan=passOption(s,p)
     if mate and score>-7 and risk<9+(q and (q.risk or 0)*2 or 0) then
@@ -327,7 +332,7 @@ local function chooseAction(s,p)
         if p.role=="GK" then utility=utility-0.3 end
         if q then utility=utility+(q.dribbling or 0)*0.2-(q.holdUp and 0.12 or 0)
             -(q.tempo or 0)*0.04 end
-        options[#options+1]={x=carry.x,y=carry.y,power=0.32,action="advance",score=utility}
+        options[#options+1]={x=carry.x,y=carry.y,power=0.25,action="advance",score=utility}
     end
     local best,bestValue=nil,-math.huge
     p.aiScores={}
@@ -345,6 +350,40 @@ local function chooseAction(s,p)
     end
     return best.x,best.y,best.power,best.action,best.plan
 end
+-- Possession is not magnetic: a defender needs a genuinely contestable ball.
+-- Merely remembering that the opponent kicked last is not enough to tackle it.
+local function opponentContesting(s,p)
+    if s.lastTouch==p.team or s.lastTouch==0 then return false end
+    for _,enemy in ipairs(s.players) do
+        if enemy.team~=p.team and dist(enemy,s.ball)<enemy.r+s.ball.r+1.75 then
+            return true
+        end
+    end
+    return false
+end
+
+-- Open up a *blocked* passing outlet instead of oscillating at its tactical
+-- grid location. Free outlets keep their original FM-inspired shape.
+local function reactiveSupport(s,p,x,y)
+    if p.role=="GK" or s.lastTouch~=p.team or
+        Space.clearance(s,p.team,x,y)>7 then return x,y end
+    local attack=p.team==1 and 1 or -1
+    local offside=Offside.line(s,p.team)-attack*1.1
+    local bestX,bestY,bestScore=x,y,-math.huge
+    for _,offset in ipairs({{0,0},{0,-5},{0,5},{-5,0},{5,0},{-4,-4},{-4,4}}) do
+        local px=clamp(x+offset[1]*attack,3,s.field.w-3)
+        if p.team==1 then px=min(px,offside) else px=max(px,offside) end
+        local py=clamp(y+offset[2],5,s.field.h-5)
+        local clearance=Space.clearance(s,p.team,px,py)
+        local lane=Space.laneRisk(s,s.ball.x,s.ball.y,px,py,p.team)
+        local change=length(px-x,py-y)
+        local score=min(clearance,12)*1.2-min(lane,18)*0.14-change*0.45
+        if p.supportX then score=score-length(px-p.supportX,py-p.supportY)*0.12 end
+        if score>bestScore then bestScore,bestX,bestY=score,px,py end
+    end
+    return bestX,bestY
+end
+
 function AI.update(s)
     if s.phase~="play" then return end
     local b,f=s.ball,s.field
@@ -371,8 +410,10 @@ function AI.update(s)
     local teamTargets={Tactics.teamTargets(s,1),Tactics.teamTargets(s,2)}
     local function support(p)
         local target=teamTargets[p.team][p]
-        if target then return target.x,target.y end
-        return Tactics.supportPoint(s,p)
+        local x,y
+        if target then x,y=target.x,target.y
+        else x,y=Tactics.supportPoint(s,p) end
+        return reactiveSupport(s,p,x,y)
     end
     for _,p in ipairs(s.players) do
         if p~=s.controlled then
@@ -397,16 +438,25 @@ function AI.update(s)
                 p.decision="recover"
             elseif p==chosen[p.team] then
                 local tx,ty,power,action,plan=chooseAction(s,p)
-                local ux,uy=norm(tx-b.x,ty-b.y)
                 local dx,dy=b.x-p.x,b.y-p.y
+                -- Direct contest rather than endless orbit when another team
+                -- has the ball at its feet. The kick requires actual contact.
+                if opponentContesting(s,p) and length(dx,dy)<9 then
+                    local attack=p.team==1 and 1 or -1
+                    tx,ty=b.x+attack*15,clamp(b.y+(p.y<b.y and 0.8 or -0.8),2,f.h-2)
+                    power,action,plan=0.58,"tackle",nil
+                end
+                local ux,uy=norm(tx-b.x,ty-b.y)
                 local d=length(dx,dy)
                 local nx,ny=norm(dx,dy)
                 local face=ux*nx+uy*ny
                 -- A player must approach the correct side of the ball.
                 -- Never change the ball's direction without contact.
-                if action~="wait_return" and d<=p.r+b.r+0.95 and face>0.59 and p.cooldown<=0
-                    and (not plan or Passing.canLaunch(s,p,plan)) then
+                if action~="wait_return" and d<=p.r+b.r+0.95 and
+                    (action=="tackle" or face>0.59) and p.cooldown<=0 and
+                    (not plan or Passing.canLaunch(s,p,plan)) then
                     if s.kick(p,tx,ty,power,action,plan) then
+                        p.approachSide=nil
                         if action=="advance" then
                             -- Follow a physical touch into space. Previously
                             -- the carrier immediately retreated to support.
@@ -432,16 +482,27 @@ function AI.update(s)
                         if q.trap=="inside" then cy=by+side*reach
                         elseif q.trap=="outside" then cy=by-side*reach end
                     end
-                    if face<0.35 and d<reach*3 then
-                        -- Advance around the ball by a quarter turn from the
-                        -- current radial position. A fixed tangent waypoint
-                        -- can strand both pressers permanently on one side.
-                        local turn=nx*uy-ny*ux>=0 and 1 or -1
+                    if action=="tackle" then
+                        -- Contest the actual loose-contact space; do not take
+                        -- a long detour behind the ball to prepare a pass.
+                        cx=clamp(bx-nx*reach*0.85,-3.5,f.w+3.5)
+                        cy=clamp(by-ny*reach*0.85,-3.5,f.h+3.5)
+                        p.approachSide=nil
+                    elseif face<0.35 and d<reach*3 then
+                        -- Keep the same side of a circling approach across
+                        -- 100ms AI decisions; no left-right waypoint thrash.
+                        local turn=p.approachSide
+                        if not turn then
+                            turn=nx*uy-ny*ux>=0 and 1 or -1
+                            p.approachSide=turn
+                        end
                         local rx,ry=-nx,-ny
                         local nextX=(rx-ry*turn)*0.70710678118
                         local nextY=(ry+rx*turn)*0.70710678118
                         cx=clamp(bx+nextX*(reach+0.9),-3.5,f.w+3.5)
                         cy=clamp(by+nextY*(reach+0.9),-3.5,f.h+3.5)
+                    elseif face>0.65 or d>reach*4 then
+                        p.approachSide=nil
                     end
                     toward(s,p,cx,cy)
                     p.decision="approach_"..action

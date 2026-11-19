@@ -38,9 +38,9 @@ local function run(role)
     check(not s.activePass,"fulltime retained receiving intent")
     local a,b=s.passStats[1],s.passStats[2]
     check(a.completed+b.completed>0,"no physical receptions during full match")
-    local summary=string.format("%s score=%d-%d blue=%d/%d intercepted=%d missed=%d red=%d/%d intercepted=%d missed=%d",
+    local summary=string.format("%s score=%d-%d blue=%d/%d intercepted=%d missed=%d red=%d/%d intercepted=%d missed=%d shots=%d tackles=%d",
         role,s.score[1],s.score[2],a.completed,a.attempts,a.intercepted,a.missed,
-        b.completed,b.attempts,b.intercepted,b.missed)
+        b.completed,b.attempts,b.intercepted,b.missed,s.shotAttempts,s.tackleAttempts)
     return summary
 end
 for _,role in ipairs({"RM","GK"}) do

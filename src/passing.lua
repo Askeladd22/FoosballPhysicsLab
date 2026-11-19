@@ -29,7 +29,7 @@ function Passing.kickVelocity(s,p,tx,ty,power,action)
     local multiplier=action=="pass" and s.params.passMultiplier or 1
     -- A deliberate dribble touch is shorter than a pass or shot. Keep the
     -- existing input/pass bounds while honouring the carry planner's power.
-    local minimum=action=="advance" and 0.32 or 0.45
+    local minimum=action=="advance" and 0.25 or 0.45
     local impulse=s.params.kickSpeed*clamp(power or 1,minimum,1.35)
         *multiplier+approach*0.12
     return b.vx+nx*impulse,b.vy+ny*impulse
