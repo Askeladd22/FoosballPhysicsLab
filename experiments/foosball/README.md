@@ -6,11 +6,11 @@ Independent **greybox / first playable**, inside FootballPhysicsLab but **not pa
 
 Install **LÖVE 11.5**. From the repository root, run:
 
-\`\`\`sh
+```sh
 love experiments/foosball
-\`\`\`
+```
 
-Alternatively, open the \`experiments/foosball\` folder with the LÖVE executable (Windows drag & drop supported), or run \`cd experiments/foosball && love .\`.
+Alternatively, open the `experiments/foosball` folder with the LÖVE executable (Windows drag & drop supported), or run `cd experiments/foosball && love .`.
 
 ### Mouse is the controller
 
@@ -38,8 +38,8 @@ The rod's position has a bounded travel range, rotation is limited to avoid infi
 - For game feel, compare **captured vs released** mouse and try 3 sensitivity settings. Count purposeful hits, accidental strikes, missed contacts and successful aimed shots.
 - A passing automated test is not evidence that this is fun, realistic or accessible.
 
-Headless verification from repo root: \`lua5.4 tests/test_foosball.lua\` or \`luajit tests/test_foosball.lua\`.
+Headless verification from repo root: `lua5.4 tests/test_foosball.lua` or `luajit tests/test_foosball.lua`.
 
 ## Next design decision
 
-Only after a human playtest, decide whether the mouse mapping needs inertia/snap-to-contact assistance, whether the player should control 1 or 4 rods, and whether a career-focused foosball game deserves a standalone repository. Never fold the foosball logic into existing \`src/sim.lua\` without a separate decision.
+Only after a human playtest, decide whether the mouse mapping needs inertia/snap-to-contact assistance, whether the player should control 1 or 4 rods, and whether a career-focused foosball game deserves a standalone repository. Never fold the foosball logic into existing `src/sim.lua` without a separate decision.
