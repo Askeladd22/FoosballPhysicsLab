@@ -22,7 +22,7 @@ local function text(value,x,y,font,color)
 end
 local function transform()
     local w,h=lg.getDimensions()
-    local scale=math.min((w-128)/Model.W,(h-255)/Model.H)
+    local scale=math.min((w-128)/Model.W,(h-300)/Model.H)
     scale=math.max(scale,0.25)
     return (w-Model.W*scale)/2,115,scale,w,h
 end
