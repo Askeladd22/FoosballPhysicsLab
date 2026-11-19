@@ -11,9 +11,11 @@ jobs:
       - name: Install Lua 5.4
         run: sudo apt-get update && sudo apt-get install -y lua5.4
       - name: Syntax check
-        run: luac5.4 -p main.lua src/sim.lua src/ai.lua src/view.lua src/tactics.lua tests/test_sim.lua tests/test_tactics.lua tests/test_roles.lua tests/test_view.lua
+        run: luac5.4 -p tests/test_boundary_passing.lua main.lua src/sim.lua src/ai.lua src/view.lua src/tactics.lua tests/test_sim.lua tests/test_tactics.lua tests/test_roles.lua tests/test_view.lua
       - name: Headless match tests
         run: lua5.4 tests/test_sim.lua
+      - name: Touchline rails and passing power
+        run: lua5.4 tests/test_boundary_passing.lua
       - name: Tactical AI scenarios
         run: lua5.4 tests/test_tactics.lua
       - name: Permanent goalkeeper and midfield roles
