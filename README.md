@@ -1,4 +1,4 @@
-# Football Physics Lab — Match Lab v0.2
+# Football Physics Lab — Match Lab v0.2.1
 
 Prototype of a **single-player, top-down tactical football game** built in LÖVE2D (Lua). One disc is permanently under player control; four teammates and five opponents are controlled by simple tactical AI. A full individual career is the long-term goal, not yet implemented.
 
@@ -24,21 +24,24 @@ To compare the earlier ball-control sandbox, run `love legacy/physics_lab_01`.
 | F1 | Toggle tactical debugging |
 | Esc | Quit |
 
-**Prototype rules:** 5v5 including keepers, open play with goals and a countdown clock. Out-of-bounds restarts are simplified, without full fouls/offside/throw-ins. There is no multiplayer and no player switching.
+**2D view:** Football Manager 27 classic-style top-down presentation, with small numbered discs, feet-based orientation, more visible ball shadow and semi-transparent nets. Original renderer and UI; no Football Manager artwork is included.
+
+**Prototype rules:** 5v5 including keepers, open play with goals and a countdown clock. A designated kicker now starts and restarts play with a physical pass directed into the field; restarts are intentionally simplified, without full fouls/offside/throw-ins. There is no multiplayer and no player switching.
 
 ## Architecture
 
 - `main.lua`: LÖVE entry point, input, fixed 120 Hz simulation tick.
 - `src/sim.lua`: pitch coordinates, player/ball bodies, collisions, goals, match flow; no LÖVE dependencies.
 - `src/ai.lua`: basic five-a-side roles, pressing, support, goalkeeper coverage, passing decisions.
-- `src/view.lua`: camera, stadium field, player labels and HUD, ball image.
+- `src/view.lua`: resolution-independent FM27-inspired classic 2D field, feet-oriented players, Etrusco ball, shadow, nets and compact HUD.
 - `assets/etrusco_unico.png`: small transparent texture prepared from user-supplied 1990 Etrusco Unico reference image.
-- `tests/test_sim.lua`: deterministic headless simulation checks.
+- `tests/test_sim.lua`: headless match regressions for kickoff, steering, passes, four boundaries, scoring and determinism.
+- `tests/test_view.lua`: mocked 2D rendering smoke tests at 3 resolutions; not a visual substitute.
 - `legacy/physics_lab_01/main.lua`: earlier physics lab, kept for comparison.
 
 ## Testing
 
-Run `lua tests/test_sim.lua` with Lua 5.4. GitHub Actions performs a syntax check and headless tests. Rendering and game feel still require manual playtests in LÖVE.
+Run `lua tests/test_sim.lua` and `lua tests/test_view.lua` with Lua 5.4. GitHub Actions performs syntax, simulation and mocked rendering smoke checks. Real 2D appearance and game feel still require a manual playtest in LÖVE.
 
 ## Roadmap
 
