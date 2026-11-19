@@ -25,6 +25,8 @@ jobs:
         run: ${{ matrix.lua }} tests/test_match_passing.lua
       - name: Tactical AI scenarios
         run: ${{ matrix.lua }} tests/test_tactics.lua
+      - name: Contests and scoring opportunities
+        run: ${{ matrix.lua }} tests/test_gameplay_flow.lua
       - name: Team outlets and replacement cover
         run: ${{ matrix.lua }} tests/test_team_shape.lua
       - name: Approach balls at the touchlines
