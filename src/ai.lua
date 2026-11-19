@@ -1,5 +1,6 @@
 -- Match Lab v0.2.1: autonomous football with stable steering and physical passing.
 local AI={}
+local Tactics=require("src.tactics")
 local sqrt,min,max,abs=math.sqrt,math.min,math.max,math.abs
 local function clamp(v,a,b) return max(a,min(b,v)) end
 local function length(x,y) return sqrt(x*x+y*y) end
@@ -47,6 +48,14 @@ local function passOption(s,p)
     local b=s.ball
     local attack=p.team==1 and 1 or -1
     local best,bestScore,bestRisk=nil,-math.huge,math.huge
+    local closestToBall=math.huge
+    for _,enemy in ipairs(s.players) do
+        if enemy.team~=p.team then
+            local d=dist(enemy,b)
+            if d<closestToBall then closestToBall=d end
+        end
+    end
+    local pressured=closestToBall<10
     for _,mate in ipairs(s.players) do
         if mate.team==p.team and mate~=p then
             local leadX=clamp(mate.x+mate.vx*0.18,4,s.field.w-4)
@@ -55,10 +64,25 @@ local function passOption(s,p)
             local d=length(dx,dy)
             if d>5.5 and d<48 then
                 local risk=laneRisk(s,b.x,b.y,leadX,leadY,p.team)
+                local receiverGap=math.huge
+                for _,enemy in ipairs(s.players) do
+                    if enemy.team~=p.team then
+                        receiverGap=min(receiverGap,
+                            length(enemy.x-leadX,enemy.y-leadY))
+                    end
+                end
+                -- Progress is valuable, but an open back-pass must beat a
+                -- marked forward lane. Avoid receivers being immediately tackled.
                 local forward=dx*attack
-                local score=4+forward*0.26-d*0.16-risk
-                if mate.role=="GK" then score=score-9 end
-                if mate==s.controlled and s.requestTimer>0 then
+                local receiverPenalty=max(0,8-receiverGap)*1.8
+                local score=5+forward*0.24-d*0.13
+                    -risk*1.35-receiverPenalty
+                if mate.role=="GK" then score=score-4 end
+                if pressured and forward<0 and risk<5 then
+                    score=score+3
+                end
+                if mate==s.controlled and s.requestTimer>0 and
+                   risk<5 and receiverGap>5 then
                     score=score+9
                 end
                 if leadY<9 or leadY>s.field.h-9 then score=score-4 end
@@ -108,26 +132,6 @@ local function pressers(s)
     end
     return chosen
 end
-local function anchor(s,p)
-    local b,f=s.ball,s.field
-    local attack=p.team==1 and 1 or -1
-    local offsetX=(b.x-f.w/2)*0.19
-    local offsetY=(b.y-f.h/2)*0.18
-    local x,y=p.homeX+offsetX,p.homeY+offsetY
-    if p.role=="GK" then
-        x=p.team==1 and 5.3 or f.w-5.3
-        y=clamp(f.h/2+(b.y-f.h/2)*0.34,14,f.h-14)
-    elseif p.role=="DF" then
-        x=p.homeX+offsetX*0.62
-        y=f.h/2+offsetY*0.72
-    elseif p.role=="ST" then
-        x=p.homeX+offsetX*1.2
-        y=f.h/2+offsetY*0.65
-    end
-    if s.lastTouch==p.team then x=x+attack*2.8
-    else x=x-attack*1.8 end
-    return clamp(x,4,f.w-4),clamp(y,5,f.h-5)
-end
 local function safeForward(s,team)
     local b=s.ball
     local attack=team==1 and 1 or -1
@@ -161,7 +165,7 @@ function AI.update(s)
     for _,p in ipairs(s.players) do
         if p~=s.controlled then
             if p==s.setPieceTaker and s.setPieceProtect>0 then
-                local x,y=anchor(s,p)
+                local x,y=Tactics.supportPoint(s,p)
                 toward(s,p,x,y)
                 p.decision="recover"
             elseif p==chosen[p.team] then
@@ -190,7 +194,7 @@ function AI.update(s)
                     p.decision="approach_"..action
                 end
             else
-                local x,y=anchor(s,p)
+                local x,y=Tactics.supportPoint(s,p)
                 toward(s,p,x,y)
                 p.decision=p.role=="GK" and "goalkeeper" or
                     (s.lastTouch==p.team and "support" or "cover")

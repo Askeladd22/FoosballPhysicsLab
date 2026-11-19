@@ -202,13 +202,14 @@ function View.draw(s,ui)
     lg.rectangle("fill",0,h-67,7,67)
     lg.setFont(fonts.label)
     lg.setColor(0.96,0.97,0.95)
-    lg.print("BLU  #10  |  Centrocampista",22,h-55)
+    local role=s.controlled.role=="GK" and "Portiere" or "Centrocampista"
+    lg.print(string.format("BLU  #%d  |  %s",s.controlled.number,role),22,h-55)
     lg.setColor(0.80,0.84,0.8)
     centered(string.format("Passaggi: %d  |  Tiri: %d  |  Calci: %d",
         s.passAttempts or 0,s.shotAttempts or 0,s.totalKicks or 0),w/2,h-55)
     lg.setFont(fonts.small)
     lg.setColor(0.82,0.85,0.8)
-    centered("WASD muovi  |  SPAZIO calcia  |  E chiama passaggio  |  C tipo tiro  |  P pausa  |  R riavvia  |  F1 debug",w/2,h-28)
+    centered("WASD muovi  |  SPAZIO calcia  |  E passaggio  |  C tiro  |  P pausa  |  R riavvia  |  TAB nuovo ruolo  |  F1 debug",w/2,h-28)
     if ui.debug then
         lg.setFont(fonts.small)
         lg.setColor(1,1,1,0.88)
@@ -220,6 +221,24 @@ function View.draw(s,ui)
         lg.rectangle("fill",w/2-56,h-81,112,7,3,3)
         lg.setColor(0.99,0.77,0.20)
         lg.rectangle("fill",w/2-56,h-81,112*(ui.charge/0.6),7,3,3)
+    end
+    if ui.chooseRole then
+        lg.setColor(0.02,0.04,0.04,0.78)
+        lg.rectangle("fill",0,0,w,h)
+        local boxWidth=math.min(480,w-48)
+        local boxX=(w-boxWidth)/2
+        lg.setColor(0.09,0.13,0.15,0.98)
+        lg.rectangle("fill",boxX,h/2-135,boxWidth,270,14,14)
+        lg.setColor(1,1,1)
+        lg.setFont(fonts.score)
+        centered("SCEGLI IL TUO RUOLO",w/2,h/2-104)
+        lg.setFont(fonts.label)
+        lg.setColor(0.88,0.93,0.91)
+        centered("1  PORTIERE  (#1)",w/2,h/2-48)
+        centered("2  CENTROCAMPISTA  (#10)",w/2,h/2-10)
+        lg.setColor(0.76,0.81,0.77)
+        centered("Controlli sempre un solo disco per partita.",w/2,h/2+38)
+        centered("La scelta avvia una nuova partita 5v5.",w/2,h/2+62)
     end
 end
 return View
