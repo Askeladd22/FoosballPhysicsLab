@@ -110,7 +110,7 @@ assert(nearly(sr.slide,sr.travel) and nearly(sr.vy,0),"end-stop did not arrest s
 local oldStops=sr.stopCount
 for _=1,50 do stop:step(dt) end
 assert(sr.stopCount==oldStops,"holding at bumper repeats collision every tick")
-stop:mouseMoved(0,-2000)
+for _=1,3 do stop:mouseMoved(0,-2000) end
 for _=1,270 do stop:step(dt) end
 assert(sr.stopSide==-1 and sr.stopCount==oldStops+1,"upper cushion end-stop missing")
 -- The front striking face is flat and bounds the real collision volume.
