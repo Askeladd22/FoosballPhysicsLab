@@ -14,6 +14,8 @@ jobs:
         run: luac5.4 -p main.lua src/sim.lua src/ai.lua src/view.lua src/tactics.lua tests/test_sim.lua tests/test_tactics.lua tests/test_roles.lua tests/test_main_roles.lua tests/test_view.lua
       - name: Headless match tests
         run: lua5.4 tests/test_sim.lua
+      - name: Touchline rails and passing power
+        run: lua5.4 tests/test_boundary_passing.lua
       - name: Tactical AI scenarios
         run: lua5.4 tests/test_tactics.lua
       - name: Permanent goalkeeper and midfield roles

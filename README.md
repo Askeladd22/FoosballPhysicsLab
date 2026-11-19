@@ -26,7 +26,7 @@ To compare the earlier ball-control sandbox, run `love legacy/physics_lab_01`.
 
 **2D view:** Football Manager 27 classic-style top-down presentation, with small numbered discs, feet-based orientation, more visible ball shadow and semi-transparent nets. Original renderer and UI; no Football Manager artwork is included.
 
-**Prototype rules:** 5v5 including keepers, open play with goals and a countdown clock. A designated kicker now starts and restarts play with a physical pass directed into the field; restarts are intentionally simplified, without full fouls/offside/throw-ins. There is no multiplayer and no player switching.
+**Prototype rules:** 5v5 including keepers, open play with goals and a countdown clock. A designated kicker starts play; **the top/bottom touchlines temporarily bounce the ball back into the field instead of producing throw-ins**. The side goal-lines still award a simplified restart when there is no goal. **AI passes and kickoff passes have 35% more impulse; normal shots/manual kicks are unchanged.** Offside and fouls remain out of scope. There is no multiplayer and no player switching.
 
 ## Architecture
 

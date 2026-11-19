@@ -1,4 +1,4 @@
-# PAUL State
+# PAUL State — Football Physics Lab
 
 **Project:** Football Physics Lab
 **Milestone:** v0.2.2 — Tactical positioning and playable GK

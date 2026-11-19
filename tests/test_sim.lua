@@ -97,41 +97,56 @@ local receiver=AI.passOption(request,reqPasser)
 check(receiver==request.controlled,
       "AC-5: pass request should help selection when lane is clear")
 
--- All boundaries: one designated taker, inside-directed restart.
-for _,side in ipairs({"top","bottom","left","right"}) do
+-- Temporary arena rails: no throw-ins on top or bottom.
+for _,side in ipairs({"top","bottom"}) do
+    local r=Sim.new()
+    r.phase="play"
+    r.setPiece=nil  -- Discard prematch kickoff: this scenario tests open play.
+    r.lastTouch=1
+    r.ball.x=60
+    r.ball.vx=0
+    r.ball.vy=side=="top" and -15 or 15
+    r.ball.y=side=="top" and -3 or r.field.h+3
+    Sim.step(r,dt,{x=0,y=0})
+    check(r.phase=="play" and r.restartCount==0 and r.setPiece==nil,
+          "AC-1: touchline should not create a throw-in "..side)
+    check(r.ball.y>=r.ball.r and r.ball.y<=r.field.h-r.ball.r,
+          "AC-1: ball should remain inside touchline "..side)
+    check((side=="top" and r.ball.vy>0) or
+          (side=="bottom" and r.ball.vy<0),
+          "AC-1: ball should bounce toward the pitch "..side)
+    tick(r,18)
+    check(r.phase=="play" and r.restartCount==0,
+          "AC-1: touchline loop after bounce "..side)
+end
+
+-- Existing goal-line restarts outside the posts remain intact.
+for _,side in ipairs({"left","right"}) do
     local r=Sim.new()
     r.phase="play"
     r.lastTouch=1
     r.setPiece=nil
     r.ball.vx,r.ball.vy=0,0
-    r.ball.x,r.ball.y=60,35
-    if side=="top" then r.ball.y=-3
-    elseif side=="bottom" then r.ball.y=r.field.h+3
-    elseif side=="left" then r.ball.x,r.ball.y=-3,15
-    else r.ball.x,r.ball.y=r.field.w+3,15 end
+    r.ball.x=side=="left" and -3 or r.field.w+3
+    r.ball.y=15
     Sim.step(r,dt,{x=0,y=0})
     check(r.phase=="restart" and r.setPiece.kind=="restart" and
           r.setPiece.side==side and r.setPiece.team==2,
-          "AC-4: incorrectly assigned restart for "..side)
+          "AC-2: incorrectly assigned goal-line restart "..side)
     local taker=r.setPiece.taker
-    check(taker~=nil and taker.team==2 and taker~=r.controlled,
-          "AC-4: missing AI restart taker")
-    local x,y=r.ball.x,r.ball.y
+    check(taker and taker.team==2 and taker~=r.controlled,
+          "AC-2: missing goal-line restart taker")
     tick(r,100)
     check(r.phase=="play" and r.totalKicks==1,
-          "AC-4: exactly one restart kick for "..side)
-    if side=="top" then
-        check(r.ball.vy>0,"AC-4: upper throw must go toward field")
-    elseif side=="bottom" then
-        check(r.ball.vy<0,"AC-4: lower throw must go toward field")
-    elseif side=="left" then
-        check(r.ball.vx>0,"AC-4: left restart must go toward field")
+          "AC-2: exactly one restart kick "..side)
+    if side=="left" then
+        check(r.ball.vx>0,"AC-2: left endline must return to field")
     else
-        check(r.ball.vx<0,"AC-4: right restart must go toward field")
+        check(r.ball.vx<0,"AC-2: right endline must return to field")
     end
     tick(r,25)
     check(r.restartCount==1 and r.phase=="play",
-          "AC-4: immediate repeated out-of-bounds "..side)
+          "AC-2: repeated goal-line restart "..side)
 end
 
 -- Goals, clocks, restarts, deterministic fixed-step simulation remain valid.
@@ -157,4 +172,4 @@ Sim.restart(a)
 check(a.score[1]==0 and a.score[2]==0 and a.elapsed==0 and
       a.controlled==a.players[4],"AC-6: restart state")
 
-print("PASS: kickoff, analog steering, sticky press, real passes, four restarts, scoring, identity, deterministic match")
+print("PASS: kickoff, analog steering, sticky press, real passes, two goal-line restarts, touchline rails, scoring, identity, deterministic match")
