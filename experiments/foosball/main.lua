@@ -1,4 +1,5 @@
 local Model=require("model")
+local Layout=require("layout")
 local lg=love.graphics
 local match
 local accumulator=0
@@ -21,10 +22,7 @@ local function text(value,x,y,font,color)
     lg.print(value,x,y)
 end
 local function transform()
-    local w,h=lg.getDimensions()
-    local scale=math.min((w-128)/Model.W,(h-300)/Model.H)
-    scale=math.max(scale,0.25)
-    return (w-Model.W*scale)/2,115,scale,w,h
+    return Layout.compute(lg.getDimensions())
 end
 local function pitch()
     paint(colors.rim)
@@ -104,37 +102,54 @@ local function rods()
         for j=1,#r.offsets do
             local fx,fy=Model.foot(r,j)
             local left,top,fw,fh=Model.footRect(r,j)
+            local bodyX,_,headX,headY=Model.figurePose(r,j)
             local direction=r.team==1 and 1 or -1
-            -- Readable figure: head / torso / moving leg / flat striking shoe.
-            paint({0.01,0.06,0.07},0.35)
-            lg.rectangle("fill",r.x-11,fy-14,23,35,6,6)
+            local central=j==math.ceil(#r.offsets/2)
+            -- Socket stays on the real shaft; leg and body lean with the
+            -- actual horizontal shoe projection, instead of looking detached.
+            paint({0.01,0.06,0.07},0.42)
+            lg.polygon("fill",r.x-8,fy-13,r.x+10,fy-13,
+                bodyX+11,fy+13,bodyX-9,fy+13)
             paint(c)
-            lg.rectangle("fill",r.x-9,fy-13,18,27,5,5)
-            paint(colors.cream)
-            lg.circle("fill",r.x,fy-16,6)
-            paint({0.07,0.12,0.13},0.75)
+            lg.polygon("fill",r.x-9,fy-13,r.x+9,fy-13,
+                bodyX+8,fy+11,bodyX-8,fy+11)
+            paint({0.07,0.11,0.12})
             lg.setLineWidth(4)
-            lg.line(r.x,fy+7,fx,fy+7)
-            -- Shoe rectangle is identical to the simulation collision box.
+            lg.line(bodyX,fy+6,fx,fy+6)
+            paint(colors.cream)
+            lg.circle("fill",headX,headY,6)
+            paint({0.06,0.12,0.13})
+            lg.circle("line",headX,headY,6)
+            -- Same rectangle as the collision geometry; NO circular toe.
             paint({0.01,0.06,0.07},0.4)
-            lg.rectangle("fill",left+3,top+3,fw,fh,4,4)
-            paint(current and colors.gold or c)
+            lg.rectangle("fill",left+2,top+3,fw,fh,3,3)
+            paint(c)
             lg.rectangle("fill",left,top,fw,fh,3,3)
-            -- Deliberately bright FLAT front edge (not a misleading round dot).
+            -- White is the physical striking edge, gold only outlines the
+            -- selected rod. It must remain visibly blue/red, not all yellow.
+            if current then
+                paint(colors.gold,0.9)
+                lg.setLineWidth(2)
+                lg.rectangle("line",left-1.5,top-1.5,fw+3,fh+3,3,3)
+            end
             local front=direction==1 and left+fw or left
-            paint(colors.cream,1)
+            paint(colors.cream)
             lg.setLineWidth(current and 4 or 3)
             lg.line(front,top+2,front,top+fh-2)
-            if current then
-                paint(colors.gold,0.75)
-                local tip=front+direction*10
+            if current and central then
+                -- Only ONE arrow on the active rod: repeated arrows on five
+                -- figures read as spiky shoes in the screenshot.
+                paint(colors.gold,0.85)
+                local tip=front+direction*12
                 lg.line(front,fy,tip,fy)
                 lg.line(tip,fy,tip-direction*5,fy-5)
                 lg.line(tip,fy,tip-direction*5,fy+5)
             end
             if debugDraw then
                 paint(colors.gold,0.75)
+                lg.setLineWidth(1)
                 lg.rectangle("line",left,top,fw,fh)
+                lg.line(r.x,fy,fx,fy)
                 lg.line(fx,fy,fx+direction*Model.FOOT_REACH*math.cos(r.angle)*r.omega*0.11,
                     fy+r.vy*0.11)
             end
@@ -163,19 +178,20 @@ local function hud(w,h)
     local score=tostring(match.score[1]).."  :  "..tostring(match.score[2])
     text(score,w-200,21,fonts.title,colors.gold)
     text("TU      IA",w-184,67,fonts.small,colors.muted)
-    local _,boardY,scale=transform()
-    local bottom=boardY+Model.H*scale+67
+    local bottom=Layout.bounds(w,h).boardBottom+17
     local angle=math.floor(r.angle*180/math.pi+0.5)
-    text("ASTA "..match.selected.."  •  "..r.kind.."   |   rotazione "..angle..
-        "°   |   PIEDE → (ciano) / ← (arancio)",45,bottom,fonts.normal,colors.cream)
+    text("ASTA "..match.selected.."  /  "..r.kind.."  /  rotazione "..angle.." gradi",
+        45,bottom,fonts.normal,colors.cream)
     if r.stopPulse>0 then
-        text("FINE CORSA • TAMPONE",650,bottom,fonts.small,colors.gold)
+        text("FINE CORSA",w-195,bottom,fonts.small,colors.gold)
     end
+    text("Bordo BIANCO = faccia di tiro   |   BLU verso DESTRA   /   ROSSO verso SINISTRA",
+        45,bottom+26,fonts.small,colors.muted)
     local captured=love.mouse.getRelativeMode()
-    local help=captured and "MOUSE CATTURATO • ESC per sbloccare" or
-        "Muovi il mouse per giocare • clic per catturarlo e non fermarti ai bordi"
-    text(help,45,bottom+31,fonts.small,captured and colors.gold or colors.muted)
-    text("1-4 cambia asta  |  rotella cambia asta  |  C neutralizza  |  [-][+] sensibilità  |  R ricomincia  |  F1 debug",
+    local help=captured and "MOUSE CATTURATO - ESC per sbloccare" or
+        "Muovi il mouse per giocare - clic per catturarlo e non fermarti ai bordi"
+    text(help,45,bottom+52,fonts.small,captured and colors.gold or colors.muted)
+    text("1-4 / rotella: asta    C: piede neutro    - / +: sensibilita    R: ricomincia    F1: collisioni",
         45,h-40,fonts.small,colors.muted)
     if match.phase=="goal" or match.phase=="finished" then
         local message=match.phase=="finished" and

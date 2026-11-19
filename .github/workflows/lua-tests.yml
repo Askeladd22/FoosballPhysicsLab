@@ -85,3 +85,5 @@ jobs:
         run: ${{ matrix.lua }} tests/test_foosball.lua
       - name: Foosball mocked LÖVE controls and view
         run: ${{ matrix.lua }} tests/test_foosball_view.lua
+      - name: Foosball screen fit and pose consistency
+        run: ${{ matrix.lua }} tests/test_foosball_layout.lua

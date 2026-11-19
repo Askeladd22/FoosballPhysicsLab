@@ -52,6 +52,16 @@ function M.footRect(rod,index)
     return x-M.FOOT_HALF_WIDTH,y-M.FOOT_HALF_HEIGHT,
         M.FOOT_HALF_WIDTH*2,M.FOOT_HALF_HEIGHT*2
 end
+-- An articulated side-projection of the same physical shoe. The socket
+-- remains on the shaft, while body/head visually follow the angular swing.
+-- This is presentation only: the colliding rectangle above is unchanged.
+function M.figurePose(rod,index)
+    local footX,footY=M.foot(rod,index)
+    local lean=(footX-rod.x)*0.37
+    local bodyX=rod.x+lean
+    local headX=rod.x+lean*0.9
+    return bodyX,footY,headX,footY-19
+end
 function M.new()
     local self=setmetatable({},Game)
     self:reset()
