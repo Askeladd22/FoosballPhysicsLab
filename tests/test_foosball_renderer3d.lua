@@ -2,7 +2,7 @@
 package.path="./?.lua;./?/init.lua;"..package.path
 local ThreeD=require("renderer3d")
 local Model=require("model")
-local fake={files={},draws={},sends={},depth=false}
+local fake={files={},draws={},sends={},depth=false,clearedDepth=nil}
 local shader={send=function(_,name,value)
     fake.sends[#fake.sends+1]={name,value}
 end}
@@ -31,7 +31,11 @@ local graphics={
             fake.depth=true
         end
     end,
-    clear=function() end,
+    clear=function(r,g,b,a,stencil,depth)
+        assert(stencil==0 and depth==1,
+            "Depth clear must be 1 with lequal; clearing it to 0 causes black frames")
+        fake.clearedDepth=depth
+    end,
     setDepthMode=function(mode,write)
         if mode=="lequal" then assert(write) end
     end,
@@ -68,7 +72,8 @@ assert(match.rods[4].slide~=before,"actual mouse motion must drive rod translati
 local oldLove=love
 love={graphics=graphics}
 assert(ThreeD.draw(match,1280,850),"3D render did not run")
-assert(fake.depth,"renderer did not render into depth-enabled target")
+assert(fake.depth and fake.clearedDepth==1,
+    "renderer did not clear the real depth buffer to its farthest value")
 assert(#fake.draws==12,"expected static table+field, 8 moving rods, ball, and color canvas")
 local rodTranslations={}
 for i,send in ipairs(fake.sends) do

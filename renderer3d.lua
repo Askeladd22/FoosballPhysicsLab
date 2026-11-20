@@ -175,7 +175,10 @@ function ThreeD.draw(match,w,h)
     local eye,right,up,forward=ThreeD.cameraBasis()
     lg.push("all")
     lg.setCanvas({ThreeD.canvas,depth=true})
-    lg.clear(0.016,0.025,0.040,1,1,0)
+    -- CRITICAL: lequal depth testing only draws fragments <= the stored depth.
+    -- Clearing depth to 0 made *every real 3D mesh invisible* on the user's PC.
+    -- Initialize stencil=0 and depth=1 (the farthest possible depth).
+    lg.clear(0.016,0.025,0.040,1,0,1)
     lg.setDepthMode("lequal",true)
     lg.setShader(shader)
     lg.setColor(1,1,1,1)
@@ -216,5 +219,29 @@ function ThreeD.draw(match,w,h)
         lg.setColor(1,1,1,1)
     end
     return true
+end
+-- CI / developer-only GPU readback. The old smoke passed with a totally
+-- black frame because it only counted callbacks, never visible pixels.
+function ThreeD.assertVisible()
+    assert(ThreeD.active() and ThreeD.canvas,
+        "Cannot verify visibility without an active true-3D Canvas")
+    local image=ThreeD.canvas:newImageData()
+    local w,h=image:getDimensions()
+    local lit,total=0,0
+    for j=3,17 do
+        local y=math.floor((j/20)*h)
+        for i=2,18 do
+            local x=math.floor((i/20)*w)
+            local r,g,b=image:getPixel(x,y)
+            -- Compare with the documented 3D background, NOT full black:
+            -- antialiasing variations are tolerated.
+            if r>0.095 or g>0.12 or b>0.16 then lit=lit+1 end
+            total=total+1
+        end
+    end
+    print(("3D GPU visible pixel probes: %d/%d"):format(lit,total))
+    assert(lit>=6,
+        "3D EMPTY FRAME: GPU mesh loading succeeded but no geometry appeared. Check depth, camera and shaders.")
+    return lit,total
 end
 return ThreeD
