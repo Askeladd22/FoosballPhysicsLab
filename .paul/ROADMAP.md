@@ -54,3 +54,11 @@
 - [ ] Rivedere altezza/obliquità, distanza, FOV35 e banda viewport fissa 112px top + 140px bottom.
 - [ ] Verificare pallina, piedi, sponde e rampette da front/back e yaw 0/180 in un frame reale, non solo test matematica proiezione.
 - [ ] Separare le modifiche camera in una nuova PR: questo PR #32 contiene soltanto rampe e loro allineamento GPU.
+
+## Fase 35 — Camera GAMEPLAY più funzionale (screenshot utente)
+- [x] Modificato solo il preset camera GAMEPLAY: centro asse lungo, offset (0, +1200, ±430), ~70° sopra il piano, FOV dedicato 33°.
+- [x] Preset ESPOSIZIONE F4 invariato (FOV35 e inquadratura completa gambe).
+- [x] FOV CPU di ball/foot marker = FOV shader GPU, anche dopo cambio F4.
+- [x] Test nuove 5 risoluzioni inclusa 1271×874, front/back, yaw0/180, simmetria, visibilità superfici, contatti, HUD, no modifiche fisiche; mock 3D FOV switching.
+- [ ] Verifica CI definitiva: [PR #33](https://github.com/Askeladd22/FoosballPhysicsLab/pull/33); primo run [44785767904](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44785767904).
+- [ ] Playtest Windows: 10 colpi con mouse, 5 rimbalzi di sponda, 4 angoli e confronto F4 in due risoluzioni; valutazione leggibilità non verificata dalla sola CI.
