@@ -27,6 +27,8 @@ local frameLimit=nil
 local frameCount=0
 local verifyPixels=false
 local verifyField=false
+local verifyLegs=false
+local captureFrame=false
 local debugDraw=false
 local fonts={}
 local colors=Theme.colors
@@ -338,6 +340,10 @@ function love.load()
             verifyPixels=true
         elseif value=="--verify-3d-field" then
             verifyField=true
+        elseif value=="--verify-3d-legs" then
+            verifyLegs=true
+        elseif value=="--capture-3d-frame" then
+            captureFrame=true
         end
     end
     love.window.setTitle(real3d and
@@ -355,8 +361,12 @@ function love.update(dt)
     if frameLimit then
         frameCount=frameCount+1
         if frameCount>=frameLimit and love.event and love.event.quit then
+            -- Always capture first, even when a strict visual test fails:
+            -- never lose the frame we need in order to diagnose a problem.
+            if captureFrame then ThreeD.captureFrame() end
             if verifyPixels then ThreeD.assertVisible() end
             if verifyField then ThreeD.assertFieldVisible() end
+            if verifyLegs then ThreeD.assertLegVisible() end
             print("PASS: native LÖVE "..(ThreeD.active() and "TRUE 3D" or "2D")..
                 " frame smoke ("..frameCount.." frames)")
             love.event.quit(0)

@@ -60,8 +60,16 @@ local SHADER=[[
             (n.x*uRotate.x-n.y*uRotate.y)*uWorldOrientation,
              n.x*uRotate.y+n.y*uRotate.x,
              n.z*uWorldOrientation));
+        // CRITICAL LÖVE Canvas correction: when a manually projected 3D
+        // clip-space position is rendered into an offscreen Canvas and then
+        // displayed with love.graphics.draw(canvas), framebuffer Y is flipped
+        // relative to the screen's upper-left pixel coordinate system.
+        // Before this minus sign, the whole foosball appeared UPSIDE-DOWN:
+        // table legs drew above the field even though source Y was correct.
+        // CPU ThreeD.project already uses screen Y = center - projected UP.
+        // Negate this GPU clip-Y ONLY to match CPU projection after Canvas.
         return vec4(dot(delta,uRight)*uFocal/uAspect,
-                    dot(delta,uUp)*uFocal,depth,d);
+                    -dot(delta,uUp)*uFocal,depth,d);
     }
     #endif
     #ifdef PIXEL
@@ -82,17 +90,20 @@ end
 local function cross(ax,ay,az,bx,by,bz)
     return ay*bz-az*by,az*bx-ax*bz,ax*by-ay*bx
 end
--- The CC BY source model is already Y-up: original leg bottoms Y=0.04,
--- playing field Y=0.736. Do NOT vertically flip the mesh. The previous
--- 50-degree elevation let the near frame obscure the playfield, making
--- rod handles look like skyward-pointing table legs. Use a high 3/4 camera
--- looking down at the TOP of the field. Keep the 180-degree world YAW.
--- The upper rim and true under-table supports retain their 3D geometry.
+-- The CC BY source model is ALREADY upright in world Y:
+-- field Y≈-4, real leg bottoms Y=-740, raised rim Y=130.
+-- Earlier cameras targeted only the pitch at Y=15 and could NEVER show
+-- the table's support legs, producing the recurring "upside-down" illusion.
+-- Frame the WHOLE table (body + 4 downward legs + pitch) from a three-
+-- quarter corner view, validated with an actual render of its GLB meshes.
+-- Preserve the optional 180-degree YAW; never flip vertical geometry.
 local function viewportFit(w,h)
     local vh=math.max(240,(h or 850)-252)
     local aspect=(w or 1280)/vh
-    -- Adapt camera distance to maintain safe rim margins at 900/1280/1650px.
-    return math.max(1,2.62/aspect)
+    -- The three-quarter pose was calibrated on the actual *full* model
+    -- including Y=-740 support legs, not just the green field rectangle.
+    -- Vertical framing dominates standard landscape game windows.
+    return math.max(1,1.60/aspect)
 end
 function ThreeD.resetCamera()
     ThreeD.cameraSide="front"
@@ -125,13 +136,17 @@ function ThreeD.zoomCamera(delta)
     return ThreeD.cameraDistance
 end
 function ThreeD.cameraBasis(w,h)
-    local target={500,15,280}
+    -- Mid-height of the *real object*, not the pitch:
+    -- supports -740, raised rim +130 => center -305.
+    local target={500,-305,280}
     local side=ThreeD.cameraSide=="front" and -1 or 1
     local distance=ThreeD.cameraDistance*viewportFit(w,h)
-    -- A steep (about 79 degrees) downward view: the camera is above the
-    -- playing surface, not across the raised 130-unit side rail.
-    local eye={500,target[2]+1300*distance,
-               target[3]+side*250*distance}
+    -- Camera calibrated with a rendered copy of the actual CC BY GLB
+    -- (4 distinct legs + complete green field visible simultaneously).
+    -- 3/4 oblique eye, ~45 degrees down, F2 switches the opposite long side.
+    local eye={target[1]-1012.35*distance,
+               target[2]+2119.05*distance,
+               target[3]+side*1795.20*distance}
     local fx,fy,fz=norm(target[1]-eye[1],target[2]-eye[2],target[3]-eye[3])
     local rx,ry,rz=norm(cross(fx,fy,fz,0,1,0))
     local ux,uy,uz=cross(rx,ry,rz,fx,fy,fz)
@@ -348,6 +363,55 @@ function ThreeD.assertFieldVisible()
         and farGreen>=math.floor(farTotal*0.25),
         "3D PITCH OCCLUDED: actual green playing surface not visible. Check perspective/rail geometry, not only frame pixels.")
     return green,total
+end
+
+-- Verify the gameplay view contains real UNDER-TABLE SUPPORTS as well as
+-- the green pitch. Generic "non-black framebuffer" tests previously accepted
+-- views with no table legs. This gate runs only for the actual CC BY GLB.
+function ThreeD.assertLegVisible()
+    assert(ThreeD.active() and ThreeD.canvas,"3D leg test requires a GPU frame")
+    local image=ThreeD.canvas:newImageData()
+    local w,vh=image:getDimensions()
+    local screenH=vh+252
+    local top=ThreeD.viewport(w,screenH)
+    local present=0
+    for _,leg in ipairs({{0,0},{0,560},{1000,0},{1000,560}}) do
+        -- The real GLB legs go to Y=-740. Inspect their solid dark section at
+        -- Y=-590, *far below the green pitch* at roughly Y=-4.
+        local x,y=ThreeD.project(leg[1],-590,leg[2],w,screenH)
+        local hits=0
+        if x and y then
+            local cx,cy=math.floor(x+0.5),math.floor(y-top+0.5)
+            for dy=-18,18,3 do
+                for dx=-18,18,3 do
+                    local px,py=cx+dx,cy+dy
+                    if px>=0 and px<w and py>=0 and py<vh then
+                        local red,green,blue=image:getPixel(px,py)
+                        if red>0.075 and green>0.075 and blue>0.075 then
+                            hits=hits+1
+                        end
+                    end
+                end
+            end
+        end
+        if hits>=8 then present=present+1 end
+    end
+    print(("3D UNDER-TABLE LEGS visible: %d/4"):format(present))
+    assert(present>=3,
+        "3D FULL TABLE NOT VISIBLE: less than 3 of 4 support legs have projected GPU geometry")
+    return present
+end
+
+-- Capture a real LÖVE software/hardware GPU frame into the game save
+-- directory for native CI review, not a fabricated mock screenshot.
+function ThreeD.captureFrame()
+    assert(ThreeD.canvas,"no true-3D frame to capture")
+    local image=ThreeD.canvas:newImageData()
+    local encoded=image:encode("png")
+    assert(love.filesystem.write("foosball_3d_camera.png",encoded:getString()),
+        "failed to save native GPU screenshot")
+    print("NATIVE_3D_SCREENSHOT: "..love.filesystem.getSaveDirectory()..
+        "/foosball_3d_camera.png")
 end
 
 -- CI / developer-only GPU readback. The old smoke passed with a totally
