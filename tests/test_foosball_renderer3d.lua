@@ -31,8 +31,9 @@ local graphics={
         fake.rampVertexCount=count
         return {kind="rampmesh",setVertices=function(_,data)
             assert(type(data)=="table" and #data==count)
-            assert(#data[1]==10 and data[1][2]>0,
-                "ramp mesh does not contain elevated 3D positions and normals")
+            assert(#data[1]==10 and data[1][2]>=0,
+                "ramp mesh lacks valid raised 3D positions and normals")
+            fake.rampVertices=data
         end}
     end,
     newCanvas=function(w,h)
@@ -78,6 +79,11 @@ assert(ThreeD.meshes.blue_midfield~=ThreeD.meshes.red_midfield)
 assert(ThreeD.meshes.table and ThreeD.meshes.field and ThreeD.meshes.ball)
 assert(ThreeD.meshes.ramps and fake.rampVertexCount>100,
     "true GPU slope mesh was not created")
+assert(fake.rampVertices and #fake.rampVertices>100)
+local low=math.huge
+for _,vert in ipairs(fake.rampVertices) do low=math.min(low,vert[2]) end
+assert(math.abs(low-(ThreeD.ballHeight-Model.BALL_RADIUS))<0.001,
+    "3D floor ramp base floats above its ball contact level")
 assert(ThreeD.toggle()==false and ThreeD.toggle()==true,"P 3D/2D toggle failed")
 local match=Model.new()
 local before=match.rods[4].slide
@@ -142,6 +148,13 @@ end
 assert(math.abs(moved[11][2]-ThreeD.ballHeight-
     Model.Ramps.heightAt(16,16,Model.W,Model.H,Model.GOAL_HALF,match.ball.r))<0.001,
     "3D ball height must follow the same corner ramp as physical acceleration")
+local ballMarkerOnRamp=ThreeD.ballIndicator(match,1280,850)
+local markerX,markerY=ThreeD.project(16,
+    ThreeD.ballHeight+5+Model.Ramps.heightAt(16,16,
+        Model.W,Model.H,Model.GOAL_HALF,match.ball.r),16,1280,850)
+assert(math.abs(ballMarkerOnRamp.x-markerX)<0.01 and
+       math.abs(ballMarkerOnRamp.y-markerY)<0.01,
+    "camera tracking marker is detached from the raised 3D ball")
 local px,py=ThreeD.project(500,15,280,1280,850)
 assert(px>100 and px<1180 and py>0 and py<850,
        "camera projected game center off-screen")
