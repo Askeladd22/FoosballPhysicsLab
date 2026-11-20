@@ -62,6 +62,16 @@ assert(not ThreeD.active(),"P cannot invent a missing third-party 3D model")
 love.draw()
 love.keypressed("p",nil,false)
 assert(Camera.mode=="topdown")
+-- Real 3D camera controls operate independently even during a 2D fallback.
+local oldScore={0,0}
+assert(ThreeD.cameraSide=="front")
+love.keypressed("f2",nil,false)
+assert(ThreeD.cameraSide=="back")
+love.keypressed("pagedown",nil,false)
+assert(ThreeD.cameraDistance>1)
+love.keypressed("pageup",nil,false)
+love.keypressed("home",nil,false)
+assert(ThreeD.cameraSide=="front" and ThreeD.cameraDistance==1)
 love.keypressed("g",nil,false)
 local before=glowCalls
 drawing={}

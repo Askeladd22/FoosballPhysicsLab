@@ -293,8 +293,14 @@ local function hud(w,h)
     -- In the screenshot the pointer was still free: bright guidance explains
     -- why rotation stops when the OS cursor reaches the window edge.
     text(help,45,bottom+52,fonts.small,colors.gold)
+    if ThreeD.active() then
+        text("VISTA "..(ThreeD.cameraSide=="front" and "FRONTE" or "RETRO")..
+            " / ZOOM "..math.floor(100/ThreeD.cameraDistance+0.5).."%",
+            w-260,bottom+27,fonts.small,colors.human)
+    end
     text("TAB: AUTO/MANUALE  1-4/rotella: asta  P/V: 3D / 2D  G: glow "..
-        (Theme.glowEnabled and "ON" or "OFF").."  R: reset",
+        (Theme.glowEnabled and "ON" or "OFF")..
+        "  F2: lato  PagSu/PagGiu: zoom  Home: vista  R: reset",
         39,h-38,fonts.small,colors.muted)
     if match.phase=="goal" or match.phase=="finished" then
         local message=match.phase=="finished" and
@@ -398,6 +404,14 @@ function love.keypressed(key,_,repeatKey)
         match:reset()
     elseif key=="f1" then
         debugDraw=not debugDraw
+    elseif key=="f2" then
+        ThreeD.flipCamera()
+    elseif key=="pageup" then
+        ThreeD.zoomCamera(-0.12)
+    elseif key=="pagedown" then
+        ThreeD.zoomCamera(0.12)
+    elseif key=="home" then
+        ThreeD.resetCamera()
     elseif key=="g" then
         Theme.glowEnabled=not Theme.glowEnabled
     elseif key=="v" or key=="p" then
