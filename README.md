@@ -66,3 +66,10 @@ Se possiedi ancora `experiments/foosball/local_assets/` del vecchio branch, spos
 **Attivo:** fisica, mouse, IA basilare, leggibilità dei colpi, partite rapide. **Congelato:** ulteriore sviluppo NEON 11. **Non previsto:** carriera, classifiche, multiplayer, nuovi motori fisici 3D. Project Folio non viene toccato.
 
 Consulta [SEED](PLANNING.md), [PAUL](.paul/STATE.md) e [la cronologia 11vs11](legacy/neon11/README.md). I test automatici non sostituiscono il playtest reale su Windows.
+
+
+## Rod response and Table Soccer sprites — PAUL 23
+
+The human rods now follow the physical mouse target with a **fast, speed-limited servo** instead of the original heavily damped spring (which is preserved for the opponent AI). The contact physics still uses real rod velocities, 120 Hz fixed stepping and two collision microsteps; this is not mouse-triggered scripted shooting. AUTO switches less readily during repeated small mouse movements; TAB and wheel/1–4 still provide a guaranteed MANUALE lock.
+
+The source Table Soccer geometry is **not a runtime 3D mesh**: local images are perspective-projected 2.5D sprites. Older nine-angle packs still work, but no longer double-expose adjacent angles. To reduce visible angle steps, regenerate from your own original ZIP with `python tools/bake_table_soccer.py C:/path/Table_Soccer.zip`: the current offline baker makes **25 poses per rod (200 pose PNGs + 1 table)** in ignored `local_assets/`. The table render is more visible; physical foot/collision markers are de-emphasized on inactive rods but stay fully visible on the selected one and with F1. **Neither source meshes nor derived PNGs are committed or distributed.** For a truly three-dimensional rig we would need a separate renderer, independent rig pivots and an explicit licensing check.

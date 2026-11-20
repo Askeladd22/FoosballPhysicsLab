@@ -171,7 +171,9 @@ function Game:mouseMoved(dx,dy)
     local r=self.rods[self.selected]
     dx,dy=clamp(dx or 0,-140,140),clamp(dy or 0,-140,140)
     -- Avoid changing the selected rod in the middle of a deliberate swipe.
-    if self.controlMode=="auto" and math.max(abs(dx),abs(dy))>9 then
+    -- High-frequency mouse events often carry <9px deltas even in a hard shot.
+    -- Treat an intentional stream of small events as a real ongoing gesture.
+    if self.controlMode=="auto" and abs(dx)+abs(dy)>=3 then
         self.controlHoldUntil=self.clock+RodSelector.GESTURE_HOLD
     end
     -- Y translates the entire rod; X rotates all its figures about that rod.
@@ -211,10 +213,22 @@ end
 local function stepRod(r,dt)
     -- A real rod hits a mechanical end-stop; the impulse is not silently discarded.
     r.stopPulse=max(0,(r.stopPulse or 0)-dt)
-    -- Critically damped targets prevent teleporting or rotating instantly with dx/dy.
-    local accel=(r.targetSlide-r.slide)*120-r.vy*19
-    r.vy=clamp(r.vy+accel*dt,-620,620)
-    local nextSlide=r.slide+r.vy*dt
+    -- Human rods are direct but BOUNDED servos: the target follows the mouse
+    -- within a few 120Hz ticks. The resulting physical vy/omega still drive
+    -- foot-ball impulse and the two microstep collision tests.
+    --
+    -- AI rods deliberately retain their slower spring-like response.
+    local nextSlide
+    if r.team==1 then
+        local error=r.targetSlide-r.slide
+        local amount=clamp(error*(1-exp(-dt/0.030)),-1600*dt,1600*dt)
+        nextSlide=clamp(r.slide+amount,-r.travel,r.travel)
+        r.vy=(nextSlide-r.slide)/dt
+    else
+        local accel=(r.targetSlide-r.slide)*120-r.vy*19
+        r.vy=clamp(r.vy+accel*dt,-620,620)
+        nextSlide=r.slide+r.vy*dt
+    end
     local side=nextSlide<=-r.travel and -1 or nextSlide>=r.travel and 1 or 0
     -- Springs approach a clamped target asymptotically: snap the final 0.55px
     -- only when the user is actively asking to push into the end stop.
@@ -232,10 +246,18 @@ local function stepRod(r,dt)
         r.slide=nextSlide
         if abs(r.slide)<r.travel-2 then r.stopSide=0 end
     end
-    local acceleration=(r.targetAngle-r.angle)*180-r.omega*20
-    r.omega=clamp(r.omega+acceleration*dt,-19,19)
-    r.angle=clamp(r.angle+r.omega*dt,limits.min,limits.max)
-    if r.angle==limits.min and r.omega<0 or r.angle==limits.max and r.omega>0 then r.omega=0 end
+    if r.team==1 then
+        local error=r.targetAngle-r.angle
+        local amount=clamp(error*(1-exp(-dt/0.022)),-38*dt,38*dt)
+        local nextAngle=clamp(r.angle+amount,limits.min,limits.max)
+        r.omega=(nextAngle-r.angle)/dt
+        r.angle=nextAngle
+    else
+        local acceleration=(r.targetAngle-r.angle)*180-r.omega*20
+        r.omega=clamp(r.omega+acceleration*dt,-19,19)
+        r.angle=clamp(r.angle+r.omega*dt,limits.min,limits.max)
+        if r.angle==limits.min and r.omega<0 or r.angle==limits.max and r.omega>0 then r.omega=0 end
+    end
 end
 local function contact(s,rod,i)
     local b=s.ball

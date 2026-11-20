@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Private Table Soccer ZIP -> optional 2.5D PNGs for Foosball Lab.
 
+Renders 25 discrete physical angles per rod (201 PNGs total) to avoid
+ghosting and coarse stepping. The game also reads older nine-angle packs.
+
 Requires Pillow for baking (python -m pip install Pillow). Inspection and tests
 use the standard library only. No original or converted mesh is tracked in Git.
 VERTX3D's 2014 Readme forbids redistributing the model, in whole or in part.
@@ -21,7 +24,7 @@ GROUPS = tuple("TS_%s_Team_%s" % (team, role)
                for team in ("Blue", "Red") for role in ROLES)
 STATIC = ("TS_Main", "TS_Field")
 NEEDED = set(GROUPS + STATIC)
-FRAMES = 9
+FRAMES = 25
 COLORS = {"Metal":(124,168,181),"Plastic_Black":(35,51,67),
           "Plastic_White":(224,238,231),"Table":(32,51,68),
           "FIELD":(26,113,128),"Blue_Team":(29,197,237),
