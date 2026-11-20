@@ -1,5 +1,5 @@
-# Locally generated sprites from the user's licensed source ZIP.
-# VERTX3D model redistribution is prohibited by its included Readme.
+# Private model-derived 2.5D files. Never commit them.
+local_assets/
 experiments/foosball/local_assets/
 Table_Soccer.zip
 *.fbx

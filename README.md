@@ -1,66 +1,68 @@
-# Foosball Lab
+# FoosballPhysicsLab
 
-**Mouse-controlled single-player table football** for LÖVE2D 11.5. This is now the primary project in the repository. The older **NEON 11** soccer experiment is preserved, but frozen.
+**Foosball Lab** è il progetto attivo, un biliardino per **LÖVE 11.5** con controllo fisico delle stecche tramite mouse, IA elementare, partite rapide, estetica Neon Glass e pose 2.5D locali opzionali.
 
-## Launch
+## Avvio
 
-Install LÖVE 11.5, then from the repository root:
+Dalla root: `love .` oppure `run-foosball.bat` su Windows. La root ora contiene **il vero controller** `main.lua`, assieme a `model.lua`, `rod_selector.lua`, `theme.lua`, `mesh_art.lua`, `layout.lua` e `conf.lua`. Non è più un launcher che richiama `experiments/foosball`.
 
-```sh
-love .
+Il **vecchio 11vs11 NEON 11**, congelato ma integro, è un progetto indipendente: `love legacy/neon11` oppure `run-neon11-legacy.bat`. Il comando preesistente `love . --legacy` resta una scorciatoia (l'avvio diretto dalla cartella legacy conserva anche i percorsi degli asset originali).
+
+## Comandi di gioco
+
+| Input | Effetto |
+| --- | --- |
+| Mouse su/giù | Scorrimento dell'asta selezionata |
+| Mouse sinistra/destra | Rotazione e tiro fisico |
+| TAB | AUTO / MANUALE |
+| Rotella o 1–4 | Seleziona e blocca una stecca in modalità manuale |
+| Click sinistro / Esc | Cattura o sblocca il mouse |
+| C | Neutrale |
+| G | Glow ON/OFF |
+| V | Visuale 2.5D locale / procedurale |
+| F1 | Collider di debug |
+| R | Ricomincia |
+| - / + | Sensibilità |
+
+**AUTO non tira al posto del giocatore**: cambia solo la stecca suggerita dalla posizione prevista della pallina, con protezione dai cambi durante una frustata. Contatti 2D a 120 Hz; una pallina realmente irraggiungibile viene recuperata dopo due secondi.
+
+## File principali
+
+```text
+FoosballPhysicsLab/
+  main.lua                 # vero Foosball
+  model.lua                # fisica e regole
+  rod_selector.lua         # AUTO / MANUALE
+  theme.lua, layout.lua    # Neon Glass
+  mesh_art.lua             # renderer 2.5D facoltativo
+  tests/test_foosball*.lua # regressioni Foosball
+  local_assets/            # non tracciata, modelli privati
+  tools/                   # baker e verifica dei modelli
+  legacy/neon11/
+    main.lua, conf.lua     # vecchia applicazione LÖVE
+    src/                   # 16 moduli di gioco conservati
+    tests/                 # 32 test storici
+    assets/                # pallone Etrusco Unico
+    docs/, scripts/        # ricerca FM24, tattiche, strumenti
+    .paul/                 # planning/roadmap e fasi 11vs11
 ```
 
-Windows: `run-foosball.bat`. The original 11vs11 is still available with **`love . --legacy`** or `run-neon11-legacy.bat`. The historical entry point lives at [legacy/neon11/main.lua](legacy/neon11/main.lua) and its original [README](legacy/neon11/README.md), [SEED planning](legacy/neon11/PLANNING.md) and [PAUL state](legacy/neon11/PAUL-STATE.md) are retained. The entire `src/` tree, existing 11vs11 tests and Git history remain intact.
+Anche `legacy/neon11/physics_lab_01/` conserva l'originale laboratorio preliminare. I due set di test vengono eseguiti **separatamente in CI**. Non sono state riscritte le logiche di gioco del 11vs11.
 
-## Controls
+## Modelli Table Soccer — solo locali
 
-| Input | Action |
-|---|---|
-| Mouse vertical | Slide the currently selected rod |
-| Mouse horizontal | Rotate the rod to strike with its physical foot |
-| Left click / Esc | Capture / release the mouse |
-| 1–4 or mouse wheel | Choose goalkeeper, defense, midfield or forward rod |
-| C | Bring selected rod toward a neutral angle |
-| - / + | Adjust rotation sensitivity |
-| G | Toggle Neon Glass glow |
-| F1 | Physical collision overlay |
-| R | Reset match |
-
-Four human rods (1–2–5–3 figures) face four basic AI rods. The ball is physical; it can rebound from walls, score goals or trigger a two-second automatic restart when stationary in a genuinely **unreachable corridor**. First team to five wins.
-
-## Scope
-
-**Active:** rod physics, mouse handling, opponent AI, short satisfying matches and clear Neon Glass presentation (smoky tempered-glass look with restrained glow).
-
-**Out of scope for now:** career, rankings, multiplayer and new large gameplay systems. **Frozen, not removed:** all NEON 11 gameplay and tactical expansion. **Project Folio:** unrelated and untouched.
-
-## Supplied 3D and CAD models
-
-I examined the attached `foosball_table.glb` (22,855 triangles, one merged mesh, three 2048² PNG textures, CC BY 4.0 attribution embedded) and `Stoni_fudbal_1.stp` (41 STEP PRODUCT definitions, 199 solids, no embedded license). They are **references, not current in-game assets**. The GLB cannot animate eight rods as currently merged; the STEP needs tessellation and rights confirmation. See [asset assessment](docs/asset-intake/foosball-models.md) and [attribution](docs/asset-intake/ATTRIBUTION.md). Neither binary is added to GitHub in this change.
-
-## Architecture
-
-- `main.lua`, `conf.lua`: Foosball-first LÖVE launch; explicit 11vs11 legacy route.
-- `experiments/foosball/`: actual Foosball physics, renderer and controls.
-- `legacy/neon11/main.lua`, `src/`: frozen 11vs11 application and original source.
-- `tests/test_foosball*.lua`: Foosball regressions; remaining Lua tests preserve legacy.
-- `PLANNING.md`, `.paul/`: active SEED/PAUL state and history.
-
-**Automated tests are not proof of fun.** Validate on Windows by comparing ten intentional mouse strikes, ball tracking and stall recovery with glow on/off.
-
-
-## Table Soccer model integration (local only, PAUL 21)
-
-The provided **Table_Soccer.zip** has eight independently named rod/figure OBJ groups and can be used for **private local 2.5D renders** of the players in nine rotation poses per rod. We do **not** commit the source or converted model to public GitHub: Hend Z. / VERTX3D's Readme forbids redistribution of the model (whole or partial). All generated images are under `experiments/foosball/local_assets/`, ignored by Git. The renderer falls back to the original procedural Neon Glass if images are absent.
-
-To install locally using your **own** ZIP from the repository root:
+Dall'archivio originale dell'utente, il baker produce 72 pose 2.5D e una tavola di riferimento, tutte in `local_assets/`, cartella ignorata da Git:
 
 ```sh
 python -m pip install Pillow
-python tools/bake_table_soccer.py "C:/path/to/Table_Soccer.zip"
+python tools/bake_table_soccer.py "C:/percorso/Table_Soccer.zip"
 love .
 ```
 
-On Windows, `install-table-soccer-local.bat` also detects `Table_Soccer.zip` in Downloads after Pillow is installed. The converted asset pack is **not ready for redistribution**; obtain separate rights before publishing a build containing it.
+Se possiedi ancora `experiments/foosball/local_assets/` del vecchio branch, spostala in `local_assets/`. Il loader riconosce temporaneamente anche il vecchio percorso. Per ragioni di licenza **non pubblicare** i file originali o i PNG derivati dalle mesh VERTX3D; leggi [LOCAL_ASSETS.md](LOCAL_ASSETS.md) e [attribuzione](docs/asset-intake/ATTRIBUTION.md).
 
-**Controls:** AUTO rod selection is the default (ball position prediction, hysteresis, cooldown, swipe protection). TAB toggles automatic/manual selection; 1–4 and wheel select and **lock** the rod manually. V toggles the optional real-mesh 2.5D renders versus the procedural style. Mouse vertical slide and horizontal rotation still produce every physical kick; the mesh sprites are visual only. Details in [local model instructions](experiments/foosball/LOCAL_ASSETS.md).
+## Ambito e qualità
+
+**Attivo:** fisica, mouse, IA basilare, leggibilità dei colpi, partite rapide. **Congelato:** ulteriore sviluppo NEON 11. **Non previsto:** carriera, classifiche, multiplayer, nuovi motori fisici 3D. Project Folio non viene toccato.
+
+Consulta [SEED](PLANNING.md), [PAUL](.paul/STATE.md) e [la cronologia 11vs11](legacy/neon11/README.md). I test automatici non sostituiscono il playtest reale su Windows.

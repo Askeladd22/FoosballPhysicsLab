@@ -2,38 +2,34 @@
 project: Foosball Lab
 project_type: custom/game-development
 status: implementing
-plan_version: "phase20-foosball-primary"
+plan_version: phase22-directory-split
 last_updated: 2026-11-20
 ---
 
-# Foosball Lab — SEED
+# SEED — Foosball Lab
 
-**Product hypothesis:** an expressive, learnable mouse motion makes a quick solo foosball match worth replaying.
+**Promessa:** una partita breve in cui il gesto mouse SU/GIÙ per scorrere e SINISTRA/DESTRA per ruotare le aste è controllabile, leggibile e ripetibile.
 
 ## DECIDED
-- Foosball Lab is the primary executable at `love .`; frozen NEON 11 still runs with `love . --legacy`.
-- LÖVE 11.5, 120 Hz physical simulation, 1–2–5–3 constrained rods, one mouse and four basic AI opponent rods.
-- Mouse Y slides the rod; mouse X turns the rod into a physical strike.
-- Neon Glass theme (smoky glass, cyan/coral figures, limited glow), G comparison toggle.
-- Keep all NEON 11 original code, tests, history and the [old SEED plan](legacy/neon11/PLANNING.md).
-- Project Folio remains a separate main project.
+- Foosball occupa direttamente la **root**: `love .`; nessun modulo runtime in `experiments/`.
+- NEON 11 è **frozen, preserved** sotto `legacy/neon11/`: codice `src/`, test, asset, documenti e fasi PAUL; lancio `love legacy/neon11`, scorciatoia `love . --legacy`.
+- 120 Hz, quattro aste per squadra (1–2–5–3), controllo manuale fisico, AUTO/MANUALE solo per selezione della stecca, recupero della palla morta e Neon Glass restano invariati.
+- Le pose Table Soccer derivate da mesh di terzi stanno soltanto in `local_assets/` sul computer dell'utente (diritti di redistribuzione da ottenere).
+- Project Folio resta indipendente.
 
-## ASSUMED — must playtest
-- Two-axis mouse input is intuitive and learnable.
-- Players can visually predict which side of a flat foot strikes the ball.
-- A two-second recovery of an unreachable slow ball is fair.
+## ASSUMED / UNVERIFIED
+- AUTO non cambia asta durante una frustata volontaria.
+- Resa 2.5D non confonde la faccia di contatto, né peggiora troppo gli FPS.
+- Regola dei due secondi è percepita come equa.
 
 ## OPEN
-- Does the mechanic make players want another 3–5 minute match without career?
-- Would a **static pre-rendered** table from the supplied GLB improve legibility without obstructing the live rods?
-- Are redistribution rights for the STEP available? None are stated in the file.
+- Licenza di distribuzione del modello VERTX3D, attualmente non autorizzata.
+- Riscontri reali di leggibilità e divertimento.
 
-## EXCLUDED / DEFERRED
-- Foosball career, rankings, online modes and excessive UI.
-- Further NEON 11 tactical/match features; game is frozen.
-- New 3D physics engine, STEP runtime load, static 3D players baked into the physical rod view.
+## OUT OF SCOPE
+Carriera, ranking, multiplayer, sistemi tattici 11vs11, migrazione alla fisica 3D.
 
-## Game Design Lab acceptance gate
-Ten deliberately aimed strikes, three trapped-ball recoveries, five quick ball-identification trials with glow ON/OFF; log wrong-rod errors, missed contacts and perceived control. Compare 2D vs any **optional** 2.5D static-table greybox before changing the renderer.
+## Game Design Lab
+Dieci tiri intenzionali in AUTO, tre in MANUALE, tre blocchi di palla morta e confronto V con due risoluzioni. Registrare scelte errate, perdite di contatto e FPS; nessuna conclusione sul divertimento dalla sola CI.
 
-See [asset intake](docs/asset-intake/foosball-models.md).
+**Next:** playtest Windows/LÖVE della root e del vecchio titolo lanciato dalla sua cartella.
