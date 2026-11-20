@@ -8,7 +8,7 @@ local ThreeD={
     source="local_assets/3d/",stride=28,
     axisHeight=(83.2-76.64)*(560/83.56),
     ballHeight=16.5,ballScale=0.68,
-    fovDegrees=42,
+    fovDegrees=35,
     cameraSide="front",
     cameraDistance=1,
     -- Rigid 180-degree Y-axis turn of the ENTIRE 3D WORLD, not the camera.
@@ -82,9 +82,12 @@ end
 local function cross(ax,ay,az,bx,by,bz)
     return ay*bz-az*by,az*bx-ax*bz,ax*by-ay*bx
 end
--- Camera-only correction: source geometry and 2D physics never rotate.
--- The default eye is now on the opposite long edge from the upside-down
--- over-close screenshot, elevated to see the feet and far wall clearly.
+-- The CC BY source model is already Y-up: original leg bottoms Y=0.04,
+-- playing field Y=0.736. Do NOT vertically flip the mesh. The previous
+-- 50-degree elevation let the near frame obscure the playfield, making
+-- rod handles look like skyward-pointing table legs. Use a high 3/4 camera
+-- looking down at the TOP of the field. Keep the 180-degree world YAW.
+-- The upper rim and true under-table supports retain their 3D geometry.
 local function viewportFit(w,h)
     local vh=math.max(240,(h or 850)-252)
     local aspect=(w or 1280)/vh
@@ -125,8 +128,10 @@ function ThreeD.cameraBasis(w,h)
     local target={500,15,280}
     local side=ThreeD.cameraSide=="front" and -1 or 1
     local distance=ThreeD.cameraDistance*viewportFit(w,h)
-    local eye={500,target[2]+765*distance,
-               target[3]+side*640*distance}
+    -- A steep (about 79 degrees) downward view: the camera is above the
+    -- playing surface, not across the raised 130-unit side rail.
+    local eye={500,target[2]+1300*distance,
+               target[3]+side*250*distance}
     local fx,fy,fz=norm(target[1]-eye[1],target[2]-eye[2],target[3]-eye[3])
     local rx,ry,rz=norm(cross(fx,fy,fz,0,1,0))
     local ux,uy,uz=cross(rx,ry,rz,fx,fy,fz)
@@ -296,6 +301,55 @@ function ThreeD.draw(match,w,h)
     end
     return true
 end
+-- Native image semantic test: green FIELD pixels at known field coordinates
+-- (the third-party GLB's ground plane), not just arbitrary nonblack table
+-- wall pixels. An occluding near rail must not pass the game-readability gate.
+function ThreeD.assertFieldVisible()
+    assert(ThreeD.active() and ThreeD.canvas,
+        "Cannot verify 3D pitch without an active render target")
+    local image=ThreeD.canvas:newImageData()
+    local w,h=image:getDimensions()
+    local screenH=h+252
+    local top=ThreeD.viewport(w,screenH)
+    local green,total=0,0
+    local nearGreen,nearTotal=0,0
+    local farGreen,farTotal=0,0
+    for iz=1,9 do
+        local z=45+iz*47
+        for ix=1,11 do
+            local x=75+ix*71
+            -- GLB field material is y ~ -4 after import; the 180° world yaw
+            -- is handled inside ThreeD.project exactly as the GPU shader.
+            local px,py=ThreeD.project(x,-4,z,w,screenH)
+            if px and py then
+                local rx=math.floor(px+0.5)
+                local ry=math.floor(py-top+0.5)
+                if rx>=0 and rx<w and ry>=0 and ry<h then
+                    local cr,cg,cb=image:getPixel(rx,ry)
+                    local isGreen=cg>0.15 and cg>cr*1.35
+                        and cb>cr*1.15
+                    total=total+1
+                    if isGreen then green=green+1 end
+                    if iz<=3 then
+                        nearTotal=nearTotal+1
+                        if isGreen then nearGreen=nearGreen+1 end
+                    elseif iz>=7 then
+                        farTotal=farTotal+1
+                        if isGreen then farGreen=farGreen+1 end
+                    end
+                end
+            end
+        end
+    end
+    print(("3D FIELD visibility: green=%d/%d, near=%d/%d, far=%d/%d"):format(
+        green,total,nearGreen,nearTotal,farGreen,farTotal))
+    assert(total>=75 and green>=math.floor(total*0.46)
+        and nearGreen>=math.floor(nearTotal*0.25)
+        and farGreen>=math.floor(farTotal*0.25),
+        "3D PITCH OCCLUDED: actual green playing surface not visible. Check perspective/rail geometry, not only frame pixels.")
+    return green,total
+end
+
 -- CI / developer-only GPU readback. The old smoke passed with a totally
 -- black frame because it only counted callbacks, never visible pixels.
 function ThreeD.assertVisible()

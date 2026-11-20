@@ -104,6 +104,8 @@ jobs:
           test -f assets/models/foosball_table.glb
           python -m pip install -q 'trimesh>=4,<5' numpy
           python tools/import_foosball_glb_ccby.py assets/models/foosball_table.glb --output local_assets/3d
-      - name: Verify real model renders VISIBLE pixels at runtime
+      - name: Verify actual GLB legs are BELOW the playfield
+        run: python tools/test_foosball_model_upright.py local_assets/3d
+      - name: Verify real 3D model shows GREEN PLAYFIELD (not just wall pixels)
         run: |
-          env SDL_AUDIODRIVER=dummy LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a timeout 90s love . --frames=12 --require-3d --verify-3d-pixels
+          env SDL_AUDIODRIVER=dummy LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a timeout 90s love . --frames=12 --require-3d --verify-3d-pixels --verify-3d-field

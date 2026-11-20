@@ -60,3 +60,10 @@ Branch `feat/true-3d-table-soccer-runtime`. L'utente ha scartato esplicitamente 
 ### PAUL phase 28 UNIFY — 7/7 code/GLB/native GPU gates PASS
 [PLAN](phases/28-world-rotation/28-01-PLAN.md) · [SUMMARY](phases/28-world-rotation/28-01-SUMMARY.md) · [CI 44743973107](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44743973107).
 The **whole world** yaw is now 180° about upright Y, rigidly rotating the actual GLB table, field, all 8 rods, ball and normals, with CPU marker projection synchronized. **F3** toggles to 0°; F2 camera side is separate, Home restores 180° and camera defaults. No g3d dependency, since existing LÖVE shader/mesh runtime is already true 3D. All seven jobs PASS, including real GLB/11 GPU meshes/169 of 255 visible-pixel checks, two Foosball Lua, two frozen NEON11 Lua and synthetic model smoke. **User Windows screenshot/playing feel remains NOT_RUN**. No 3D model source, binary asset or 11vs11 gameplay changed.
+
+### PAUL phase 29 — real legs below, visible field (2026-11-20)
+**Branch:** `fix/foosball-upright-playable-pitch`, [PR #27](https://github.com/Askeladd22/FoosballPhysicsLab/pull/27) draft. [PLAN](phases/29-upright-pitch/29-01-PLAN.md) · [SUMMARY](phases/29-upright-pitch/29-01-SUMMARY.md).
+**Geometric evidence:** the actual CC BY GLB is already Y-up, table legs min world Y=-740 and field Y≈-4; upright orientation invariant now tested. The alleged skyward "legs" in screenshots are rod handles; do not invert the source vertically.
+**Applied:** default camera raised to ~79° pitch / FOV35 above the near rim, keeping the 180° world Y yaw and all physics.
+**CI:** [run 44747974175](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44747974175) **7/7 PASS**, real GPU model rendered 73/99 green field samples, near 26/33, far 23/33, leg-below-field test PASS. Frozen NEON11 untouched.
+**Remaining:** native Windows screenshot, human input/readability and foot alignment UAT NOT_RUN.

@@ -59,3 +59,9 @@ Dieci tiri intenzionali in AUTO, tre in MANUALE, tre blocchi di palla morta e co
 **DECIDED:** no g3d library is added; the existing LÖVE GPU renderer supports real 3D meshes, depth and rigid model transforms already.
 **ASSUMED:** "180 degrees" means horizontal yaw about the table's world-up axis, not flipping the table over or rolling the user's screen.
 **UNVERIFIED:** whether near-wall occlusion and subjective playing orientation improve on user's Windows monitor; the actual screenshot and 10 deliberate strikes are the next gate.
+
+## SEED Phase 29 — Leg truth / pitch readability
+**OBSERVED:** true GLB source field at Y≈0.736; supports at Y≈0.040, i.e. the table is already physically UPRIGHT. In-game screenshot looked "sottosopra" because the low camera showed the back of a raised rail and rod handles.
+**DECIDED:** do **not** rotate source mesh upside down; move camera high above the field, keeping genuine 3D perspective and the requested 180° horizontal yaw. Add native green-field pixel test and imported geometry leg-height test.
+**VERIFIED:** 7/7 CI jobs passed; genuine CC BY GPU scene 73 of 99 selected field probes green, legs Y=-740 field Y≈-4, rim Y=+130.
+**NOT VERIFIED:** user's Windows look/feel and actual ball-foot match. Human screenshot and 10-shot playtest remain the next decision gate.
