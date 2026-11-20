@@ -25,3 +25,7 @@ Native Windows playtest: click once to capture the mouse, perform 10 rapid physi
 
 ## Phase 24 — Oblique 2.5D camera and physical shoe linkage
 Branch `feat/foosball-oblique-camera-strike-alignment`. The elevated oblique camera defaults on; **P** toggles top-down. World physics is unchanged, and the root view transforms ball, feet and backdrop together. Rendered Table Soccer feet are now accompanied by a **connected physically authoritative shoe**, rather than detached collision markers. Native Windows camera/feel UAT **NOT_RUN**; refer to `.paul/phases/24-oblique-camera/24-01-PLAN.md`.
+
+
+### UNIFY phase 24, 2026-11-20
+GitHub [PR #22](https://github.com/Askeladd22/FoosballPhysicsLab/pull/22): **CI 4/4 PASS** on [run 44712405674](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44712405674). First view is oblique (P reverses to top-down), sprite feet are visibly linked to shaft and physically authoritative collision rectangle, and selected rod slide indicator is available. No 3D rig/physics migration; native Windows user camera test remains NOT_RUN. Phase [UNIFY](phases/24-oblique-camera/24-01-SUMMARY.md).
