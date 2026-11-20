@@ -6,7 +6,7 @@ local glowCalls=0
 local function noop(...) end
 local graphics={}
 for _,name in ipairs({"setDefaultFilter","setColor","print","rectangle","line","circle","polygon",
-                      "setLineWidth","clear","push","pop","translate","scale"}) do
+                      "setLineWidth","clear","push","pop","translate","scale","shear"}) do
     graphics[name]=noop
 end
 function graphics.setBlendMode(mode,alphaMode)
@@ -52,6 +52,14 @@ for _,s in ipairs(drawing) do
     if s:find("NEON GLASS",1,true) then glassLabel=true end
 end
 assert(glassLabel,"new glass-theme HUD label not found")
+-- New camera is reversible without touching the physical simulation.
+local Camera=require("camera")
+assert(Camera.isOblique(),"elevated view should be primary")
+love.keypressed("p",nil,false)
+assert(Camera.mode=="topdown")
+love.draw()
+love.keypressed("p",nil,false)
+assert(Camera.isOblique())
 love.keypressed("g",nil,false)
 local before=glowCalls
 drawing={}

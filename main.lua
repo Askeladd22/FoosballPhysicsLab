@@ -15,6 +15,7 @@ end
 
 local Model=require("model")
 local Layout=require("layout")
+local Camera=require("camera")
 local Theme=require("theme")
 local MeshArt=require("mesh_art")
 local lg=love.graphics
@@ -45,6 +46,17 @@ local function rods()
         local c=r.team==1 and colors.human or colors.away
         local current=r==selected
         if current then
+            -- A moving marker makes *translation* explicit in oblique view.
+            -- Rod shaft does not move in x, while all figures slide in y.
+            if Camera.isOblique() then
+                paint(colors.gold,0.18)
+                lg.setLineWidth(3)
+                lg.line(r.x+29,Model.H/2-r.travel,r.x+29,Model.H/2+r.travel)
+                paint(colors.gold,0.9)
+                lg.circle("fill",r.x+29,Model.H/2+r.slide,5)
+                paint(colors.shadow,0.95)
+                lg.circle("fill",r.x+29,Model.H/2+r.slide,2)
+            end
             -- A subtle selected rod 'light pipe'; no opaque gold column.
             paint(colors.gold,Theme.glowEnabled and 0.065 or 0.035)
             lg.rectangle("fill",r.x-15,-15,30,Model.H+30)
@@ -97,22 +109,26 @@ local function rods()
             local fx,fy=Model.foot(r,j)
             local left,top,fw,fh=Model.footRect(r,j)
             local bodyX,_,headX,headY=Model.figurePose(r,j)
+            local lift=Camera.isOblique() and 17 or 0
+            headY=headY-lift
             local direction=r.team==1 and 1 or -1
             local central=j==math.ceil(#r.offsets/2)
             -- If locally baked 3D figures exist, use them for the silhouette.
             -- The white striking edge/outline stays in exact 2D physics space.
             if not modelled then
+            -- Raise the procedural character above the ground in the elevated
+            -- camera, while the collision shoe stays in the ground plane.
             -- Socket stays on the real shaft; leg and body lean with the
             -- actual horizontal shoe projection, instead of looking detached.
             paint(colors.shadow,0.72)
-            lg.polygon("fill",r.x-8+3,fy-13+3,r.x+10+3,fy-13+3,
+            lg.polygon("fill",r.x-8+3,fy-13-lift+3,r.x+10+3,fy-13-lift+3,
                 bodyX+11+3,fy+13+3,bodyX-9+3,fy+13+3)
             paint(c,0.90)
-            lg.polygon("fill",r.x-9,fy-13,r.x+9,fy-13,
+            lg.polygon("fill",r.x-9,fy-13-lift,r.x+9,fy-13-lift,
                 bodyX+8,fy+11,bodyX-8,fy+11)
             paint(colors.cream,0.18)
             lg.setLineWidth(1.3)
-            lg.line(r.x-6,fy-12,bodyX-6,fy+8)
+            lg.line(r.x-6,fy-12-lift,bodyX-6,fy+8)
             paint(colors.shadow)
             lg.setLineWidth(4)
             lg.line(bodyX,fy+6,fx,fy+6)
@@ -133,10 +149,19 @@ local function rods()
             end -- legacy procedural figures, used when private model is absent
             -- White is the physical striking edge, gold only outlines the
             -- selected rod. It must remain visibly blue/red, not all yellow.
-            if modelled and current then
-                -- Show the real collision shoe under a locally baked mesh:
-                -- the visual sprite is a *reference*, the rectangle is truth.
-                paint(c,0.42)
+            if modelled then
+                -- BUG FIX: the baked 2.5D mesh pose is an illustration and its
+                -- shoe can drift from the 2D physical collider. Render the real
+                -- shoe AND the shaft-to-shoe connection, not a detached marker.
+                paint(colors.shadow,0.83)
+                lg.setLineWidth(7)
+                lg.line(r.x,fy,fx,fy)
+                paint(c,0.94)
+                lg.setLineWidth(3)
+                lg.line(r.x,fy,fx,fy)
+                paint(colors.shadow,0.72)
+                lg.rectangle("fill",left+2,top+3,fw,fh,3,3)
+                paint(c,1)
                 lg.rectangle("fill",left,top,fw,fh,3,3)
             end
             if current then
@@ -148,10 +173,10 @@ local function rods()
             if current then
                 Theme.glowLine(lg,front,top+2,front,top+fh-2,colors.cream,3,0.85)
             elseif modelled and not debugDraw then
-                -- Unselected 3D figures should not carry bright free-floating
-                -- white collider lines that compete with their real silhouettes.
-                paint(c,0.42)
-                lg.setLineWidth(1.4)
+                -- The collision edge now belongs to a filled, connected shoe
+                -- instead of an isolated floating red/white vertical bar.
+                paint(colors.cream,0.68)
+                lg.setLineWidth(1.6)
                 lg.line(front,top+2,front,top+fh-2)
             else
                 paint(colors.cream)
@@ -218,7 +243,8 @@ end
 local function hud(w,h)
     local r=match.rods[match.selected]
     text("FOOSBALL LAB",36,18,fonts.title,colors.cream)
-    text("NEON GLASS  /  "..(MeshArt.active() and "TABLE SOCCER - SPRITE 2.5D" or "PROCEDURALE"),38,58,fonts.small,colors.human)
+    text("NEON GLASS / "..(MeshArt.active() and "TABLE SOCCER - SPRITE 2.5D" or "PROCEDURALE")..
+        " / CAMERA "..(Camera.isOblique() and "RIALZATA" or "TOP-DOWN"),38,58,fonts.small,colors.human)
     text("SU/GIU: scorri l'asta    SINISTRA/DESTRA: ruota e colpisci",
         38,81,fonts.small,colors.muted)
     local score=tostring(match.score[1]).."  :  "..tostring(match.score[2])
@@ -262,7 +288,7 @@ local function hud(w,h)
     text(help,45,bottom+52,fonts.small,colors.gold)
     text("TAB: AUTO/MANUALE   1-4/rotella: asta   V: 2.5D "..
         (MeshArt.loaded and (MeshArt.active() and "ON" or "OFF") or "N/D")..
-        "   G: glow "..(Theme.glowEnabled and "ON" or "OFF").."   R: reset",
+        "   P: CAMERA   G: glow "..(Theme.glowEnabled and "ON" or "OFF").."   R: reset",
         39,h-38,fonts.small,colors.muted)
     if match.phase=="goal" or match.phase=="finished" then
         local message=match.phase=="finished" and
@@ -302,6 +328,7 @@ function love.draw()
     lg.push()
     lg.translate(ox,oy)
     lg.scale(scale)
+    Camera.apply(lg)
     pitch()
     rods()
     drawBall()
@@ -338,6 +365,8 @@ function love.keypressed(key,_,repeatKey)
         Theme.glowEnabled=not Theme.glowEnabled
     elseif key=="v" then
         MeshArt.toggle()
+    elseif key=="p" then
+        Camera.toggle()
     elseif key=="-" or key=="kp-" then
         match.mouseSensitivity.angle=math.max(0.007,match.mouseSensitivity.angle-0.002)
     elseif key=="=" or key=="+" or key=="kp+" then
