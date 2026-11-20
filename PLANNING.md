@@ -73,3 +73,9 @@ Dieci tiri intenzionali in AUTO, tre in MANUALE, tre blocchi di palla morta e co
 **DECIDED**: retain genuine source meshes + the 180° horizontal yaw; 3/4 perspective camera on full table; explicit full-body camera tests at 4 resolutions and native GPU screenshot capture. No g3d dependency or physics migration.
 **EVIDENCE**: [all 7 CI jobs successful](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44756697687), [native screenshot artifact](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44756697687/artifacts/14639560551); prior failures on branch were intentionally diagnosed rather than concealed.
 **OPEN**: human Windows UAT — verify exact appearance on display and ten intentional strikes; do not infer playability from software GPU checks.
+
+## SEED Phase 31 — Gameplay Readability
+**OBSERVED:** user screenshot after real 3D orientation fix: correct upright cabinet, but action/colored figures/ball small in a pitch occupying only part of the viewport. Only one gold selection circle.
+**DECIDED:** two separate 3D cameras: GAMEPLAY as default on full field; SHOWCASE unchanged for the full four-leg table; F4 switch without gameplay reset; Home to GAMEPLAY. Project highlighted human rod shaft, all selected physical feet directly from `Model.foot`, ball and short velocity cue from `match.ball`; maintain original GLB and 2D simulation.
+**VERIFIED:** [7/7 CI](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44761457020) on Foosball/NEON11 Lua5.4+LuaJIT and two real GPU GLB modes; SHOWCASE 4/4 legs and 56/255 scene probes, GAMEPLAY 207/255 scene probes, green 74/99.
+**UNVERIFIED:** perceived player silhouette and foot impact clarity on the actual Windows display and 10-shot human outcome. Do not call the game finished until UAT.

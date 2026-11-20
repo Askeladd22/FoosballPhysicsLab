@@ -65,6 +65,11 @@ assert(Camera.mode=="topdown")
 -- Real 3D camera controls operate independently even during a 2D fallback.
 local oldScore={0,0}
 assert(ThreeD.cameraSide=="front")
+assert(ThreeD.viewMode=="gameplay")
+love.keypressed("f4",nil,false)
+assert(ThreeD.viewMode=="showcase","F4 must show the full four-legged cabinet")
+love.keypressed("f4",nil,false)
+assert(ThreeD.viewMode=="gameplay","F4 must restore playing field")
 love.keypressed("f2",nil,false)
 assert(ThreeD.cameraSide=="back")
 love.keypressed("pagedown",nil,false)
@@ -77,6 +82,7 @@ assert(ThreeD.sceneYaw==180,"F3 must restore the requested 180-degree turn")
 love.keypressed("home",nil,false)
 assert(ThreeD.cameraSide=="front" and ThreeD.cameraDistance==1)
 assert(ThreeD.sceneYaw==180,"Home must also reset table orientation")
+assert(ThreeD.viewMode=="gameplay","Home should reset to playable camera")
 love.keypressed("g",nil,false)
 local before=glowCalls
 drawing={}

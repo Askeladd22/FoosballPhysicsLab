@@ -13,6 +13,7 @@ local physical=Model.new()
 local ballX,ballY=physical.ball.x,physical.ball.y
 local score1,score2=physical.score[1],physical.score[2]
 ThreeD.resetCamera()
+ThreeD.setViewMode("showcase")
 -- This legacy test checks the CAMERA direction relative to unrotated source
 -- coordinates. The new default is a separate 180° MODEL rotation: test the
 -- source reference here, while test_foosball_world_yaw.lua covers the actual
@@ -72,4 +73,6 @@ assert(physical.ball.x==ballX and physical.ball.y==ballY and
     "camera changes altered gameplay")
 ThreeD.resetSceneYaw()
 assert(ThreeD.sceneYaw==180,"world yaw default was not restored")
+ThreeD.resetCamera() -- restore the production default GAMEPLAY camera
+assert(ThreeD.viewMode=="gameplay")
 print("PASS: opposite default view, full board visibility in 4 resolutions, reversible camera and zoom")

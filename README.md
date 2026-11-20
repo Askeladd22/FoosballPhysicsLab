@@ -1,3 +1,30 @@
+## Gameplay Readability — PAUL 31 (20 novembre 2026)
+
+Il 3D reale del biliardino è finalmente orientato correttamente. La visuale
+precedente mostrava sempre il **mobile intero**, sacrificando la leggibilità
+delle azioni. Ora il gioco avvia **PARTITA**, una camera prospettica più vicina
+alla superficie, e offre **ESPOSIZIONE** per vedere tutto il tavolo e le gambe.
+
+**F4** cambia le due visuali a partita in corso (senza cancellare il punteggio).
+**Home** ripristina la visuale PARTITA e la rotazione orizzontale originale a
+180°. F2 cambia lato, F3 l'orientamento del tavolo, P/V alterna 2D/3D.
+Mouse su/giù trasla la stecca; mouse sinistra/destra la ruota.
+
+Nella visuale PARTITA: **oro** = asta selezionata e punti di contatto
+dei suoi piedi calcolati con `Model.foot`; **bianco** = posizione e breve
+traiettoria della pallina fisica. Gli indicatori sono soltanto visivi e
+**non cambiano collisioni, velocità o IA**. Il modello GLB CC BY, le aste
+1–2–5–3 e il gioco 11vs11 congelato restano invariati.
+
+**Verificato:** [CI #44761457020](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44761457020)
+**7/7 PASS**, inclusi due render reali LÖVE dello stesso GLB: Esposizione
+con 4 gambe visibili, e Partita con 207/255 campioni di scena visibili
+(contro 56/255 in Esposizione). [Screenshot GPU di entrambe le modalità](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44761457020/artifacts/14641711806).
+Il risultato dei test non costituisce ancora un playtest umano: valuta
+10 tiri reali, direzione dei colpi e selezione della stecca prima del merge.
+
+---
+
 ## PAUL 30: vero fix del biliardino 3D capovolto (20 novembre 2026)
 
 **Il difetto principale non era il modello:** il vertex shader personalizzato

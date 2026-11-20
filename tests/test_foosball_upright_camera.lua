@@ -11,6 +11,7 @@ assert(ThreeD.sceneYaw==180,"keep the user's 180-degree horizontal table orienta
 assert(ThreeD.fovDegrees==35,"calibrated full-object camera FOV changed")
 assert(ThreeD.cameraSide=="front")
 ThreeD.resetCamera()
+ThreeD.setViewMode("showcase") -- four-leg product view stays accessible via F4
 
 for _,size in ipairs({{900,650},{1280,850},{1650,895},{1920,1080}}) do
     local w,h=size[1],size[2]
@@ -53,6 +54,7 @@ for _,size in ipairs({{900,650},{1280,850},{1650,895},{1920,1080}}) do
 end
 ThreeD.resetCamera()
 assert(ThreeD.sceneYaw==180 and ThreeD.cameraSide=="front")
+assert(ThreeD.viewMode=="gameplay")
 assert(eq(sim.ball.x,ball[1]) and eq(sim.ball.y,ball[2]) and
     eq(sim.ball.vx,ball[3]) and eq(sim.ball.vy,ball[4]),
     "camera change altered physics")

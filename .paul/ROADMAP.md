@@ -20,3 +20,10 @@
 - [x] Fallback procedurale 2D e commutazione P/V senza reset.
 - [ ] Confermare avvio LÖVE nativo con modello originale, FPS e allineamento piedi/collider.
 - [ ] Eventuale integrazione delle texture originali e affinamento pivot solo dopo playtest.
+
+## Fase 31 — Leggibilità gameplay 3D
+- [x] Camera PARTITA predefinita, camera ESPOSIZIONE completa con F4, senza reset della partita.
+- [x] Evidenziazione asta selezionata e tutti i veri punti dei piedi `Model.foot`.
+- [x] Pallina fisica resa più leggibile con bordo bianco e traiettoria breve.
+- [x] Regressioni Lua 5.4/LuaJIT, renderer 3D/GLB, legacy NEON11, entrambe le viste native PASS.
+- [ ] UAT Windows: 10 colpi mirati, capacità di leggere contatto/tiro, cambi stecca accidentali e FPS.

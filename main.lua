@@ -285,9 +285,10 @@ local function hud(w,h)
         text(string.format("PALLA IRRAGGIUNGIBILE - RIMESSA FRA %.1f s",remain),
             45,bottom+27,fonts.small,colors.gold)
     else
-        text(ThreeD.active() and
-            "GEOMETRIA 3D REALE: 8 ASTE MOBILI / PALLA FISICA 2D" or
-            "Bordo BIANCO = faccia di tiro   /   BLU: destra   /   ROSSO: sinistra",
+        text((ThreeD.active() and ThreeD.viewMode=="gameplay") and
+            "ORO = asta e punti di tiro   /   BIANCO = pallina e traiettoria" or
+            (ThreeD.active() and "MODELLO 3D / GAMBE REALI" or
+            "Bordo BIANCO = faccia di tiro   /   BLU: destra   /   ROSSO: sinistra"),
             45,bottom+27,fonts.small,colors.muted)
     end
     local captured=love.mouse.getRelativeMode()
@@ -296,15 +297,19 @@ local function hud(w,h)
     -- In the screenshot the pointer was still free: bright guidance explains
     -- why rotation stops when the OS cursor reaches the window edge.
     text(help,45,bottom+52,fonts.small,colors.gold)
-    if ThreeD.active() then
-        text("TAVOLO "..ThreeD.sceneYaw.." GRADI / VISTA "..
-            (ThreeD.cameraSide=="front" and "FRONTE" or "RETRO")..
+    if ThreeD.active() and w>=1200 then
+        text((ThreeD.viewMode=="gameplay" and "PARTITA" or "ESPOSIZIONE")..
+            " / VISTA "..(ThreeD.cameraSide=="front" and "FRONTE" or "RETRO")..
             " / ZOOM "..math.floor(100/ThreeD.cameraDistance+0.5).."%",
-            w-420,bottom+27,fonts.small,colors.human)
+            w-345,bottom,fonts.small,colors.human)
     end
-    text("TAB: AUTO/MANUALE  1-4/rotella: asta  P/V: 3D / 2D  G: glow "..
-        (Theme.glowEnabled and "ON" or "OFF")..
-        "  F2: lato  F3: ruota tavolo  PagSu/Giu: zoom  Home: ripristina  R: reset",
+    local shortcuts
+    if w<1180 then
+        shortcuts="TAB: auto/manuale  1-4: asta  P/V: 2D/3D  F4: vista  F2: lato  F3: gira  Home: reset"
+    else
+        shortcuts="TAB: auto/manuale  1-4/rotella: asta  P/V: 2D/3D  F4: Partita/Esposizione  F2: lato  F3: gira  PagSu/Giu: zoom  Home: reset"
+    end
+    text(shortcuts.."  glow "..(Theme.glowEnabled and "ON" or "OFF"),
         39,h-38,fonts.small,colors.muted)
     if match.phase=="goal" or match.phase=="finished" then
         local message=match.phase=="finished" and
@@ -344,6 +349,9 @@ function love.load()
             verifyLegs=true
         elseif value=="--capture-3d-frame" then
             captureFrame=true
+        else
+            local preset=tostring(value):match("^%-%-view=(%a+)$")
+            if preset then ThreeD.setViewMode(preset) end
         end
     end
     love.window.setTitle(real3d and
@@ -423,6 +431,8 @@ function love.keypressed(key,_,repeatKey)
         ThreeD.flipCamera()
     elseif key=="f3" then
         ThreeD.toggleSceneYaw()
+    elseif key=="f4" then
+        ThreeD.toggleViewMode()
     elseif key=="pageup" then
         ThreeD.zoomCamera(-0.12)
     elseif key=="pagedown" then

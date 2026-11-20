@@ -74,3 +74,10 @@ The **whole world** yaw is now 180° about upright Y, rigidly rotating the actua
 **CI evidence**: [run 44756697687](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44756697687) **7/7 PASS**, with REAL CC BY model **67/99 projected green field samples** and **4/4 support legs visible**; compare native prior failure **2/99**. Real [GPU screenshot artifact](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44756697687/artifacts/14639560551). Frozen NEON11 untouched. No g3d/physics rewrites.
 [PLAN](phases/30-full-table-camera/30-01-PLAN.md) · [UNIFY](phases/30-full-table-camera/30-01-SUMMARY.md).
 **Open:** user Windows screenshot and ten-shot feel check; do not merge without human review.
+
+### Phase 31 — Gameplay Readability, 2026-11-20
+**Branch:** `feat/foosball-gameplay-readability`; [draft PR #29](https://github.com/Askeladd22/FoosballPhysicsLab/pull/29), main unchanged by this PR.
+**Applied:** default true-3D camera GAMEPLAY targets the playing surface; F4 switches to original full-legs SHOWCASE (same score/ball and rod physics); Home returns GAMEPLAY. All selected foot markers derive from `Model.foot`, and white ball tracking derives from `match.ball`. Slightly improved material readability and compact camera/HUD labels.
+**Automated proof:** [CI 44761457020](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44761457020), **7/7 jobs PASS**, actual CC BY GLB used in both real LÖVE modes. SHOWCASE 4/4 legs, 56/255 pixel probes; GAMEPLAY 207/255 pixel probes, 74/99 green field. Two native 3D screenshots in [artifact](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44761457020/artifacts/14641711806). Physical gameplay, original GLB, frozen 11vs11 untouched.
+[PLAN](phases/31-gameplay-readability/31-01-PLAN.md) · [UNIFY](phases/31-gameplay-readability/31-01-SUMMARY.md).
+**Remaining:** Windows human screenshot + 10-shot input/readability UAT NOT_RUN. Next action: test default GAMEPLAY with intentional strokes.
