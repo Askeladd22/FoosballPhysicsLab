@@ -95,6 +95,8 @@ function Game:reset()
     self.selected=4
     self.controlMode="auto"
     self.controlHoldUntil=0
+    self.mouseGestureDistance=0
+    self.lastMouseMovedAt=-math.huge
     self.rodSwitchedAt=0 -- short startup cooldown; no twitch at the opening serve
     self.autoRodNotice=nil
     self.score={0,0}
@@ -159,6 +161,8 @@ end
 function Game:toggleAutoRod()
     self.controlMode=self.controlMode=="auto" and "manual" or "auto"
     self.controlHoldUntil=0
+    self.mouseGestureDistance=0
+    self.lastMouseMovedAt=-math.huge
     self.rodSwitchedAt=-1
     if self.controlMode=="auto" then RodSelector.update(self,true) end
     return self.controlMode
@@ -170,11 +174,22 @@ function Game:mouseMoved(dx,dy)
     if self.phase~="play" then return end
     local r=self.rods[self.selected]
     dx,dy=clamp(dx or 0,-140,140),clamp(dy or 0,-140,140)
-    -- Avoid changing the selected rod in the middle of a deliberate swipe.
-    -- High-frequency mouse events often carry <9px deltas even in a hard shot.
-    -- Treat an intentional stream of small events as a real ongoing gesture.
-    if self.controlMode=="auto" and abs(dx)+abs(dy)>=3 then
-        self.controlHoldUntil=self.clock+RodSelector.GESTURE_HOLD
+    -- Very high polling rates deliver deliberate swipes as many 1-pixel
+    -- events. Aggregate only nearby events so isolated jitter does not
+    -- indefinitely block AUTO from switching to a better rod.
+    if self.controlMode=="auto" then
+        local movement=abs(dx)+abs(dy)
+        if movement>0 then
+            if self.clock-self.lastMouseMovedAt>RodSelector.MICRO_GESTURE_WINDOW then
+                self.mouseGestureDistance=0
+            end
+            self.lastMouseMovedAt=self.clock
+            self.mouseGestureDistance=min(RodSelector.MICRO_GESTURE_DISTANCE,
+                self.mouseGestureDistance+movement)
+            if self.mouseGestureDistance>=RodSelector.MICRO_GESTURE_DISTANCE then
+                self.controlHoldUntil=self.clock+RodSelector.GESTURE_HOLD
+            end
+        end
     end
     -- Y translates the entire rod; X rotates all its figures about that rod.
     r.targetSlide=clamp(r.targetSlide+dy*self.mouseSensitivity.slide,-r.travel,r.travel)

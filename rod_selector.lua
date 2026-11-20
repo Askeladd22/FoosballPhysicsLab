@@ -6,6 +6,9 @@ local function clamp(v,a,b) return max(a,min(b,v)) end
 S.SWITCH_COOLDOWN=0.28
 S.HYSTERESIS=32
 S.GESTURE_HOLD=0.20
+-- Separate small, continuous high-DPI mouse events from isolated pointer jitter.
+S.MICRO_GESTURE_WINDOW=0.060
+S.MICRO_GESTURE_DISTANCE=3
 local W,H=1000,560
 function S.cost(s,index)
     local r=s.rods[index]

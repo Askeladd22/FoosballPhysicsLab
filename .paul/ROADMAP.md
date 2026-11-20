@@ -33,3 +33,10 @@
 - [x] Regressione: tiro orizzontale raggiunge una stecca prima della scadenza senza false rimesse.
 - [x] CI Lua5.4/LuaJIT, NEON11 e smoke GPU/GLB: 7/7 PASS.
 - [ ] UAT Windows: palla incastrata in corridoio, 10 tiri ordinari, percezione di equità della rimessa.
+
+## Fase 33 — Micro-gesti mouse con selezione AUTO
+- [x] Somma di piccoli eventi entro una finestra da 60ms; soglia di 3px, mantenendo il gesto attivo con il blocco già previsto di 200ms.
+- [x] Reset dei contatori dopo riavvio partita e cambio modalità AUTO/MANUALE.
+- [x] Test automatici: 4 eventi da 1px, jitter isolato, sblocco AUTO e cambio modalità.
+- [ ] UAT Windows: 10 gesti lenti e intenzionali, pausa del mouse, contare cambi asta inattesi.
+- [x] GitHub Actions #44772526612: 7/7 PASS, compreso smoke nativo 3D con GLB CC BY.

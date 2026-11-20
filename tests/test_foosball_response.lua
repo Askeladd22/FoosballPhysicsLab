@@ -51,6 +51,46 @@ local selected=s.selected
 s.clock=s.clock+0.06
 assert(not s:autoUpdate() and s.selected==selected,
     "AUTO interrupted the middle of a mouse gesture")
+-- High-polling mice split a deliberate movement into 1-pixel events.
+-- With AUTO and a new ball location, that must not steal the rod mid-gesture.
+s=M.new()
+s.clock=2
+s.ball.x=195
+for i=1,4 do
+    s:mouseMoved(1,0)
+    s.clock=s.clock+0.01
+end
+assert(s.controlHoldUntil>s.clock,
+    "several 1px movements were not recognized as a deliberate gesture")
+assert(not s:autoUpdate() and s.selected==4,
+    "AUTO switched rods during a high-polling microgesture")
+s.clock=s.controlHoldUntil+0.30
+assert(s:autoUpdate() and s.selected==2,
+    "AUTO did not resume switching after the microgesture finished")
+
+-- Sparse pointer jitter must NOT sum forever into a synthetic swipe.
+s=M.new()
+s.clock=2
+s.ball.x=195
+s:mouseMoved(1,0)
+s.clock=s.clock+0.10
+s:mouseMoved(1,0)
+assert(s.controlHoldUntil<=s.clock,
+    "unrelated small cursor jitter incorrectly blocked AUTO")
+assert(s:autoUpdate() and s.selected==2,
+    "sporadic pointer jitter prevented normal AUTO selection")
+
+-- Returning from MANUALE to AUTO must not reuse stale partial gestures.
+s=M.new()
+s.clock=2
+s:mouseMoved(2,0)
+assert(s.mouseGestureDistance==2)
+assert(s:toggleAutoRod()=="manual")
+assert(s:toggleAutoRod()=="auto")
+s:mouseMoved(1,0)
+assert(s.mouseGestureDistance==1 and s.controlHoldUntil<=s.clock,
+    "AUTO inherited stale partial gesture after toggling modes")
+
 -- Bumpers keep their physical stop behaviour even under a large swipe.
 s=M.new()
 r=s.rods[4]
@@ -58,4 +98,4 @@ for i=1,8 do s:mouseMoved(0,140) end
 for i=1,60 do s:step(dt) end
 assert(r.slide==r.travel and r.vy==0 and r.stopCount>=1,
     "high-response slide never touched mechanical end-stop")
-print("PASS: low-latency mouse servo, bounded rod speed, AI inertia, physical hit and AUTO gesture hold")
+print("PASS: low-latency servo, AI inertia, physical hit, microgesture hold, sporadic jitter and AUTO reset")
