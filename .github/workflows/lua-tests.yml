@@ -72,6 +72,6 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y love xvfb libgl1-mesa-dri
       - name: Create original synthetic geometry only (no third-party model)
         run: python3 tools/import_table_soccer_3d.py --fixture --output local_assets/3d
-      - name: Run 12 real 3D frames, require shader/depth success
+      - name: Run 12 real 3D frames AND prove visible pixels (no black screen)
         run: |
-          env SDL_AUDIODRIVER=dummy LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a timeout 45s love . --frames=12 --require-3d
+          env SDL_AUDIODRIVER=dummy LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a timeout 45s love . --frames=12 --require-3d --verify-3d-pixels

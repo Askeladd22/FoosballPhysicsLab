@@ -143,10 +143,24 @@ def synthetic_fixture_zip(path):
     lines=[]
     index=1
     for name in ["TS_Main","TS_Field","TS_Ball"]+RODS:
-        lines += ["v 0 83.2 0","v 1 83.2 0","v 0 84.2 0",
-                  "g "+name,"usemtl Table_Soccer:Metal",
-                  f"f {index} {index+1} {index+2}"]
-        index+=3
+        if name=="TS_Field":
+            # A full-size, vivid source-model field. Earlier tests drew only
+            # microscopic triangles and falsely accepted an empty framebuffer.
+            lines.extend([
+                "v -41.78 76.64 -68.7",
+                "v 41.78 76.64 -68.7",
+                "v 41.78 76.64 68.7",
+                "v -41.78 76.64 68.7",
+                "g "+name, "usemtl Table_Soccer:FIELD",
+                f"f {index} {index+1} {index+2}",
+                f"f {index} {index+2} {index+3}"
+            ])
+            index+=4
+        else:
+            lines += ["v 0 83.2 0","v 1 83.2 0","v 0 84.2 0",
+                      "g "+name,"usemtl Table_Soccer:Metal",
+                      f"f {index} {index+1} {index+2}"]
+            index+=3
     with zipfile.ZipFile(path,"w") as archive:
         archive.writestr("Table_Soccer.obj","\n".join(lines))
 
