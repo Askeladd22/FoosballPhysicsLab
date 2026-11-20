@@ -1,0 +1,6 @@
+FOOSBALL LAB — REAL CC BY TABLE (2026-11-20)
+1. Check out GitHub PR #24: fix/3d-depth-and-ccby-model-pipeline.
+2. Unzip this package at the repository root (not within a subdirectory).
+3. Run love . — the source 3D model is already converted under local_assets/3d/.
+4. Assets/models/foosball_table.glb is the ORIGINAL CC BY licensed source, not the old VERTX3D archive. To commit it to GitHub later: git add assets/models/foosball_table.glb assets/models/ATTRIBUTION.md && git commit -m "assets: add CC BY foosball table" && git push.
+5. Never omit attribution when reusing or distributing it; this kit includes a private generated 3D cache you may regenerate using tools/import_foosball_glb_ccby.py.
