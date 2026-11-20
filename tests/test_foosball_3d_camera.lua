@@ -19,7 +19,7 @@ ThreeD.resetCamera()
 -- rotated game and its selection-marker projection.
 ThreeD.setSceneYaw(0)
 assert(ThreeD.cameraSide=="front" and close(ThreeD.cameraDistance,1))
-assert(close(ThreeD.fovDegrees,42),"default camera fov unexpectedly changed")
+assert(close(ThreeD.fovDegrees,35),"default upright view fov unexpectedly changed")
 for _,window in ipairs(windows) do
     local w,h=window[1],window[2]
     local top,vh=ThreeD.viewport(w,h)
