@@ -256,8 +256,10 @@ local function hud(w,h)
     end
     local captured=love.mouse.getRelativeMode()
     local help=captured and "MOUSE CATTURATO - ESC per sbloccare" or
-        "Clic per bloccare il mouse e ruotare senza limiti"
-    text(help,45,bottom+52,fonts.small,captured and colors.gold or colors.muted)
+        "CLIC SINISTRO: cattura il mouse per colpi rapidi senza fine corsa del cursore"
+    -- In the screenshot the pointer was still free: bright guidance explains
+    -- why rotation stops when the OS cursor reaches the window edge.
+    text(help,45,bottom+52,fonts.small,colors.gold)
     text("TAB: AUTO/MANUALE   1-4/rotella: asta   V: 2.5D "..
         (MeshArt.loaded and (MeshArt.active() and "ON" or "OFF") or "N/D")..
         "   G: glow "..(Theme.glowEnabled and "ON" or "OFF").."   R: reset",
