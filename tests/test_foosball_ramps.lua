@@ -59,8 +59,12 @@ for _,point in ipairs({
     local b={x=px,y=py,r=M.BALL_RADIUS}
     local ax,ay=R.acceleration(b,W,H,G)
     assert(ax*sx>0 and ay*sy>0,"corner lacks diagonal recovery")
-    assert(R.heightAt(px,py,W,H,G,b.r)>R.HEIGHT,
-        "corner is not raised by both edge slopes")
+    local cornerHeight=R.heightAt(px,py,W,H,G,b.r)
+    local longSideOnly=R.heightAt(W/2,py,W,H,G,b.r)
+    local shortEndOnly=R.heightAt(px,H/2-G-b.r-R.GOAL_TAPER-20,
+        W,H,G,b.r)
+    assert(cornerHeight>longSideOnly+0.2 and cornerHeight>shortEndOnly+0.2,
+        "corner is not raised above each individual side slope")
     s=newBall(px,py)
     step(s,90)
     assert((s.ball.x-px)*sx>9 and (s.ball.y-py)*sy>9,
