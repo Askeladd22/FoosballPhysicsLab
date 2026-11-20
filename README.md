@@ -1,3 +1,13 @@
+## Novità — 2 stecche simultanee e camera più vicina (PAUL 37)
+
+**D** attiva **DOPPIA**: mouse su/giù muove **Difesa (asta 2) e Attacco (asta 4)** contemporaneamente, mouse sinistra/destra le ruota insieme. Sono due aste fisiche distinte: ognuna conserva i propri finecorsa e le collisioni, mentre le altre aste e l'IA non ricevono input umano. Entrambe sono evidenziate in 2D e 3D. Premendo ancora **D** si torna alla precedente AUTO/MANUALE; **TAB** esce in AUTO, **1–4/rotella** escono in MANUALE, **C** neutralizza le due rotazioni in DOPPIA.
+
+La vista **PARTITA** parte a **128%** (era 100%) per risultare un poco più vicina dello screenshot utente a 125%; **PagSu** può avvicinare fino a **143%**, PagGiù allontana. Campo e porte restano visibili, ma in PARTITA le gambe possono essere parzialmente fuori inquadratura. **F4 ESPOSIZIONE** conserva la ripresa completa del mobile e lo zoom iniziale effettivo 100%. La prospettiva frontale, il FOV43 e la fisica non sono stati alterati.
+
+**Test:** [PR #35 incorporata](https://github.com/Askeladd22/FoosballPhysicsLab/pull/35), [GitHub Actions 7/7 PASS](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44798062408), incluso il vero GLB 3D. **Da provare su Windows:** 10 colpi e 10 parate in DOPPIA, eventuali colpi involontari e leggibilità con zoom 128–143%.
+
+---
+
 ## Camera frontale da lato lungo — PAUL 36 (20 novembre 2026)
 
 La camera **PARTITA** ora mostra il biliardino realmente **di fronte al lato
@@ -206,6 +216,7 @@ Il **vecchio 11vs11 NEON 11**, congelato ma integro, è un progetto indipendente
 | --- | --- |
 | Mouse su/giù | Scorrimento dell'asta selezionata |
 | Mouse sinistra/destra | Rotazione e tiro fisico |
+| **D** | DOPPIA: muovi e ruota contemporaneamente Difesa 2 + Attacco 4; D ripristina modalità precedente |
 | TAB | AUTO / MANUALE |
 | Rotella o 1–4 | Seleziona e blocca una stecca in modalità manuale |
 | Click sinistro / Esc | Cattura o sblocca il mouse |
