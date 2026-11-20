@@ -2,7 +2,7 @@
 project: Foosball Lab
 project_type: custom/game-development
 status: implementing
-plan_version: phase34-edge-corner-ramps
+plan_version: phase35-gameplay-camera-composition
 last_updated: 2026-11-20
 ---
 
@@ -103,3 +103,13 @@ Dieci tiri intenzionali in AUTO, tre in MANUALE, tre blocchi di palla morta e co
 **OUT OF SCOPE:** 11vs11 legacy, multiplayer, carriera, modello 3D sorgente, fisica verticale piena; la fisica resta 2D planare con accelerazione equivalente alla pendenza.
 **OPEN / GAME DESIGN LAB:** playtest Windows e tuning; riprodurre 4 angoli, 4 tratti di testata, 10 tiri di sponda e 5 conclusioni in porta. Misurare falsi cambi direzione, ritmo e leggibilità, senza scambiare CI per valutazione del divertimento.
 **TECHNICAL EVIDENCE:** regressioni dedicate `tests/test_foosball_ramps.lua`, CI collegata alla [PR #32](https://github.com/Askeladd22/FoosballPhysicsLab/pull/32).
+
+## SEED phase 35 — Gameplay camera composition
+**OBSERVED:** screenshot at 1271×874 shows a prominent front rail, obliquely compressed playing surface and less precise visual ball/foot cues. Actual former GAMEPLAY eye offset = (-100, 1060, side*780), FOV35; tilt ~54 degrees.
+**DECIDED:** GAMEPLAY-only camera centered in the table's long axis: eye offset (0, 1200, side*430), tilt ~70°, dedicated FOV33. Do not change `ESPOSIZIONE` eye, goal score, input, ball/foot physics, ramps, 180° yaw or renderer shader coordinate convention.
+**DECIDED:** GPU and CPU marker projection both use `currentFovDegrees()` (33 GAMEPLAY / 35 SHOWCASE). Preserve fixed viewport/HUD margins.
+**EVIDENCE:** dedicated geometry test checks 5 resolutions incl. 1271×874, both side positions and yaw orientations, projected field inside HUD, vertical coverage >= 67%, symmetry, actual ball/foot coordinates, preserved showroom leg visibility. GPU mock test verifies mode FOV switches; native LÖVE/GLB GitHub Actions gate needed.
+**ASSUMED:** approximately zenithal camera improves ability to anticipate ball contact and reduced front-rail occlusion; can reduce perceived furniture depth.
+**OPEN:** Windows screenshot of the actual new camera and ten-shot human playtest with mouse; do not assert that the camera is definitively preferable on feel from tests alone.
+**OUT OF SCOPE:** altering HUD dimensions, physical ball dynamics, AI, rods, asset licenses, legacy NEON11 or graphics pipeline.
+**NEXT:** human A/B in GAMEPLAY vs F4 ESPOSIZIONE, ten precision hits, five side bank shots and four corner rolls. Tweak camera only if demonstrably necessary.
