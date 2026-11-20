@@ -85,6 +85,43 @@ function Theme.drawBackdrop(lg,w,h)
     lg.setLineWidth(1)
     lg.line(28,112,math.max(28,w-28),112)
 end
+-- Draw the same sloped footprint as the physical ramp profile. This
+-- transparent 2D floor treatment stays below the rods and the white ball.
+function Theme.drawRamps(lg,R,W,H,goalHalf,ballRadius)
+    local depth=R.DEPTH
+    for _,sec in ipairs(R.sections(W,H,goalHalf,ballRadius)) do
+        -- The 4 stacked translucent bands communicate increasing height
+        -- toward the outside rail without hiding the green playing surface.
+        for layer=4,1,-1 do
+            local frac=layer/4
+            local x0,y0,x1,y1=sec.x0,sec.y0,sec.x1,sec.y1
+            if sec.edge=="top" then y1=frac*depth
+            elseif sec.edge=="bottom" then y0=H-frac*depth
+            elseif sec.edge=="left" then x1=frac*depth
+            else x0=W-frac*depth end
+            paint(lg,c.etched,0.022+0.017*(5-layer))
+            lg.rectangle("fill",x0,y0,x1-x0,y1-y0)
+        end
+        paint(lg,c.metal,0.42)
+        lg.setLineWidth(1.5)
+        if sec.edge=="top" then lg.line(sec.x0,depth,sec.x1,depth)
+        elseif sec.edge=="bottom" then lg.line(sec.x0,H-depth,sec.x1,H-depth)
+        elseif sec.edge=="left" then lg.line(depth,sec.y0,depth,sec.y1)
+        else lg.line(W-depth,sec.y0,W-depth,sec.y1) end
+    end
+    -- The corner joins are doubly sloped in the physics profile, rather
+    -- than hard diagonals that could trap a rolling ball again.
+    paint(lg,c.gold,0.28)
+    lg.setLineWidth(1.7)
+    for _,x in ipairs({0,W}) do
+        for _,y in ipairs({0,H}) do
+            local sx=x==0 and 1 or -1
+            local sy=y==0 and 1 or -1
+            lg.line(x+sx*7,y+sy*depth,x+sx*depth,y+sy*7)
+        end
+    end
+end
+
 function Theme.drawGlassTable(lg,W,H,goalHalf)
     -- Chassis and inward bevel, within the 46-unit wooden-frame safe margin.
     paint(lg,c.shadow,0.72)
