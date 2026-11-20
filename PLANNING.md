@@ -45,3 +45,10 @@ Dieci tiri intenzionali in AUTO, tre in MANUALE, tre blocchi di palla morta e co
 **DECIDED:** clear to 1; fail native CI if actual canvas pixels contain no geometry. Select 3D Content Online's `foosball_table (2).glb` (103 primitives, 73,636 triangles, CC BY 4.0), not the single-mesh or Marble NC models. Re-rig players to 1-2-5-3 rather than changing game collisions to match the asset.
 **DECIDED:** original CC BY GLB can live at `assets/models/foosball_table.glb` with source/attribution; converted GPU buffers are generated locally from it and need not be versioned.
 **OPEN:** Windows user visual review and camera/pivot feel. **OUT OF SCOPE:** changes to frozen 11vs11 or career.
+
+## SEED Phase 27 — Camera correction
+**OBSERVED:** real user screenshot: upside-down-looking perspective, dark rear wall dominating top screen, cut rods/frame, camera too close.
+**DECIDED:** default 3D viewpoint from the **opposite long edge**, higher and farther, FOV42, automatically fit to window aspect; F2 flips viewpoint, PageUp/PageDown adjust distance, Home restores.
+**DECIDED:** mouse wheel still switches rods; no physics/mesh rescale or hidden gameplay changes. P/V remains 2D fallback.
+**UNVERIFIED:** perceived player/foot clarity and comfort at the user's resolution; only actual screenshot/playtest can confirm subjective quality.
+**GATE:** camera projected outer board rim remains in 3D viewport at 900×650, 1280×850, 1650×895 and 1920×1080, plus non-black GPU smoke and Lua regressions.

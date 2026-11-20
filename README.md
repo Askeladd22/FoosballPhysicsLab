@@ -1,3 +1,26 @@
+## Fase 27 — camera 3D corretta (2026-11-20)
+
+La precedente visuale era ripresa dal lato non desiderato, troppo vicina al campo:
+la barriera superiore occupava parte dell'immagine, le aste si tagliavano e
+il tavolo sembrava sottosopra. **Non è un problema del modello GLB né della fisica.**
+
+La nuova vista 3D parte dall'**altro lato lungo** del tavolo, è rialzata e
+allontanata; i bordi sono adattati automaticamente alla dimensione della
+finestra. Campo, aste, pallina, punteggio e IA rimangono immutati.
+
+**Controlli camera:** **F2** inverte il lato (due viste entrambe in prospettiva
+reale), **PagSu** avvicina, **PagGiù** allontana, **Home** ripristina la vista.
+**P/V** rimane il confronto tra 3D e 2D; la rotella del mouse continua a
+cambiare asta, non zoom. I comandi di rotazione/traslazione sono gli stessi.
+
+Criterio di qualità: l'intera superficie e i bordi superiori del biliardino
+devono restare visibili senza HUD sovrapposto, compresi 900×650, 1280×850,
+1650×895 e 1920×1080. La CI testa matematicamente queste proiezioni e il
+renderer nativo verifica che i pixel GPU non siano neri. La preferenza
+estetica della camera richiede ancora un playtest Windows.
+
+---
+
 ## Correzione 3D — PAUL 26 (2026-11-20)
 
 **Corretto lo schermo nero.** Il renderer inizializzava il depth buffer a 0
