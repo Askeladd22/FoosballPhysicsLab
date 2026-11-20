@@ -27,5 +27,22 @@ love.load()
 -- that ALL 22 physical feet receive a connected collision-accurate shoe.
 Art.drawRod=function() return true end
 love.draw()
-assert(#shapes==22,"render did not draw each of the 22 modelled physical feet")
-print("PASS: every Table Soccer sprite is overlaid with its matching physical striking shoe")
+local Model=require("model")
+local state=Model.new()
+local count=0
+for _,rod in ipairs(state.rods) do
+    for i=1,#rod.offsets do
+        local x,y=Model.footRect(rod,i)
+        local matched=false
+        for _,shape in ipairs(shapes) do
+            if math.abs(shape.x-x)<0.01 and math.abs(shape.y-y)<0.01 then
+                matched=true
+                break
+            end
+        end
+        assert(matched,"one Table Soccer modelled figure lacks its physical shoe")
+        count=count+1
+    end
+end
+assert(count==22,"incomplete 1-2-5-3 layout")
+print("PASS: every Table Soccer sprite has a shoe at its precise physical collider")
