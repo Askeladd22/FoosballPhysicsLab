@@ -70,6 +70,9 @@ for _,entry in ipairs({{defenceMarkers,2},{attackMarkers,4}}) do
     end
 end
 -- D restores previous AUTO mode, not stale targets or a permanent lock.
+-- Reposition only to isolate selector behavior from the preceding physical
+-- bumper/foot-contact scenario (already tested above).
+s.ball.x,s.ball.y,s.ball.vx,s.ball.vy=185,M.H/2,0,0
 assert(s:toggleDualRod()=="auto")
 assert(s.selected==2 and s:isRodControlled(2) and not s:isRodControlled(4),
     "D failed to restore contextual AUTO near defence")
