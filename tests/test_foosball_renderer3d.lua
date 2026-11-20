@@ -11,6 +11,8 @@ local graphics={
         assert(source:find("vertex_position.xyz",1,true),"3D geometry vertex shader absent")
         assert(source:find("uFocal",1,true),"perspective projection absent")
         assert(source:find("VertexNormal",1,true),"lighting absent")
+        assert(source:find("uWorldOrientation",1,true),
+            "shader must turn all 3D geometry in one rigid 180-degree pass")
         return shader
     end,
     newMesh=function(format,count,mode,usage)
@@ -74,6 +76,14 @@ love={graphics=graphics}
 assert(ThreeD.draw(match,1280,850),"3D render did not run")
 assert(fake.depth and fake.clearedDepth==1,
     "renderer did not clear the real depth buffer to its farthest value")
+local worldUniform=false
+for _,send in ipairs(fake.sends) do
+    if send[1]=="uWorldOrientation" then
+        assert(send[2]==-1,"3D scene must launch rotated 180 degrees")
+        worldUniform=true
+    end
+end
+assert(worldUniform,"3D world transform not sent to GPU")
 assert(#fake.draws==12,"expected static table+field, 8 moving rods, ball, and color canvas")
 local rodTranslations={}
 for i,send in ipairs(fake.sends) do

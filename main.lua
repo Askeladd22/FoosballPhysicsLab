@@ -294,13 +294,14 @@ local function hud(w,h)
     -- why rotation stops when the OS cursor reaches the window edge.
     text(help,45,bottom+52,fonts.small,colors.gold)
     if ThreeD.active() then
-        text("VISTA "..(ThreeD.cameraSide=="front" and "FRONTE" or "RETRO")..
+        text("TAVOLO "..ThreeD.sceneYaw.." GRADI / VISTA "..
+            (ThreeD.cameraSide=="front" and "FRONTE" or "RETRO")..
             " / ZOOM "..math.floor(100/ThreeD.cameraDistance+0.5).."%",
-            w-260,bottom+27,fonts.small,colors.human)
+            w-420,bottom+27,fonts.small,colors.human)
     end
     text("TAB: AUTO/MANUALE  1-4/rotella: asta  P/V: 3D / 2D  G: glow "..
         (Theme.glowEnabled and "ON" or "OFF")..
-        "  F2: lato  PagSu/PagGiu: zoom  Home: vista  R: reset",
+        "  F2: lato  F3: ruota tavolo  PagSu/Giu: zoom  Home: ripristina  R: reset",
         39,h-38,fonts.small,colors.muted)
     if match.phase=="goal" or match.phase=="finished" then
         local message=match.phase=="finished" and
@@ -406,12 +407,15 @@ function love.keypressed(key,_,repeatKey)
         debugDraw=not debugDraw
     elseif key=="f2" then
         ThreeD.flipCamera()
+    elseif key=="f3" then
+        ThreeD.toggleSceneYaw()
     elseif key=="pageup" then
         ThreeD.zoomCamera(-0.12)
     elseif key=="pagedown" then
         ThreeD.zoomCamera(0.12)
     elseif key=="home" then
         ThreeD.resetCamera()
+        ThreeD.resetSceneYaw()
     elseif key=="g" then
         Theme.glowEnabled=not Theme.glowEnabled
     elseif key=="v" or key=="p" then

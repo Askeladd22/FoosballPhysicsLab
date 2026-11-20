@@ -70,8 +70,13 @@ assert(ThreeD.cameraSide=="back")
 love.keypressed("pagedown",nil,false)
 assert(ThreeD.cameraDistance>1)
 love.keypressed("pageup",nil,false)
+love.keypressed("f3",nil,false)
+assert(ThreeD.sceneYaw==0,"F3 must compare the source orientation")
+love.keypressed("f3",nil,false)
+assert(ThreeD.sceneYaw==180,"F3 must restore the requested 180-degree turn")
 love.keypressed("home",nil,false)
 assert(ThreeD.cameraSide=="front" and ThreeD.cameraDistance==1)
+assert(ThreeD.sceneYaw==180,"Home must also reset table orientation")
 love.keypressed("g",nil,false)
 local before=glowCalls
 drawing={}

@@ -11,6 +11,8 @@ local ThreeD={
     fovDegrees=42,
     cameraSide="front",
     cameraDistance=1,
+    -- Rigid 180-degree Y-axis turn of the ENTIRE 3D WORLD, not the camera.
+    sceneYaw=180,
     modelKind="private-original"
 }
 local ROLES={"goalkeeper","defence","midfield","attack"}
@@ -29,6 +31,8 @@ local SHADER=[[
     extern float uScale;
     extern float uAspect;
     extern float uFocal;
+    // 1 = source orientation, -1 = 180-degree yaw around world Y at table center.
+    extern float uWorldOrientation;
     // A combined LÖVE shader is compiled twice: attribute is vertex-only.
     #ifdef VERTEX
     attribute vec3 VertexNormal;
@@ -41,6 +45,10 @@ local SHADER=[[
         p = vec3(p.x*uRotate.x-p.y*uRotate.y,
                  p.x*uRotate.y+p.y*uRotate.x,p.z);
         p += uMove;
+        // Apply the SAME rigid world yaw to table, field, 8 rods and ball.
+        // Local rod spin and slide happen FIRST; no physics coordinates change.
+        p.x = 500.0 + (p.x - 500.0) * uWorldOrientation;
+        p.z = 280.0 + (p.z - 280.0) * uWorldOrientation;
         vec3 delta = p-uEye;
         float d = dot(delta,uForward);
         const float nearPlane=2.0;
@@ -48,8 +56,10 @@ local SHADER=[[
         float depth = (farPlane+nearPlane)/(farPlane-nearPlane)*d
                     - (2.0*farPlane*nearPlane)/(farPlane-nearPlane);
         vec3 n = VertexNormal;
-        vNormal = normalize(vec3(n.x*uRotate.x-n.y*uRotate.y,
-                                 n.x*uRotate.y+n.y*uRotate.x,n.z));
+        vNormal = normalize(vec3(
+            (n.x*uRotate.x-n.y*uRotate.y)*uWorldOrientation,
+             n.x*uRotate.y+n.y*uRotate.x,
+             n.z*uWorldOrientation));
         return vec4(dot(delta,uRight)*uFocal/uAspect,
                     dot(delta,uUp)*uFocal,depth,d);
     }
@@ -84,6 +94,23 @@ end
 function ThreeD.resetCamera()
     ThreeD.cameraSide="front"
     ThreeD.cameraDistance=1
+end
+function ThreeD.setSceneYaw(degrees)
+    assert(degrees==0 or degrees==180,"scene rotation must be 0 or 180 degrees")
+    ThreeD.sceneYaw=degrees
+    return degrees
+end
+function ThreeD.toggleSceneYaw()
+    return ThreeD.setSceneYaw(ThreeD.sceneYaw==180 and 0 or 180)
+end
+function ThreeD.resetSceneYaw()
+    return ThreeD.setSceneYaw(180)
+end
+-- Same rigid scene transform as the 3D shader. Y is world UP.
+-- The model/physics positions are unchanged; only projected coordinates turn.
+function ThreeD.worldPoint(x,y,z)
+    if ThreeD.sceneYaw==180 then return 1000-x,y,560-z end
+    return x,y,z
 end
 function ThreeD.flipCamera()
     ThreeD.cameraSide=ThreeD.cameraSide=="front" and "back" or "front"
@@ -199,6 +226,7 @@ end
 function ThreeD.project(x,y,z,w,h)
     local top,height=ThreeD.viewport(w,h)
     local eye,right,up,forward=ThreeD.cameraBasis(w,h)
+    x,y,z=ThreeD.worldPoint(x,y,z)
     local dx,dy,dz=x-eye[1],y-eye[2],z-eye[3]
     local depth=dx*forward[1]+dy*forward[2]+dz*forward[3]
     if depth<=2 then return nil end
@@ -235,6 +263,7 @@ function ThreeD.draw(match,w,h)
     shader:send("uForward",forward)
     shader:send("uAspect",w/vh)
     shader:send("uFocal",1/math.tan(math.rad(ThreeD.fovDegrees)/2))
+    shader:send("uWorldOrientation",ThreeD.sceneYaw==180 and -1 or 1)
     drawMesh(lg,shader,ThreeD.meshes.table,0,0,0,0,1)
     drawMesh(lg,shader,ThreeD.meshes.field,0,0,0,0,1)
     for i,r in ipairs(match.rods) do
