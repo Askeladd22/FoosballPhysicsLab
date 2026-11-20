@@ -33,3 +33,6 @@ GitHub [PR #22](https://github.com/Askeladd22/FoosballPhysicsLab/pull/22): **CI 
 
 ## Phase 25 — Real Table Soccer GPU meshes (2026-11-20)
 Branch `feat/true-3d-table-soccer-runtime`. L'utente ha scartato esplicitamente le viste basate su sprite 2.5D e shear affine. Il nuovo `renderer3d.lua` renderizza le **vere mesh OBJ convertite localmente**, con prospettiva, profondità e otto aste animate dal mouse e dall'IA tramite `model.lua`. `tools/import_table_soccer_3d.py` importa il modello originale in 11 buffer privati senza dipendenze Python. **P/V** commuta 3D/2D; in assenza di file proprietari il gioco mantiene un fallback procedurale. Asset Table Soccer esclusi da Git. NEON11 non modificato. Piano in `phases/25-true-3d/25-01-PLAN.md`; native 3D screenshot/UAT ancora da verificare.
+
+### Phase 25 UNIFY
+[PLAN](phases/25-true-3d/25-01-PLAN.md) · [SUMMARY](phases/25-true-3d/25-01-SUMMARY.md) · [Verified code CI](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44717700176). **5/5 jobs PASS** including native software GPU LÖVE 11.5 with synthetic meshes and all Lua Foosball/NEON11 regressions. Local original OBJ converted to 11 real mesh buffers; user's full-model native Windows screenshot/FPS/input UAT remains **NOT_RUN**. PR #23 draft, main untouched.
