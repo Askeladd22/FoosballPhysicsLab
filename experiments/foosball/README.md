@@ -61,3 +61,9 @@ Press **G** to toggle neon glow **ON/OFF** without altering the physics or contr
 
 ## Automatic dead ball (PAUL 19)
 If the ball slows down in an area no rod can physically reach, a 2-second **PALLA IRRAGGIUNGIBILE** countdown appears in the existing bottom HUD. The simulation examines the possible foot contact envelope using real rod X positions, maximum legal rotation, shoe/ball radii and rod sliding travel; a moving ball or a merely parked *reachable* ball does not restart. After the countdown the ball is re-served near a reachable **midfield rod**; the opposite team to the last striker gets the restart, or teams alternate when no striker is recorded. Score, rods and match state are preserved. This is a simple prototype **house rule for dead balls**, not a magnet or a hidden kick. The 11vs11 frozen project is not modified.
+
+
+## Contextual rod control (PAUL 21)
+**AUTO is now enabled by default.** The active human rod follows the predicted ball X, with a Y-reachability adjustment, a 32-pixel hysteresis margin, a 280ms switch cooldown and a 200ms hold during deliberate mouse strokes. AUTO does **not** move or rotate rods by itself; all shots and lateral moves still come from your mouse.
+
+Use **TAB** to toggle AUTO/MANUALE. **1–4 or scroll wheel** selects and locks a rod in MANUALE mode until you press TAB again. The lower HUD shows the current mode and selected rod. Test by gently guiding the ball from attack to midfield and back; AUTO should follow without flashing back and forth or stealing control during a shot.

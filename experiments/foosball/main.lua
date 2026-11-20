@@ -201,9 +201,13 @@ local function hud(w,h)
     lg.setLineWidth(1)
     lg.rectangle("line",30,bottom-8,w-60,79,9,9)
     Theme.glowLine(lg,39,bottom-6,170,bottom-6,colors.gold,1.5,0.48)
-    text("ASTA "..match.selected.."  /  "..r.kind.."  /  rotazione "..angle.." gradi",
+    text((match.controlMode=="auto" and "AUTO" or "MANUALE")..
+        "  /  ASTA "..match.selected.."  /  "..r.kind.."  /  rotazione "..angle.." gradi",
         45,bottom,fonts.normal,colors.cream)
-    if r.stopPulse>0 then text("FINE CORSA",w-175,bottom,fonts.small,colors.gold) end
+    if r.stopPulse>0 then text("FINE CORSA",w-175,bottom,fonts.small,colors.gold)
+    elseif match.autoRodNotice and match.autoRodNotice.expires>match.clock then
+        text("ASTA "..match.autoRodNotice.rod.." SELEZIONATA",w-220,bottom,fonts.small,colors.gold)
+    end
     if match.deadBallNotice and match.deadBallNotice.expires>match.clock then
         local side=match.deadBallNotice.team==1 and "BLU" or "ROSSO"
         text("PALLA MORTA - RIMESSA "..side.." A CENTROCAMPO",
@@ -220,8 +224,7 @@ local function hud(w,h)
     local help=captured and "MOUSE CATTURATO - ESC per sbloccare" or
         "Clic per bloccare il mouse e ruotare senza limiti"
     text(help,45,bottom+52,fonts.small,captured and colors.gold or colors.muted)
-    text("1-4 / rotella: asta     C: piede neutro     - / +: sensibilita     G: glow "..
-        (Theme.glowEnabled and "ON" or "OFF").."     R: reset     F1: debug",
+    text("TAB: AUTO/MANUALE    1-4/rotella: blocca asta    V: modello 2.5D    G: glow    R: reset",
         39,h-38,fonts.small,colors.muted)
     if match.phase=="goal" or match.phase=="finished" then
         local message=match.phase=="finished" and
@@ -284,6 +287,8 @@ function love.keypressed(key,_,repeatKey)
         love.mouse.setRelativeMode(false)
     elseif key=="m" then
         love.mouse.setRelativeMode(not love.mouse.getRelativeMode())
+    elseif key=="tab" then
+        match:toggleAutoRod()
     elseif key=="c" then
         match:neutralRod()
     elseif key=="r" then

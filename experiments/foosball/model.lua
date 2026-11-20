@@ -1,6 +1,7 @@
 -- Independent LÖVE2D foosball prototype, pure Lua physics for headless tests.
 -- Physical dimensions are prototype pixels, not claims about tournament equipment.
 local M={}
+local RodSelector=require("rod_selector")
 M.W,M.H=1000,560
 M.GOAL_HALF=94
 M.BALL_RADIUS=10
@@ -91,6 +92,10 @@ function Game:reset()
     self.rods={}
     for _,def in ipairs(layout) do self.rods[#self.rods+1]=newRod(def) end
     self.selected=4
+    self.controlMode="auto"
+    self.controlHoldUntil=0
+    self.rodSwitchedAt=-1
+    self.autoRodNotice=nil
     self.score={0,0}
     self.clock=0
     self.aiClock=0
@@ -143,14 +148,31 @@ end
 function Game:selectRod(slot)
     if slot>=1 and slot<=4 and slot==math.floor(slot) then
         self.selected=slot
+        self.controlMode="manual"
+        self.rodSwitchedAt=self.clock
+        self.autoRodNotice=nil
         return true
     end
     return false
+end
+function Game:toggleAutoRod()
+    self.controlMode=self.controlMode=="auto" and "manual" or "auto"
+    self.controlHoldUntil=0
+    self.rodSwitchedAt=-1
+    if self.controlMode=="auto" then RodSelector.update(self,true) end
+    return self.controlMode
+end
+function Game:autoUpdate()
+    return RodSelector.update(self,false)
 end
 function Game:mouseMoved(dx,dy)
     if self.phase~="play" then return end
     local r=self.rods[self.selected]
     dx,dy=clamp(dx or 0,-140,140),clamp(dy or 0,-140,140)
+    -- Avoid changing the selected rod in the middle of a deliberate swipe.
+    if self.controlMode=="auto" and math.max(abs(dx),abs(dy))>9 then
+        self.controlHoldUntil=self.clock+RodSelector.GESTURE_HOLD
+    end
     -- Y translates the entire rod; X rotates all its figures about that rod.
     r.targetSlide=clamp(r.targetSlide+dy*self.mouseSensitivity.slide,-r.travel,r.travel)
     r.targetAngle=clamp(r.targetAngle+dx*self.mouseSensitivity.angle,limits.min,limits.max)
@@ -325,7 +347,10 @@ function Game:step(dt)
         stepBall(self,micro)
         if self.phase~="play" then break end
     end
-    if self.phase=="play" then updateDeadBall(self,dt) end
+    if self.phase=="play" then
+        updateDeadBall(self,dt)
+        RodSelector.update(self,false)
+    end
 end
 M.Game=Game
 return M
