@@ -231,8 +231,10 @@ local function hud(w,h)
     local help=captured and "MOUSE CATTURATO - ESC per sbloccare" or
         "Clic per bloccare il mouse e ruotare senza limiti"
     text(help,45,bottom+52,fonts.small,captured and colors.gold or colors.muted)
-    text("TAB: AUTO/MANUALE    1-4/rotella: asta    V: "..(MeshArt.loaded and "2.5D ON/OFF" or "2.5D NON INSTALLATO")..
-        "    G: glow    R: reset",39,h-38,fonts.small,colors.muted)
+    text("TAB: AUTO/MANUALE   1-4/rotella: asta   V: 2.5D "..
+        (MeshArt.loaded and (MeshArt.active() and "ON" or "OFF") or "N/D")..
+        "   G: glow "..(Theme.glowEnabled and "ON" or "OFF").."   R: reset",
+        39,h-38,fonts.small,colors.muted)
     if match.phase=="goal" or match.phase=="finished" then
         local message=match.phase=="finished" and
             (match.lastScorer==1 and "VITTORIA!  /  R: nuova partita" or "SCONFITTA!  /  R: riprova") or
