@@ -9,7 +9,8 @@ local ThreeD={
     source="local_assets/3d/",stride=28,
     axisHeight=(83.2-76.64)*(560/83.56),
     ballHeight=16.5,ballScale=0.68,
-    fovDegrees=35,
+    fovDegrees=35, -- retain the verified showcase perspective
+    gameplayFovDegrees=33, -- tighter projection only for physical play
     cameraSide="front",
     cameraDistance=1,
     viewMode="gameplay", -- default: readable feet/ball and enlarged green pitch
@@ -117,6 +118,10 @@ end
 function ThreeD.toggleViewMode()
     return ThreeD.setViewMode(ThreeD.viewMode=="gameplay" and "showcase" or "gameplay")
 end
+function ThreeD.currentFovDegrees()
+    return ThreeD.viewMode=="gameplay" and ThreeD.gameplayFovDegrees
+        or ThreeD.fovDegrees
+end
 function ThreeD.resetCamera()
     ThreeD.cameraSide="front"
     ThreeD.cameraDistance=1
@@ -160,13 +165,14 @@ function ThreeD.cameraBasis(w,h)
              target[2]+2119.05*distance,
              target[3]+side*1795.20*distance}
     else
-        -- Actual match camera: prioritize a large, unobstructed green pitch.
-        -- Calibrated for 900x650..1920x1080, preserving real perspective.
-        -- Do not rotate/scale the mesh or change the game physics.
+        -- MATCH, not PRODUCT: nearly top-down (~70 degrees) and squarely
+        -- aligned to the table's long axis. Older 3/4 offset (-100,1060,780)
+        -- foreshortened the feet and gave the near rail too much emphasis.
+        -- Keep a genuine perspective for depth while revealing both goals.
         target={500,10,280}
-        eye={target[1]-100*distance,
-             target[2]+1060*distance,
-             target[3]+side*780*distance}
+        eye={target[1],
+             target[2]+1200*distance,
+             target[3]+side*430*distance}
     end
     local fx,fy,fz=norm(target[1]-eye[1],target[2]-eye[2],target[3]-eye[3])
     local rx,ry,rz=norm(cross(fx,fy,fz,0,1,0))
@@ -285,7 +291,7 @@ function ThreeD.project(x,y,z,w,h)
     local depth=dx*forward[1]+dy*forward[2]+dz*forward[3]
     if depth<=2 then return nil end
     local ratio=w/height
-    local focal=1/math.tan(math.rad(ThreeD.fovDegrees)/2)
+    local focal=1/math.tan(math.rad(ThreeD.currentFovDegrees())/2)
     local px=dx*right[1]+dy*right[2]+dz*right[3]
     local py=dx*up[1]+dy*up[2]+dz*up[3]
     return w/2+px*focal/ratio/depth*w/2,
@@ -343,7 +349,8 @@ function ThreeD.draw(match,w,h)
     shader:send("uUp",up)
     shader:send("uForward",forward)
     shader:send("uAspect",w/vh)
-    shader:send("uFocal",1/math.tan(math.rad(ThreeD.fovDegrees)/2))
+    -- Keep overlay projection and actual GPU shader on the SAME preset FOV.
+    shader:send("uFocal",1/math.tan(math.rad(ThreeD.currentFovDegrees())/2))
     shader:send("uWorldOrientation",ThreeD.sceneYaw==180 and -1 or 1)
     drawMesh(lg,shader,ThreeD.meshes.table,0,0,0,0,1)
     drawMesh(lg,shader,ThreeD.meshes.field,0,0,0,0,1)
