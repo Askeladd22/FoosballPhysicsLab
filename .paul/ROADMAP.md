@@ -60,5 +60,5 @@
 - [x] Confermati l'offset camera sul lato lungo `(-100,+1060,±780)`, FOV35°, yaw180° e il layout HUD della schermata 1271×874, senza alterare la fisica.
 - [x] Sette ancore di proiezione foto (centro, quattro angoli, entrambe le porte) verificate alla dimensione 1271×874. Regressioni per altre quattro risoluzioni, due lati F2, yaw0/180 F3, marcatori fisici e F4 SHOWCASE.
 - [x] Shader GPU e indicatori CPU hanno lo stesso FOV35 in entrambe le modalità. Nessuna modifica alla camera ESPOSIZIONE.
-- [ ] GitHub Actions definitiva su commit di codice corretto e aggiornamenti doc per [PR #33](https://github.com/Askeladd22/FoosballPhysicsLab/pull/33).
+- [x] [GitHub Actions #44786693825](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44786693825) **7/7 PASS** sul commit di codice `d38f2096`, inclusi i 7 landmark della foto e il GLB CC BY nativo. Commit documentali successivi non modificano il codice verificato.
 - [ ] Foto Windows 1271×874 e 10 tiri veri: verifica percettiva degli omini/pallina ancora da completare.
