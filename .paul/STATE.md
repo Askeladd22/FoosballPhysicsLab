@@ -2,9 +2,9 @@
 
 **Active:** Foosball Lab in root, real CC BY GLB true 3D as default, Neon Glass 2D fallback.
 **Frozen:** NEON 11 with full source, test and documentation in `legacy/neon11/`.
-**Current phase:** 34 — side/corner anti-dead-zone ramps (3D camera review separately OPEN).
-**Branch:** `feat/foosball-edge-corner-ramps`, [draft PR #32](https://github.com/Askeladd22/FoosballPhysicsLab/pull/32).
-**Status:** `VERIFIED_AUTOMATED / UAT_NOT_RUN`; latest ramp geometry, marker and native GLB GPU CI 7/7 PASS (run 44778209050). Native Windows gameplay/camera UAT NOT_RUN.
+**Current phase:** 35 — screenshot-accurate three-quarter GAMEPLAY camera.
+**Branch:** `fix/foosball-gameplay-camera-composition`, [draft PR #33](https://github.com/Askeladd22/FoosballPhysicsLab/pull/33).
+**Status:** `VERIFIED_AUTOMATED / UAT_NOT_RUN`; phase 35 photo-accurate camera code passed 7/7 GitHub Actions on commit d38f2096, including real CC BY GLB GPU. Windows photo comparison/playtest NOT_RUN.
 **Date:** 2026-11-20.
 
 ## SEED decisions
@@ -16,10 +16,10 @@
 - No additional career, rankings, multiplayer, 11vs11 gameplay or Project Folio changes.
 
 ## Evidence
-[PLAN phase 34](phases/34-edge-corner-ramps/34-01-PLAN.md) · [UNIFY phase 34](phases/34-edge-corner-ramps/34-01-SUMMARY.md) · [CI 44778209050](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44778209050) 7/7 PASS on completed 3D height alignment. Native camera/play feel not verified.
+[PLAN phase 35](phases/35-gameplay-camera-composition/35-01-PLAN.md) · [UNIFY phase 35](phases/35-gameplay-camera-composition/35-01-SUMMARY.md) · [CI 44786693825](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44786693825) 7/7 PASS on screenshot-accurate camera and focal uniform tests. Native human playtest NOT_RUN.
 
 ## Next single action
-Native Windows playtest: four corners, side and goal-wing ramps, ten ordinary bank shots and five goal attempts; compare ball foot contact and projection in GAMEPLAY versus SHOWCASE (F4).
+Native Windows playtest: at 1271×874 confirm screenshot-matching three-quarter GAMEPLAY composition, then ten precise ball-foot contacts with mouse and F4 SHOWCASE comparison.
 
 
 ## Phase 24 — Oblique 2.5D camera and physical shoe linkage
@@ -107,3 +107,10 @@ The **whole world** yaw is now 180° about upright Y, rigidly rotating the actua
 [PLAN](phases/34-edge-corner-ramps/34-01-PLAN.md) · [SUMMARY](phases/34-edge-corner-ramps/34-01-SUMMARY.md).
 
 **Phase 34 latest verification:** [run 44778209050](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44778209050) 7/7 PASS on commit `3c64bbd70475886cdeb07bc7b945c70078a0ea22` for finalized ramp and marker code. Subsequent documentation-only commits do not alter the code under test. Camera composition remains a separate open design task, not silently changed in this branch.
+
+### PAUL phase 35 — photo-reference correction (2026-11-20)
+**Branch:** `fix/foosball-gameplay-camera-composition` · [draft PR #33](https://github.com/Askeladd22/FoosballPhysicsLab/pull/33), not merged.
+**User revision supersedes early assistant draft:** original user's 1271×874 3/4 screenshot is the precise desired viewpoint. Proposed 70° overhead and 33° FOV were explicitly discarded. Preserve original photographed front-eye {-100,+1060,-780}, target {500,10,280}, FOV35, yaw180 and zoom1.
+**Proof:** [7/7 GitHub Actions #44786693825](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44786693825) on source commit `d38f2096` including seven photo landmark anchors, HUD cropping, markers, F4 and native real GLB.
+**Game Design Lab:** objective framing can be regression-tested; gameplay readability and pleasure still require ten human strokes. F2, F3, Home and SHOWCASE untouched.
+**Next:** compare a newly captured Windows screenshot 1271×874 to the user reference and perform a ten-shot ball-foot test.
