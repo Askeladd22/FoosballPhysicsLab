@@ -3,6 +3,7 @@
 -- model.lua. The physical game is still 2D and owns scoring/ball contacts.
 -- No original or converted third-party model is included in the repository.
 local Model=require("model")
+local DEFAULT_GAMEPLAY_DISTANCE=0.90
 local ThreeD={
     loaded=false,enabled=false,error=nil,meshes={},canvas=nil,
     viewportHeight=0,viewportWidth=0,
@@ -12,7 +13,7 @@ local ThreeD={
     fovDegrees=35, -- original 3/4 SHOWCASE camera preserved
     gameplayFovDegrees=43, -- front long-rail full-table frame including legs
     cameraSide="front",
-    cameraDistance=0.90, -- slightly closer default, still keeps real field/legs visible
+    cameraDistance=DEFAULT_GAMEPLAY_DISTANCE, -- game tighter; showroom stays its original framing
     viewMode="gameplay", -- default: readable feet/ball and enlarged green pitch
     -- Rigid 180-degree Y-axis turn of the ENTIRE 3D WORLD, not the camera.
     sceneYaw=180,
@@ -124,7 +125,7 @@ function ThreeD.currentFovDegrees()
 end
 function ThreeD.resetCamera()
     ThreeD.cameraSide="front"
-    ThreeD.cameraDistance=0.90
+    ThreeD.cameraDistance=DEFAULT_GAMEPLAY_DISTANCE
     ThreeD.viewMode="gameplay"
 end
 function ThreeD.setSceneYaw(degrees)
@@ -153,9 +154,17 @@ function ThreeD.zoomCamera(delta)
         math.min(1.80,ThreeD.cameraDistance+delta))
     return ThreeD.cameraDistance
 end
+-- Preserve the showroom's original 100% fit when GAMEPLAY defaults to
+-- 111% close-up. Zoom still works with the same buttons in either view.
+function ThreeD.effectiveCameraDistance()
+    if ThreeD.viewMode=="showcase" then
+        return ThreeD.cameraDistance/DEFAULT_GAMEPLAY_DISTANCE
+    end
+    return ThreeD.cameraDistance
+end
 function ThreeD.cameraBasis(w,h)
     local side=ThreeD.cameraSide=="front" and -1 or 1
-    local distance=ThreeD.cameraDistance*viewportFit(w,h)
+    local distance=ThreeD.effectiveCameraDistance()*viewportFit(w,h)
     local target,eye
     if ThreeD.viewMode=="showcase" then
         -- Presentation/inspection only: entire upright cabinet and 4 legs.
