@@ -96,7 +96,7 @@ function Game:reset()
     self.selected=4
     self.controlMode="auto"
     self.controlHoldUntil=0
-    self.rodSwitchedAt=-1
+    self.rodSwitchedAt=0 -- short startup cooldown; no twitch at the opening serve
     self.autoRodNotice=nil
     self.score={0,0}
     self.clock=0
