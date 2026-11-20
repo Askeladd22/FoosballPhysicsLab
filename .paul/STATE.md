@@ -3,7 +3,7 @@
 **Active:** Foosball Lab in root, real CC BY GLB true 3D as default, Neon Glass 2D fallback.
 **Frozen:** NEON 11 with full source, test and documentation in `legacy/neon11/`.
 **Current phase:** 37 — dual human defence/attack rods and slightly closer default GAMEPLAY view.
-**Branch:** `feat/foosball-dual-rods-closer-camera`; [PR #35](https://github.com/Askeladd22/FoosballPhysicsLab/pull/35) open for merge after verification.
+**Branch:** `main`; [PR #35](https://github.com/Askeladd22/FoosballPhysicsLab/pull/35) **MERGED** as `0da91aeac9f27fcfd9bbc987f99f6d623dabeae8`.
 **Status:** `VERIFIED_AUTOMATED / UAT_NOT_RUN`; phase 37 features on code commit 153522d passed [CI 44798062408](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44798062408) **7/7** with Lua5.4/LuaJIT, native real GLB and frozen NEON11. Physical Windows playtest NOT_RUN.
 **Date:** 2026-11-20.
 
@@ -131,3 +131,5 @@ The **whole world** yaw is now 180° about upright Y, rigidly rotating the actua
 - **Trail of Bits:** spec compliance reviewed on Lua changes; no C++ file in this PR, so no C++ security review claimed.
 - **Game Design Lab:** synchronized motion may cause unintended simultaneous hits, so 10-shot/10-save native Windows UAT is still an explicit open gate. Automated tests do not prove preferred feel.
 [PLAN](phases/37-dual-rods-close-camera/37-01-PLAN.md) · [UNIFY](phases/37-dual-rods-close-camera/37-01-SUMMARY.md).
+
+**Phase 37 final merge (2026-11-20):** PR #35 successfully squash-merged into `main` (SHA `0da91aeac9f27fcfd9bbc987f99f6d623dabeae8`). Source verified 7/7 GitHub Actions #44798062408 on `153522d`, followed only by docs changes. Local Windows UAT still pending; `git pull` then `love .` and press D to test synchronized Defence+Attack.
