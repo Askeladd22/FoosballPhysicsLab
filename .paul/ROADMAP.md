@@ -78,5 +78,5 @@
 - [x] Highlight two human rods in 2D and 3D with 5 physical toe markers. Show DOPPIA/HUD and D shortcut without replacing controls.
 - [x] GAMEPLAY defaults to distance 0.78 (~128%) vs 1.00; min 0.70 (~143%), true perspective preserved; SHOWCASE visually remains at original reset fit 100%.
 - [x] Focused tests: `tests/test_foosball_dual_rods.lua`, 3D marker mock, root HUD D key, camera/zoom and F4 regressions.
-- [x] CI: [run 44796852377](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44796852377) **7/7 PASS** on code commit `582c122`, including real CC BY GLB native smoke and frozen NEON11. Prior failed CI runs were due to restrictive/inaccurate test expectations and have been corrected; no unresolved failing job in referenced green run.
-- [ ] Native Windows UAT: 10 parate + 10 attacchi in DOPPIA, comparison AUTO, check false simultaneous shots and readability at 111% vs zoom125%.
+- [x] CI: [run 44798062408](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44798062408) **7/7 PASS** on code commit `153522d`, including real CC BY GLB native smoke and frozen NEON11. Prior failed CI runs were due to restrictive/inaccurate test expectations and have been corrected; no unresolved failing job in referenced green run.
+- [ ] Native Windows UAT: 10 parate + 10 attacchi in DOPPIA, comparison AUTO, check false simultaneous shots and readability at default 128% vs the original screenshot at 125%, with max zoom 143%.
