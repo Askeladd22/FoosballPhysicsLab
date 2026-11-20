@@ -65,3 +65,11 @@ Dieci tiri intenzionali in AUTO, tre in MANUALE, tre blocchi di palla morta e co
 **DECIDED:** do **not** rotate source mesh upside down; move camera high above the field, keeping genuine 3D perspective and the requested 180° horizontal yaw. Add native green-field pixel test and imported geometry leg-height test.
 **VERIFIED:** 7/7 CI jobs passed; genuine CC BY GPU scene 73 of 99 selected field probes green, legs Y=-740 field Y≈-4, rim Y=+130.
 **NOT VERIFIED:** user's Windows look/feel and actual ball-foot match. Human screenshot and 10-shot playtest remain the next decision gate.
+
+## SEED Phase 30 — Root cause Canvas Y / full tabletop
+**OBSERVED**: despite an upright GLB (field Y=-4, support legs Y=-740), Windows screenshots repeatedly showed an apparent upside-down foosball. Earlier camera changes targeted only the pitch, hiding the legs.
+**VALIDATED**: rendered all 11 actual user CC BY meshes independently using VTK. A three-quarter camera aimed at the **whole body center Y=-305** visibly shows the full green field and four support legs underneath.
+**CRITICAL ROOT CAUSE**: manual clip-space GPU vertex shader failed to compensate for LÖVE's offscreen Canvas Y orientation. Before correction, native GPU screenshot ASCII was vertically mirrored from the reference; projected green field probes **2/99**. Fixed `-dot(delta,uUp)*uFocal`, preserving the CPU's projected Y logic; same native GLB now **67/99** green, **4/4** leg supports visible.
+**DECIDED**: retain genuine source meshes + the 180° horizontal yaw; 3/4 perspective camera on full table; explicit full-body camera tests at 4 resolutions and native GPU screenshot capture. No g3d dependency or physics migration.
+**EVIDENCE**: [all 7 CI jobs successful](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44756697687), [native screenshot artifact](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44756697687/artifacts/14639560551); prior failures on branch were intentionally diagnosed rather than concealed.
+**OPEN**: human Windows UAT — verify exact appearance on display and ten intentional strikes; do not infer playability from software GPU checks.

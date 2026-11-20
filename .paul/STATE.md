@@ -67,3 +67,10 @@ The **whole world** yaw is now 180° about upright Y, rigidly rotating the actua
 **Applied:** default camera raised to ~79° pitch / FOV35 above the near rim, keeping the 180° world Y yaw and all physics.
 **CI:** [run 44747974175](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44747974175) **7/7 PASS**, real GPU model rendered 73/99 green field samples, near 26/33, far 23/33, leg-below-field test PASS. Frozen NEON11 untouched.
 **Remaining:** native Windows screenshot, human input/readability and foot alignment UAT NOT_RUN.
+
+### Phase 30 — Canvas Y inversion FIXED; complete upright 3D table (2026-11-20)
+**Branch** `fix/foosball-show-real-legs-3quarter-camera` · [PR #28](https://github.com/Askeladd22/FoosballPhysicsLab/pull/28) draft.
+**Actual diagnosis**: source geometry was already upright, but custom GPU shader output was vertically inverted on LÖVE Canvas. The earlier high camera compounded the bug by cropping all four real support feet outside frame. **Corrected** shader clip-Y sign, CPU/GPU selection alignment and 3/4 camera aimed at whole table center Y=-305.
+**CI evidence**: [run 44756697687](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44756697687) **7/7 PASS**, with REAL CC BY model **67/99 projected green field samples** and **4/4 support legs visible**; compare native prior failure **2/99**. Real [GPU screenshot artifact](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44756697687/artifacts/14639560551). Frozen NEON11 untouched. No g3d/physics rewrites.
+[PLAN](phases/30-full-table-camera/30-01-PLAN.md) · [UNIFY](phases/30-full-table-camera/30-01-SUMMARY.md).
+**Open:** user Windows screenshot and ten-shot feel check; do not merge without human review.

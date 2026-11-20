@@ -1,3 +1,33 @@
+## PAUL 30: vero fix del biliardino 3D capovolto (20 novembre 2026)
+
+**Il difetto principale non era il modello:** il vertex shader personalizzato
+disegnava la scena con **Y invertita sul Canvas di LÖVE**, mentre il proiettore
+CPU dell'indicatore la considerava dall'altro verso. Questo faceva apparire
+**gambe sopra e campo sotto** anche se il GLB era correttamente orientato.
+
+**Correzione:** l'asse verticale dello shader ora usa
+`-dot(delta,uUp)*uFocal` per compensare il passaggio al Canvas.
+La camera inquadra finalmente **il biliardino completo**, prendendo come
+punto di mira il centro del mobile a **Y=-305** (gambe Y=-740,
+campo Y≈-4, bordo alto Y=130), in prospettiva reale **tre quarti**.
+Il modello non è stato capovolto, né riscalato o alterato.
+Le otto aste, la pallina, la fisica e il controllo mouse sono invariati.
+
+**Verifica sul GLB CC BY originale:** prima della correzione lo stesso test
+vedeva solo **2/99** campioni verdi, dopo la correzione **67/99**, con
+**4/4 gambe visibili sotto** il campo. [CI nativa 7/7](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44756697687)
+e [screenshot GPU LÖVE effettivo](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44756697687/artifacts/14639560551).
+La verifica non consiste più nel mero avvio di 12 frame: controlla la visibilità
+separata di terreno verde e supporti inferiori.
+
+Da provare: `git switch fix/foosball-show-real-legs-3quarter-camera`, quindi `love .`.
+**F2** cambia il lato della camera, **F3** la rotazione orizzontale del tavolo
+0°/180°, **PagSu/PagGiù** avvicinano/allontanano, **Home** resetta e **P/V**
+torna al 2D. Non servono g3d né modifiche alle mesh CC BY.
+Il feedback Windows sui colpi è ancora necessario per considerare chiusa la UAT.
+
+---
+
 ## Fase 29 — Il biliardino è diritto: gambe SOTTO, campo SOPRA
 
 L'immagine di Windows mostrava un campo coperto dalla grande sponda. Il problema
