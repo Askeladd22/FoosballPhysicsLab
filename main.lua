@@ -310,7 +310,7 @@ local function hud(w,h)
     if ThreeD.active() and w>=1200 then
         text((ThreeD.viewMode=="gameplay" and "PARTITA" or "ESPOSIZIONE")..
             " / VISTA "..(ThreeD.cameraSide=="front" and "FRONTE" or "RETRO")..
-            " / ZOOM "..math.floor(100/ThreeD.cameraDistance+0.5).."%",
+            " / ZOOM "..math.floor(100/ThreeD.effectiveCameraDistance()+0.5).."%",
             w-345,bottom,fonts.small,colors.human)
     end
     local shortcuts
