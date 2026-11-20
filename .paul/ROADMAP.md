@@ -39,4 +39,4 @@
 - [x] Reset dei contatori dopo riavvio partita e cambio modalità AUTO/MANUALE.
 - [x] Test automatici: 4 eventi da 1px, jitter isolato, sblocco AUTO e cambio modalità.
 - [ ] UAT Windows: 10 gesti lenti e intenzionali, pausa del mouse, contare cambi asta inattesi.
-- [ ] Verificare il risultato finale dello smoke test GLB nativo sulla PR #31.
+- [x] GitHub Actions #44772526612: 7/7 PASS, compreso smoke nativo 3D con GLB CC BY.
