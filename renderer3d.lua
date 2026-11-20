@@ -3,7 +3,7 @@
 -- model.lua. The physical game is still 2D and owns scoring/ball contacts.
 -- No original or converted third-party model is included in the repository.
 local Model=require("model")
-local DEFAULT_GAMEPLAY_DISTANCE=0.90
+local DEFAULT_GAMEPLAY_DISTANCE=0.78
 local ThreeD={
     loaded=false,enabled=false,error=nil,meshes={},canvas=nil,
     viewportHeight=0,viewportWidth=0,
@@ -13,7 +13,7 @@ local ThreeD={
     fovDegrees=35, -- original 3/4 SHOWCASE camera preserved
     gameplayFovDegrees=43, -- front long-rail full-table frame including legs
     cameraSide="front",
-    cameraDistance=DEFAULT_GAMEPLAY_DISTANCE, -- game tighter; showroom stays its original framing
+    cameraDistance=DEFAULT_GAMEPLAY_DISTANCE, -- 128% at launch; preserve full-table SHOWCASE
     viewMode="gameplay", -- default: readable feet/ball and enlarged green pitch
     -- Rigid 180-degree Y-axis turn of the ENTIRE 3D WORLD, not the camera.
     sceneYaw=180,
@@ -150,7 +150,7 @@ function ThreeD.flipCamera()
     return ThreeD.cameraSide
 end
 function ThreeD.zoomCamera(delta)
-    ThreeD.cameraDistance=math.max(0.78,
+    ThreeD.cameraDistance=math.max(0.70,
         math.min(1.80,ThreeD.cameraDistance+delta))
     return ThreeD.cameraDistance
 end
