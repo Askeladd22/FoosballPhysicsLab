@@ -33,3 +33,9 @@ Carriera, ranking, multiplayer, sistemi tattici 11vs11, migrazione alla fisica 3
 Dieci tiri intenzionali in AUTO, tre in MANUALE, tre blocchi di palla morta e confronto V con due risoluzioni. Registrare scelte errate, perdite di contatto e FPS; nessuna conclusione sul divertimento dalla sola CI.
 
 **Next:** playtest Windows/LÖVE della root e del vecchio titolo lanciato dalla sua cartella.
+
+
+## SEED Phase 25 — TRUE 3D
+**DECIDED:** rendere il vero OBJ Table Soccer con 11 buffer GPU, shader prospettico e depth buffer. Otto aste e pallina ereditano le trasformazioni della fisica 2D esistente; nessun nuovo sistema di collisione e niente vecchi sprite sovrapposti alla vista 3D.
+**DECIDED:** importer Python locale da ZIP di proprietà dell'utente; il repository pubblico distribuisce solo codice, non asset o mesh derivate. **P/V:** 3D/2D istantaneo. **NEON11:** legacy completamente congelato.
+**ASSUMED:** proporzioni del modello autore e pivot ricostruiti (l'OBJ perde i pivot Maya) rendono visivamente leggibili i colpi. **OPEN:** prestazioni native e precisione delle scarpe 3D rispetto ai collider 2D in un playtest reale. **UNVERIFIED:** il modello è visivamente convincente prima di prova reale su LÖVE.

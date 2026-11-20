@@ -17,7 +17,7 @@ jobs:
       - name: Foosball syntax
         run: |
           set -e
-          for f in main.lua conf.lua camera.lua model.lua layout.lua theme.lua mesh_art.lua rod_selector.lua tests/test_foosball*.lua tests/test_project_boot.lua; do
+          for f in main.lua conf.lua camera.lua renderer3d.lua model.lua layout.lua theme.lua mesh_art.lua rod_selector.lua tests/test_foosball*.lua tests/test_project_boot.lua; do
             luac5.4 -p "$f"
           done
       - name: Repository structure guard
@@ -26,6 +26,7 @@ jobs:
         run: |
           python3 tools/inspect_foosball_models.py --self-test
           python3 tools/bake_table_soccer.py --self-test
+          python3 tools/import_table_soccer_3d.py --self-test
       - name: Foosball full headless suite
         run: |
           set -e
@@ -61,3 +62,16 @@ jobs:
             ${{ matrix.lua }} "$t"
             echo "::endgroup::"
           done
+
+  native-3d-smoke:
+    name: Real LÖVE GPU depth and shader smoke (synthetic meshes)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install native LÖVE and virtual display
+        run: sudo apt-get update && sudo apt-get install -y love xvfb libgl1-mesa-dri
+      - name: Create original synthetic geometry only (no third-party model)
+        run: python3 tools/import_table_soccer_3d.py --fixture --output local_assets/3d
+      - name: Run 12 real 3D frames, require shader/depth success
+        run: |
+          env SDL_AUDIODRIVER=dummy LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a timeout 45s love . --frames=12 --require-3d

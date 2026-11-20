@@ -1,6 +1,8 @@
-# FoosballPhysicsLab
+# FoosballPhysicsLab — Table Soccer 3D REALE
 
-**Foosball Lab** è il progetto attivo, un biliardino per **LÖVE 11.5** con controllo fisico delle stecche tramite mouse, IA elementare, partite rapide, estetica Neon Glass e pose 2.5D locali opzionali.
+**Foosball Lab** ora utilizza **vere mesh tridimensionali** del modello Table Soccer (LÖVE 11.5), non screenshot o sprite 2.5D: tavolo, campo, pallina e otto aste 3D separate, renderizzati in prospettiva con profondità e illuminazione. Il mouse governa la traslazione e la rotazione delle aste; la fisica esistente resta l'unica fonte di verità.
+
+**PR Fase 25:** per usare il modello devi installare localmente i buffer 3D della tua copia di `Table_Soccer.zip`. Questi file NON possono essere pubblicati in GitHub per i limiti di licenza del modello originale. Il gioco conserva un fallback 2D se non sono presenti.
 
 ## Avvio
 
@@ -19,7 +21,7 @@ Il **vecchio 11vs11 NEON 11**, congelato ma integro, è un progetto indipendente
 | Click sinistro / Esc | Cattura o sblocca il mouse |
 | C | Neutrale |
 | G | Glow ON/OFF |
-| V | Visuale 2.5D locale / procedurale |
+| **P oppure V** | Attiva/disattiva le vere mesh 3D; ritorno al 2D procedurale |
 | F1 | Collider di debug |
 | R | Ricomincia |
 | - / + | Sensibilità |
@@ -80,3 +82,19 @@ The source Table Soccer geometry is **not a runtime 3D mesh**: local images are 
 **La camera obliqua 2.5D è ora la visuale iniziale.** Premi **P** per passare al tradizionale top-down e viceversa durante la partita. Il riferimento dell'utente era una camera tridimensionale reale: questa è per ora una *proiezione affine rialzata* che aumenta la leggibilità visiva senza riscrivere la fisica, introdurre un renderer 3D o redistribuire mesh private. La fisica, l'IA, il punteggio e il gesto del mouse continuano a lavorare nello stesso mondo 2D: campo, pallina, omini e collider sono proiettati **insieme**. Il tavolo rimane dentro la viewport anche alle dimensioni minime.
 
 **Fix dell'omino/segno di tiro staccato:** quando è attiva la grafica 2.5D ricavata da Table Soccer, ogni sprite è accompagnato dal piede *fisicamente vero* con il relativo braccio di collegamento all'asta. Il contorno del piede in F1 coincide col contatto della pallina. Sulla stecca selezionata compare anche un indicatore del suo scorrimento effettivo in verticale. Queste correzioni sono necessarie perché le immagini pre-renderizzate non condividono ancora una rig 3D/collisione geometricamente unica con `model.lua`. Per un 3D vero servirà un passaggio distinto.
+
+
+## Installazione del vero modello 3D (PAUL 25)
+
+Un solo comando, dalla root del repository dopo aver selezionato il branch Fase 25:
+
+```powershell
+py -3 tools\import_table_soccer_3d.py "C:\percorso\Table_Soccer.zip"
+love .
+```
+
+Oppure su Windows usa `install-table-soccer-3d.bat`, che cerca il tuo archivio originale nella cartella Download. Lo script usa **solo Python standard library**, analizza l'OBJ originale del tuo ZIP e converte **11 mesh effettive** (261.576 triangoli dell'intero modello, segnapunti compresi) in `local_assets/3d/`. Non carica né pubblica alcun file online. Puoi anche usare il pacchetto privato convertito fornito nella conversazione: estrai `local_assets/` direttamente nella root.
+
+Il 3D richiede le mesh installate localmente; non è possibile ottenere il modello dalle 201 vecchie immagini del baker. Il renderer usa `love.graphics.newMesh`, un vero vertex shader prospettico, depth test e normali illuminate. La pallina e tutte le otto aste mantengono i movimenti provenienti da `model.lua` (120 Hz, fisica 2D). **P/V** consente un confronto 3D/2D senza riavviare la partita. Leggi [l'architettura e i limiti](docs/TRUE-3D.md).
+
+L'opera originale di Hend Z. / VERTX3D (2014) **non autorizza la redistribuzione del modello, neppure parziale**. I buffer convertiti restano nella tua installazione privata e sono esclusi da Git; prima di creare un gioco distribuibile che li contiene serve una licenza idonea. Per avviare un test sintetico del renderer senza possedere il modello: `python tools/import_table_soccer_3d.py --fixture` (genera solo 11 piccoli triangoli di test **originali**, non l'aspetto del biliardino).
