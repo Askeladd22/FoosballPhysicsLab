@@ -2,9 +2,9 @@
 
 **Active:** Foosball Lab in root, real CC BY GLB true 3D as default, Neon Glass 2D fallback.
 **Frozen:** NEON 11 with full source, test and documentation in `legacy/neon11/`.
-**Current phase:** 33 — AUTO microgesture protection for high-polling mouse events.
-**Branch:** `fix/foosball-auto-mouse-microgestures`, [draft PR #31](https://github.com/Askeladd22/FoosballPhysicsLab/pull/31).
-**Status:** `VERIFIED_AUTOMATED / UAT_NOT_RUN`; phase 33 passed 7/7 CI, native Windows mouse playtest pending.
+**Current phase:** 34 — side/corner anti-dead-zone ramps (3D camera review separately OPEN).
+**Branch:** `feat/foosball-edge-corner-ramps`, [draft PR #32](https://github.com/Askeladd22/FoosballPhysicsLab/pull/32).
+**Status:** `VERIFIED_AUTOMATED / UAT_NOT_RUN` for first ramp implementation (7/7 CI); final native mesh-to-ball height correction awaiting its own fresh CI. Windows gameplay UAT NOT_RUN.
 **Date:** 2026-11-20.
 
 ## SEED decisions
@@ -16,10 +16,10 @@
 - No additional career, rankings, multiplayer, 11vs11 gameplay or Project Folio changes.
 
 ## Evidence
-[PLAN phase 33](phases/33-auto-microgestures/33-01-PLAN.md) · [UNIFY phase 33](phases/33-auto-microgestures/33-01-SUMMARY.md) · [CI 44772526612](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44772526612) 7/7 PASS. Native mouse feel not verified.
+[PLAN phase 34](phases/34-edge-corner-ramps/34-01-PLAN.md) · [UNIFY phase 34](phases/34-edge-corner-ramps/34-01-SUMMARY.md) · [CI 44777414138](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44777414138) 7/7 PASS on initial slopes; follow-up 3D height alignment CI pending. Native camera/play feel not verified.
 
 ## Next single action
-Native Windows playtest: make ten deliberate gentle mouse swipes near AUTO rod handoffs, then test ten idle/jitter intervals; report any missed or unexpected rod switch.
+Native Windows playtest: four corners, side and goal-wing ramps, ten ordinary bank shots and five goal attempts; compare ball foot contact and projection in GAMEPLAY versus SHOWCASE (F4).
 
 
 ## Phase 24 — Oblique 2.5D camera and physical shoe linkage
@@ -97,3 +97,11 @@ The **whole world** yaw is now 180° about upright Y, rigidly rotating the actua
 **Automated proof:** [7/7 GitHub Actions PASS](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44772526612), actual CC BY GLB native GPU plus Lua Foosball/NEON11. 
 **Still unknown:** real Windows mouse polling and perceived fairness; UAT NOT_RUN.
 [PLAN](phases/33-auto-microgestures/33-01-PLAN.md) · [UNIFY](phases/33-auto-microgestures/33-01-SUMMARY.md).
+
+### PAUL phase 34 — angled side/corner ramps (2026-11-20)
+**Branch:** `feat/foosball-edge-corner-ramps` · [draft PR #32](https://github.com/Askeladd22/FoosballPhysicsLab/pull/32), not merged to main.
+**Implemented:** shared low 2D slope acceleration and native 3D mesh, six edge segments, diagonal effect at corners, open goals. Lua input, AI, scoring and frozen NEON11 untouched.
+**Proof:** [CI #44777414138](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44777414138) 7/7 PASS for base implementation.
+**Later camera-related correction:** GPU ramp floor now begins at the actual rendered ball contact altitude; tracking marker follows lifted ball. Regression added; fresh CI required.
+**SEED / Game Design Lab:** ramp width/intensity unverified on Windows. Independently, camera GAMEPLAY FOV35, fixed vertical viewport/header/footer, 180 degree world yaw and camera perspective may make gameplay hard to read even if mesh/projected markers are mathematically aligned. Do not claim screenshot/player feel verified without native user playtest.
+[PLAN](phases/34-edge-corner-ramps/34-01-PLAN.md) · [SUMMARY](phases/34-edge-corner-ramps/34-01-SUMMARY.md).
