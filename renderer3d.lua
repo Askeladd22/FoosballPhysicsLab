@@ -23,9 +23,13 @@ local SHADER=[[
     extern float uScale;
     extern float uAspect;
     extern float uFocal;
+    // A combined LÖVE shader is compiled twice: attribute is vertex-only.
+    #ifdef VERTEX
     attribute vec3 VertexNormal;
+    #endif
     varying vec3 vNormal;
 
+    #ifdef VERTEX
     vec4 position(mat4 transform_projection, vec4 vertex_position) {
         vec3 p = vertex_position.xyz * uScale;
         p = vec3(p.x*uRotate.x-p.y*uRotate.y,
@@ -43,6 +47,8 @@ local SHADER=[[
         return vec4(dot(delta,uRight)*uFocal/uAspect,
                     dot(delta,uUp)*uFocal,depth,d);
     }
+    #endif
+    #ifdef PIXEL
     vec4 effect(vec4 vertexColor, Image tex, vec2 uv, vec2 screenCoords) {
         vec3 n=normalize(vNormal);
         vec3 sunlight=normalize(vec3(-0.35,0.88,0.43));
@@ -50,6 +56,7 @@ local SHADER=[[
         float light=0.56+0.44*diffuse;
         return vec4(vertexColor.rgb*light,vertexColor.a);
     }
+    #endif
 ]]
 local function norm(x,y,z)
     local len=math.sqrt(x*x+y*y+z*z)
