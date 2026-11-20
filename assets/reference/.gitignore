@@ -1,0 +1,11 @@
+# Exclude vendor 3D and source CAD originals, pending rights and runtime strategy.
+*.glb
+*.gltf
+*.stp
+*.step
+*.fbx
+*.obj
+*.blend
+*.png
+*.jpg
+*.jpeg

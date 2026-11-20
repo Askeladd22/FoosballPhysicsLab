@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "reviewed": "2026-11-20",
+  "status": "reference-only, not shipped",
+  "files": [
+    {
+      "name": "foosball_table.glb",
+      "sha256": "f26d6bad00d8d38d20de7834bc5d3f30dc52acac80ced11ff9c1e5b9c9b64c0d",
+      "bytes": 10863860,
+      "type": "glTF 2.0 binary",
+      "meshes": 1,
+      "vertices": 19936,
+      "triangles": 22855,
+      "textures": 3,
+      "texture_resolution": [
+        2048,
+        2048
+      ],
+      "license": "CC BY 4.0 claimed in embedded metadata",
+      "author": "owestgate",
+      "url": "https://sketchfab.com/3d-models/foosball-table-1303a318d4584639acef729b9fd296fc",
+      "decision": "visual reference / optional static offline pre-render; needs separation for animatable rods"
+    },
+    {
+      "name": "Stoni_fudbal_1.stp",
+      "sha256": "57b29e2172109da81379264e6ee7ce0b36f3ef30c1bc6de7dd267c8af3589c01",
+      "bytes": 1885176,
+      "type": "STEP AP203 CATIA V5",
+      "product_definitions": 41,
+      "solids_opencascade": 199,
+      "faces_opencascade": 4965,
+      "license": "UNKNOWN, no permission established",
+      "decision": "private mechanical reference only, pending rights and part tessellation"
+    }
+  ],
+  "source": "user-provided uploads inspected directly; binaries not committed"
+}
