@@ -2,7 +2,7 @@
 project: Foosball Lab
 project_type: custom/game-development
 status: implementing
-plan_version: phase36-front-long-side-photo-camera
+plan_version: phase37-dual-rods-close-camera
 last_updated: 2026-11-20
 ---
 
@@ -122,3 +122,14 @@ Dieci tiri intenzionali in AUTO, tre in MANUALE, tre blocchi di palla morta e co
 **OPEN:** native Windows screenshot at actual display scaling, 10 aimed shots with mouse, evaluation of whether smaller ball needs UI enhancement. No changes to scoring, inputs, ball physics, ramps, AI or frozen NEON11.
 **TRAIL OF BITS scope:** C++ Review not applicable to Lua camera; used spec-compliance audit rather than inventing C++ defects.
 **NEXT:** compare genuine new GAMEPLAY screenshot from CI/Windows to user's commercial photo, then merge PR #34 only after human review.
+
+## SEED — Phase 37: Difesa + Attacco contemporanee e camera meno distante
+
+**OBSERVED:** l'utente ha condiviso un nuovo screenshot 1277×878, zoom 125%, indicando la camera ancora un po' lontana. Il codice gestiva solo `self.selected`: un singolo gesto non poteva comandare due aste. La selezione AUTO poteva cambiare l'asta durante il gioco (con lock di micro-gesto già implementato).
+**DECIDED:** modalità esplicita `dual`, attivabile con **D** e disattivabile con lo stesso tasto. Un solo mouse sposta/ruota contemporaneamente l'asta 2 (Difesa) e la 4 (Attacco). Ciascuna segue i propri target e i propri limiti con la fisica 120 Hz esistente; le altre aste umane rimangono ferme, l'IA mantiene il proprio algoritmo, i contatti piede-palla sono originali. Nella modalità DOPPIA, AUTO non cambia stecca.
+**DECIDED:** D ripristina modalità e stecca precedenti. TAB esce in AUTO, tasti 1–4/rotella passano a MANUALE, C azzera il target di rotazione di entrambe. HUD e indicatori 2D/3D mostrano entrambe come selezionate.
+**DECIDED:** GAMEPLAY `cameraDistance=0.90` al reset anziché 1.00, minimo zoom 0.78 anziché 0.80. Mantieni la camera frontale della fase 36 (FOV43, stesso target/angolo). La modalità SHOWCASE conserva la sua dimensione originale al reset tramite uno scale factor normalizzato, senza una seconda camera o nuove dipendenze. Il numero ZOOM nell'HUD riflette la distanza effettiva della modalità.
+**ASSUMED:** muovere/ruotare insieme Difesa e Attacco risulta comprensibile a un giocatore con un solo mouse; resta impossibile dare input contrapposti contemporaneamente. Più vicina migliora la lettura dell'impatto ma può nascondere parte delle gambe allo zoom massimo.
+**OPEN:** Windows UAT con 10 parate, 10 attacchi e confronto DOPPIA vs AUTO; test visivo GPU e qualità di controllo reali. Test automatizzati non equivalgono a comfort o divertimento.
+**OUT OF SCOPE:** nuove IA, multiplayer, carriera, input a due dispositivi fisici indipendenti, cambio modello GLB, rework fisica collisioni, modifica `legacy/neon11/`.
+**EVIDENCE:** [PR #35](https://github.com/Askeladd22/FoosballPhysicsLab/pull/35) e suite `tests/test_foosball_dual_rods.lua`, `tests/test_foosball_3d_camera.lua`, `tests/test_foosball_view.lua`, `tests/test_foosball_renderer3d.lua`, `tests/test_foosball_camera_framing.lua`. Evidenza CI annotata nel SUMMARY PAUL.
