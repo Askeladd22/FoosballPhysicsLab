@@ -4,7 +4,7 @@
 **Frozen:** NEON 11 with full source, test and documentation in `legacy/neon11/`.
 **Current phase:** 37 — dual human defence/attack rods and slightly closer default GAMEPLAY view.
 **Branch:** `feat/foosball-dual-rods-closer-camera`; [PR #35](https://github.com/Askeladd22/FoosballPhysicsLab/pull/35) open for merge after verification.
-**Status:** `VERIFIED_AUTOMATED / UAT_NOT_RUN`; phase 37 features on code commit 582c122 passed [CI 44796852377](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44796852377) **7/7** with Lua5.4/LuaJIT, native real GLB and frozen NEON11. Physical Windows playtest NOT_RUN.
+**Status:** `VERIFIED_AUTOMATED / UAT_NOT_RUN`; phase 37 features on code commit 153522d passed [CI 44798062408](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44798062408) **7/7** with Lua5.4/LuaJIT, native real GLB and frozen NEON11. Physical Windows playtest NOT_RUN.
 **Date:** 2026-11-20.
 
 ## SEED decisions
@@ -16,10 +16,10 @@
 - No additional career, rankings, multiplayer, 11vs11 gameplay or Project Folio changes.
 
 ## Evidence
-[PLAN phase 37](phases/37-dual-rods-close-camera/37-01-PLAN.md) · [UNIFY phase 37](phases/37-dual-rods-close-camera/37-01-SUMMARY.md) · [CI 44796852377](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44796852377) 7/7 PASS for dual physical rod input and closer camera, including real 3D GLB. Native human playtest NOT_RUN.
+[PLAN phase 37](phases/37-dual-rods-close-camera/37-01-PLAN.md) · [UNIFY phase 37](phases/37-dual-rods-close-camera/37-01-SUMMARY.md) · [CI 44798062408](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44798062408) 7/7 PASS for dual physical rod input and closer camera, including real 3D GLB. Native human playtest NOT_RUN.
 
 ## Next single action
-Windows UAT: play 10 blocks and 10 shots using DOPPIA (D) then AUTO (TAB), ensure two golden rods move and shoot physically; compare camera default 111% with user-controlled closer zoom while checking visibility.
+Windows UAT: play 10 blocks and 10 shots using DOPPIA (D) then AUTO (TAB), ensure two golden rods move and shoot physically; compare camera default 128% (slightly closer than the screenshot at 125%) with user-controlled zoom up to ~143% while checking visibility.
 
 
 ## Phase 24 — Oblique 2.5D camera and physical shoe linkage
@@ -126,7 +126,7 @@ The **whole world** yaw is now 180° about upright Y, rigidly rotating the actua
 
 ### PAUL 37 — DOPPIA Difesa+Attacco, zoom GAMEPLAY (2026-11-20)
 - **Implementation:** `model.lua`: `Game:toggleDualRod()`, `Game:isRodControlled()`, mouse target updates for rods 2 and 4 through original physical servos, force-notice and auto-switch disabled only while dual; TAB/1–4 and C behave as documented. `main.lua` HUD/2D dual highlights and D shortcut; `renderer3d.lua` optional rod index for foot markers, 2 independent highlighted shafts, GAMEPLAY starts at distance0.78 (128%) with min0.70 (143%) and the original SHOWCASE fit at reset.
-- **Evidence:** [run 44796852377](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44796852377) 7/7 PASS on code `582c122`, including new dual tests, two Lua VMs, NEON11, native GPU GLB. Changes after that run are documentation-only.
+- **Evidence:** [run 44798062408](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44798062408) 7/7 PASS on code `153522d`, including new dual tests, two Lua VMs, NEON11, native GPU GLB. Changes after that run are documentation-only.
 - **Matt Pocock / Simplify:** original input contact integration preserved without a new controller layer; selection-restore semantics and independent travel clamps are covered by tests.
 - **Trail of Bits:** spec compliance reviewed on Lua changes; no C++ file in this PR, so no C++ security review claimed.
 - **Game Design Lab:** synchronized motion may cause unintended simultaneous hits, so 10-shot/10-save native Windows UAT is still an explicit open gate. Automated tests do not prove preferred feel.
