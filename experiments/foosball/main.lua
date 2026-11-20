@@ -1,6 +1,7 @@
 local Model=require("model")
 local Layout=require("layout")
 local Theme=require("theme")
+local MeshArt=require("mesh_art")
 local lg=love.graphics
 local match
 local accumulator=0
@@ -21,6 +22,7 @@ local function transform()
 end
 local function pitch()
     Theme.drawGlassTable(lg,Model.W,Model.H,Model.GOAL_HALF)
+    MeshArt.drawTable(lg)
 end
 local function rods()
     local selected=match.rods[match.selected]
@@ -75,12 +77,16 @@ local function rods()
             lg.setFont(fonts.small)
             lg.print(tostring(i),r.x-5,-34)
         end
+        local modelled=MeshArt.drawRod(lg,r,i)
         for j=1,#r.offsets do
             local fx,fy=Model.foot(r,j)
             local left,top,fw,fh=Model.footRect(r,j)
             local bodyX,_,headX,headY=Model.figurePose(r,j)
             local direction=r.team==1 and 1 or -1
             local central=j==math.ceil(#r.offsets/2)
+            -- If locally baked 3D figures exist, use them for the silhouette.
+            -- The white striking edge/outline stays in exact 2D physics space.
+            if not modelled then
             -- Socket stays on the real shaft; leg and body lean with the
             -- actual horizontal shoe projection, instead of looking detached.
             paint(colors.shadow,0.72)
@@ -109,6 +115,7 @@ local function rods()
             lg.rectangle("fill",left,top,fw,fh,3,3)
             paint(colors.cream,0.22)
             lg.rectangle("fill",left+2,top+2,3,fh-4,1,1)
+            end -- legacy procedural figures, used when private model is absent
             -- White is the physical striking edge, gold only outlines the
             -- selected rod. It must remain visibly blue/red, not all yellow.
             if current then
@@ -184,7 +191,7 @@ end
 local function hud(w,h)
     local r=match.rods[match.selected]
     text("FOOSBALL LAB",36,18,fonts.title,colors.cream)
-    text("NEON GLASS  /  MOUSE RODS",38,58,fonts.small,colors.human)
+    text("NEON GLASS  /  "..(MeshArt.active() and "TABLE SOCCER 2.5D" or "PROCEDURALE"),38,58,fonts.small,colors.human)
     text("SU/GIU: scorri l'asta    SINISTRA/DESTRA: ruota e colpisci",
         38,81,fonts.small,colors.muted)
     local score=tostring(match.score[1]).."  :  "..tostring(match.score[2])
@@ -224,8 +231,8 @@ local function hud(w,h)
     local help=captured and "MOUSE CATTURATO - ESC per sbloccare" or
         "Clic per bloccare il mouse e ruotare senza limiti"
     text(help,45,bottom+52,fonts.small,captured and colors.gold or colors.muted)
-    text("TAB: AUTO/MANUALE    1-4/rotella: blocca asta    V: modello 2.5D    G: glow    R: reset",
-        39,h-38,fonts.small,colors.muted)
+    text("TAB: AUTO/MANUALE    1-4/rotella: asta    V: "..(MeshArt.loaded and "2.5D ON/OFF" or "2.5D NON INSTALLATO")..
+        "    G: glow    R: reset",39,h-38,fonts.small,colors.muted)
     if match.phase=="goal" or match.phase=="finished" then
         local message=match.phase=="finished" and
             (match.lastScorer==1 and "VITTORIA!  /  R: nuova partita" or "SCONFITTA!  /  R: riprova") or
@@ -244,6 +251,7 @@ function love.load()
     fonts.normal=lg.newFont(17)
     fonts.small=lg.newFont(14)
     match=Model.new()
+    MeshArt.load()
     love.window.setTitle("FOOSBALL LAB | Neon Glass")
 end
 function love.update(dt)
@@ -297,6 +305,8 @@ function love.keypressed(key,_,repeatKey)
         debugDraw=not debugDraw
     elseif key=="g" then
         Theme.glowEnabled=not Theme.glowEnabled
+    elseif key=="v" then
+        MeshArt.toggle()
     elseif key=="-" or key=="kp-" then
         match.mouseSensitivity.angle=math.max(0.007,match.mouseSensitivity.angle-0.002)
     elseif key=="=" or key=="+" or key=="kp+" then
