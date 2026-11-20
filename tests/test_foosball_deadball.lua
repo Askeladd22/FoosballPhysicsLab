@@ -51,16 +51,43 @@ s.ball.x,s.ball.y=465,M.H/2
 assert(M.isBallReachable(s))
 for _=1,360 do s:step(dt) end
 assert(s.deadBallCount==0,"reachable ball was removed from play")
--- A rising velocity clears an already accumulated dead-ball countdown.
+-- Regression: movement ALONG the unreachable corridor must not evade
+-- recovery just because the ball keeps bouncing vertically between cushions.
+s=dead()
+s.score[1],s.score[2]=1,2
+s.ball.vy=185
+for _=1,170 do s:step(dt) end
+assert(s.deadBallCount==0 and s.deadBallTimer>1,
+    "vertical ricochets incorrectly reset the unreachable-ball countdown")
+for _=1,140 do s:step(dt) end
+assert(s.deadBallCount==1 and s.ball.x==465,
+    "unhittable bouncing ball was never recovered")
+assert(s.score[1]==1 and s.score[2]==2 and s.phase=="play",
+    "bouncing-ball recovery changed score or match phase")
+
+-- Horizontal escape is genuine only after the ball RE-ENTERS a reachable
+-- contact envelope. Its velocity alone must not erase a pending countdown.
 s=dead()
 for _=1,170 do s:step(dt) end
 assert(s.deadBallTimer>1)
 s.ball.vx=120
 s:step(dt)
-assert(s.deadBallTimer==0 and s.deadBallCount==0,"moving ball retained stale dead-ball timer")
+assert(s.deadBallTimer>1 and s.deadBallCount==0,
+    "velocity alone reset the countdown before the ball became reachable")
+local escaped=false
+for _=1,100 do
+    s:step(dt)
+    if M.isBallReachable(s) then
+        escaped=true
+        assert(s.deadBallTimer==0 and s.deadBallCount==0,
+            "horizontal pass kept stale countdown after reaching a playable zone")
+        break
+    end
+end
+assert(escaped,"horizontal shot could not escape unreachable corridor")
 -- Empty-state reset cannot inherit a pending warning or last-hit metadata.
 s=dead()
 for _=1,90 do s:step(dt) end
 s:reset()
 assert(s.deadBallTimer==0 and s.deadBallCount==0 and not s.deadBallNotice)
-print("PASS: unreachable corridor countdown, symmetric midfield serves, score, movement and no false dead balls")
+print("PASS: unreachable corridor, vertical ricochet recovery, horizontal escape, score and no false dead balls")
