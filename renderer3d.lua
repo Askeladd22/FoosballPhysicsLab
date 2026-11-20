@@ -8,7 +8,7 @@ local ThreeD={
     source="local_assets/3d/",stride=28,
     axisHeight=(83.2-76.64)*(560/83.56),
     ballHeight=16.5,ballScale=0.68,
-    fovDegrees=42,
+    fovDegrees=35,
     cameraSide="front",
     cameraDistance=1,
     -- Rigid 180-degree Y-axis turn of the ENTIRE 3D WORLD, not the camera.
@@ -82,9 +82,12 @@ end
 local function cross(ax,ay,az,bx,by,bz)
     return ay*bz-az*by,az*bx-ax*bz,ax*by-ay*bx
 end
--- Camera-only correction: source geometry and 2D physics never rotate.
--- The default eye is now on the opposite long edge from the upside-down
--- over-close screenshot, elevated to see the feet and far wall clearly.
+-- The CC BY source model is already Y-up: original leg bottoms Y=0.04,
+-- playing field Y=0.736. Do NOT vertically flip the mesh. The previous
+-- 50-degree elevation let the near frame obscure the playfield, making
+-- rod handles look like skyward-pointing table legs. Use a high 3/4 camera
+-- looking down at the TOP of the field. Keep the 180-degree world YAW.
+-- The upper rim and true under-table supports retain their 3D geometry.
 local function viewportFit(w,h)
     local vh=math.max(240,(h or 850)-252)
     local aspect=(w or 1280)/vh
@@ -125,8 +128,10 @@ function ThreeD.cameraBasis(w,h)
     local target={500,15,280}
     local side=ThreeD.cameraSide=="front" and -1 or 1
     local distance=ThreeD.cameraDistance*viewportFit(w,h)
-    local eye={500,target[2]+765*distance,
-               target[3]+side*640*distance}
+    -- A steep (about 79 degrees) downward view: the camera is above the
+    -- playing surface, not across the raised 130-unit side rail.
+    local eye={500,target[2]+1300*distance,
+               target[3]+side*250*distance}
     local fx,fy,fz=norm(target[1]-eye[1],target[2]-eye[2],target[3]-eye[3])
     local rx,ry,rz=norm(cross(fx,fy,fz,0,1,0))
     local ux,uy,uz=cross(rx,ry,rz,fx,fy,fz)
