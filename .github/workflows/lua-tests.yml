@@ -114,9 +114,9 @@ jobs:
         run: |
           find "$HOME" -name foosball_3d_camera.png -type f -exec cp {} foosball_3d_showcase.png \;
           test -s foosball_3d_showcase.png
-      - name: GAMEPLAY — zoomed field / real geometry visible
+      - name: GAMEPLAY — front long-side table, pitch AND support legs visible
         run: |
-          env SDL_AUDIODRIVER=dummy LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a timeout 90s love . --frames=12 --require-3d --verify-3d-pixels --verify-3d-field --capture-3d-frame
+          env SDL_AUDIODRIVER=dummy LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a timeout 90s love . --frames=12 --require-3d --verify-3d-pixels --verify-3d-field --verify-3d-legs --capture-3d-frame
       - name: Save actual gameplay GPU frame
         if: always()
         run: |
