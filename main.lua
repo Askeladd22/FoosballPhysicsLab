@@ -133,6 +133,12 @@ local function rods()
             end -- legacy procedural figures, used when private model is absent
             -- White is the physical striking edge, gold only outlines the
             -- selected rod. It must remain visibly blue/red, not all yellow.
+            if modelled and current then
+                -- Show the real collision shoe under a locally baked mesh:
+                -- the visual sprite is a *reference*, the rectangle is truth.
+                paint(c,0.42)
+                lg.rectangle("fill",left,top,fw,fh,3,3)
+            end
             if current then
                 paint(colors.gold,0.91)
                 lg.setLineWidth(2)
@@ -141,6 +147,12 @@ local function rods()
             local front=direction==1 and left+fw or left
             if current then
                 Theme.glowLine(lg,front,top+2,front,top+fh-2,colors.cream,3,0.85)
+            elseif modelled and not debugDraw then
+                -- Unselected 3D figures should not carry bright free-floating
+                -- white collider lines that compete with their real silhouettes.
+                paint(c,0.42)
+                lg.setLineWidth(1.4)
+                lg.line(front,top+2,front,top+fh-2)
             else
                 paint(colors.cream)
                 lg.setLineWidth(3)
@@ -206,7 +218,7 @@ end
 local function hud(w,h)
     local r=match.rods[match.selected]
     text("FOOSBALL LAB",36,18,fonts.title,colors.cream)
-    text("NEON GLASS  /  "..(MeshArt.active() and "TABLE SOCCER 2.5D" or "PROCEDURALE"),38,58,fonts.small,colors.human)
+    text("NEON GLASS  /  "..(MeshArt.active() and "TABLE SOCCER - SPRITE 2.5D" or "PROCEDURALE"),38,58,fonts.small,colors.human)
     text("SU/GIU: scorri l'asta    SINISTRA/DESTRA: ruota e colpisci",
         38,81,fonts.small,colors.muted)
     local score=tostring(match.score[1]).."  :  "..tostring(match.score[2])
@@ -244,8 +256,10 @@ local function hud(w,h)
     end
     local captured=love.mouse.getRelativeMode()
     local help=captured and "MOUSE CATTURATO - ESC per sbloccare" or
-        "Clic per bloccare il mouse e ruotare senza limiti"
-    text(help,45,bottom+52,fonts.small,captured and colors.gold or colors.muted)
+        "CLIC SINISTRO: cattura il mouse per colpi rapidi senza fine corsa del cursore"
+    -- In the screenshot the pointer was still free: bright guidance explains
+    -- why rotation stops when the OS cursor reaches the window edge.
+    text(help,45,bottom+52,fonts.small,colors.gold)
     text("TAB: AUTO/MANUALE   1-4/rotella: asta   V: 2.5D "..
         (MeshArt.loaded and (MeshArt.active() and "ON" or "OFF") or "N/D")..
         "   G: glow "..(Theme.glowEnabled and "ON" or "OFF").."   R: reset",

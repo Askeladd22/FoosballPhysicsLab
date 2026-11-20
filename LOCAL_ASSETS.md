@@ -13,3 +13,7 @@ Gli 8 gruppi di aste (9 pose ciascuno) e il tavolo vengono salvati in `local_ass
 Se avevi già la cartella non tracciata `experiments/foosball/local_assets/`, spostala nella root come `local_assets/`. Il loader offre una compatibilità temporanea con il vecchio percorso, se i file sono ancora lì.
 
 **Licenza:** il README di Hend Z./VERTX3D vieta la redistribuzione del modello in tutto o in parte. Non pubblicare mesh originali, ZIP, FBX, OBJ, PNG derivati senza autorizzazione. Il baker elabora soltanto il file privato presente sul tuo PC.
+
+
+### Aggiornamento visuale, PAUL 23
+Il renderer conserva compatibilità con i precedenti 9 fotogrammi per asta, ma non ne sovrappone più due (effetto fantasma). Il nuovo baker produce **25 pose per asta**, per un totale di **201 PNG** compresa la tavola. Per migliorare la fluidità grafica, rigenera localmente usando la tua copia originale dello ZIP. Nessun asset derivato viene caricato automaticamente su GitHub, né è consentito redistribuirlo senza i diritti necessari.

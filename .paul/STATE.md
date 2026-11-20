@@ -1,24 +1,23 @@
 # PAUL State — FoosballPhysicsLab
 
-**Gioco attivo:** Foosball Lab direttamente nella root.
-**Gioco congelato:** NEON 11 (11vs11), isolato in `legacy/neon11/`.
-**Fase:** 22 — migrazione fisica delle cartelle.
-**Branch:** `refactor/foosball-root-neon11-legacy`.
-**Stato:** `DONE_WITH_CONCERNS` (codice e regressioni PASS; UAT Windows/LÖVE NOT_RUN).
-**Data:** 2026-11-20.
+**Active:** Foosball Lab directly in root, Neon Glass / optional private Table Soccer 2.5D sprites.
+**Frozen:** NEON 11 with full source, test and documentation in `legacy/neon11/`.
+**Current phase:** 23 — human rod responsiveness and visual 2.5D clarity.
+**Branch:** `fix/foosball-direct-rods-crisp-table-soccer`, [draft PR #21](https://github.com/Askeladd22/FoosballPhysicsLab/pull/21).
+**Status:** `DONE_WITH_CONCERNS`; Foosball and legacy regression gates verified on LuaJIT/Lua5.4, native Windows/LÖVE UAT not yet done.
+**Date:** 2026-11-20.
 
-## Verifica
-[PLAN](phases/22-directory-split/22-01-PLAN.md) · [SUMMARY](phases/22-directory-split/22-01-SUMMARY.md).
+## SEED decisions
+- Keep the original 2D ball, collision and 120 Hz fixed outer simulation.
+- Human-only input rods use bounded, low-latency target-following; AI's slower spring unchanged.
+- AUTO recognizes sustained small mouse movements as a gesture; TAB manual lock remains.
+- Display original Table Soccer as **local pre-rendered 2.5D sprites** only, not 3D meshes: avoid ghost double pose, increase table visibility, preserve selected physical strike edge. 25-frame local re-bake available; 9-frame pack compatible.
+- User-provided Table Soccer material and derived images stay outside GitHub due redistribution restriction.
+- No additional career, rankings, multiplayer, 11vs11 gameplay or Project Folio changes.
 
-- `love .` avvia il vero gioco Foosball dalla root.
-- `love legacy/neon11` avvia NEON 11 da un progetto LÖVE indipendente; `love . --legacy` resta opzionale.
-- 16 moduli e 32 test storici spostati bitwise-identici, insieme alla texture e alla documentazione.
-- I moduli Foosball sono `main.lua`, `model.lua`, `layout.lua`, `theme.lua`, `mesh_art.lua`, `rod_selector.lua`.
-- Table Soccer: file privati 2.5D in `local_assets/`, ignorati da Git; baker local-only; nessuna redistribuzione.
-- [CI 44707375249](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44707375249): **4 job PASS** (Foosball + NEON11, Lua 5.4 + LuaJIT). Non sono stati dichiarati playtest umani.
+## Evidence
+[PLAN](phases/23-foosball-response/23-01-PLAN.md) · [UNIFY](phases/23-foosball-response/23-01-SUMMARY.md).
+[CI 44709666789](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44709666789) 4/4 PASS. Final guidance UI adjustment has independent [run 44709875435](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44709875435) (legacy Lua5.4 still running at last check). Real mouse feel and native visuals not verified.
 
-## Scopo SEED
-Focalizzarsi su fisica, mouse, IA avversaria semplice, leggibilità e sessioni brevi. Nessuna carriera, classifica, espansione 11vs11 o riapertura di Project Folio da questo repo.
-
-## Unica prossima azione
-Avviare `love .` e `love legacy/neon11` sul PC Windows e verificare i controlli del biliardino durante dieci tiri.
+## Next single action
+Native Windows playtest: click once to capture the mouse, perform 10 rapid physical shots with AUTO and MANUALE, compare V on/off and report perceived response and sprite alignment.
