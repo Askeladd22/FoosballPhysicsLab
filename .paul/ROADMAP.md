@@ -54,3 +54,11 @@
 - [ ] Rivedere altezza/obliquità, distanza, FOV35 e banda viewport fissa 112px top + 140px bottom.
 - [ ] Verificare pallina, piedi, sponde e rampette da front/back e yaw 0/180 in un frame reale, non solo test matematica proiezione.
 - [ ] Separare le modifiche camera in una nuova PR: questo PR #32 contiene soltanto rampe e loro allineamento GPU.
+
+## Fase 35 — Camera GAMEPLAY fedele alla foto
+- [x] Rifiutato il provvisorio angolo quasi zenitale 70° richiesto dal solo ragionamento dell'assistente: il riferimento esplicito utente è una foto del tavolo 3D a tre quarti.
+- [x] Confermati l'offset camera sul lato lungo `(-100,+1060,±780)`, FOV35°, yaw180° e il layout HUD della schermata 1271×874, senza alterare la fisica.
+- [x] Sette ancore di proiezione foto (centro, quattro angoli, entrambe le porte) verificate alla dimensione 1271×874. Regressioni per altre quattro risoluzioni, due lati F2, yaw0/180 F3, marcatori fisici e F4 SHOWCASE.
+- [x] Shader GPU e indicatori CPU hanno lo stesso FOV35 in entrambe le modalità. Nessuna modifica alla camera ESPOSIZIONE.
+- [x] [GitHub Actions #44786693825](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44786693825) **7/7 PASS** sul commit di codice `d38f2096`, inclusi i 7 landmark della foto e il GLB CC BY nativo. Commit documentali successivi non modificano il codice verificato.
+- [ ] Foto Windows 1271×874 e 10 tiri veri: verifica percettiva degli omini/pallina ancora da completare.

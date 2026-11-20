@@ -2,7 +2,7 @@
 project: Foosball Lab
 project_type: custom/game-development
 status: implementing
-plan_version: phase34-edge-corner-ramps
+plan_version: phase35-gameplay-camera-composition
 last_updated: 2026-11-20
 ---
 
@@ -103,3 +103,12 @@ Dieci tiri intenzionali in AUTO, tre in MANUALE, tre blocchi di palla morta e co
 **OUT OF SCOPE:** 11vs11 legacy, multiplayer, carriera, modello 3D sorgente, fisica verticale piena; la fisica resta 2D planare con accelerazione equivalente alla pendenza.
 **OPEN / GAME DESIGN LAB:** playtest Windows e tuning; riprodurre 4 angoli, 4 tratti di testata, 10 tiri di sponda e 5 conclusioni in porta. Misurare falsi cambi direzione, ritmo e leggibilità, senza scambiare CI per valutazione del divertimento.
 **TECHNICAL EVIDENCE:** regressioni dedicate `tests/test_foosball_ramps.lua`, CI collegata alla [PR #32](https://github.com/Askeladd22/FoosballPhysicsLab/pull/32).
+
+## SEED phase 35 — Screenshot-accurate 3/4 GAMEPLAY camera
+**OBSERVED:** the user's explicitly chosen 1271×874 image shows the original diagonal 3/4 perspective (from a long rail), with both goals visible, blue/red players and the near cabinet rim. The temporary high/centred 70° camera would NOT resemble the reference. User subsequently clarified that the in-game camera must match their exact photo.
+**DECIDED:** preserve its original GAMEPLAY view: `target={500,10,280}`, eye offset `{-100,+1060,side*780}`, FOV35°, default `front`, yaw180°, zoom100%. Keep `ESPOSIZIONE` unchanged and retain `currentFovDegrees()` for matching GPU shader and CPU overlays. Do not change field HUD viewport.
+**EVIDENCE:** `tests/test_foosball_camera_framing.lua` checks seven source-world projective reference anchors at 1271×874 (centre, four corners and goal midpoints), plus all 5 resolutions, both sides and yaw0/180, contacts and F4 full-cabinet continuity. Independent renderer mock verifies correct focal uniform.
+**REVISED / SUPERSEDED:** prior assumptions about a 70° near-zenith view and 33° FOV are explicitly rejected because the user supplied a visual reference. No speculative redesign of the photo.
+**ASSUMED / OPEN:** screenshot reference test guarantees projected placement, not subjective texture lighting, readability on the user's GPU or ease of mouse control. Native Windows human screenshot and ten-shot input UAT still needed.
+**OUT OF SCOPE:** modifications to physics, ramps, ball hitboxes, lighting, 3D asset mesh, AI, or frozen NEON11.
+**NEXT:** build [PR #33](https://github.com/Askeladd22/FoosballPhysicsLab/pull/33) and compare a 1271×874 native LÖVE screenshot against the user's supplied image; preserve composition when tuning aesthetics later.
