@@ -55,10 +55,10 @@
 - [ ] Verificare pallina, piedi, sponde e rampette da front/back e yaw 0/180 in un frame reale, non solo test matematica proiezione.
 - [ ] Separare le modifiche camera in una nuova PR: questo PR #32 contiene soltanto rampe e loro allineamento GPU.
 
-## Fase 35 — Camera GAMEPLAY più funzionale (screenshot utente)
-- [x] Modificato solo il preset camera GAMEPLAY: centro asse lungo, offset (0, +1200, ±430), ~70° sopra il piano, FOV dedicato 33°.
-- [x] Preset ESPOSIZIONE F4 invariato (FOV35 e inquadratura completa gambe).
-- [x] FOV CPU di ball/foot marker = FOV shader GPU, anche dopo cambio F4.
-- [x] Test nuove 5 risoluzioni inclusa 1271×874, front/back, yaw0/180, simmetria, visibilità superfici, contatti, HUD, no modifiche fisiche; mock 3D FOV switching.
-- [ ] Verifica CI definitiva: [PR #33](https://github.com/Askeladd22/FoosballPhysicsLab/pull/33); primo run [44785767904](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44785767904).
-- [ ] Playtest Windows: 10 colpi con mouse, 5 rimbalzi di sponda, 4 angoli e confronto F4 in due risoluzioni; valutazione leggibilità non verificata dalla sola CI.
+## Fase 35 — Camera GAMEPLAY fedele alla foto
+- [x] Rifiutato il provvisorio angolo quasi zenitale 70° richiesto dal solo ragionamento dell'assistente: il riferimento esplicito utente è una foto del tavolo 3D a tre quarti.
+- [x] Confermati l'offset camera sul lato lungo `(-100,+1060,±780)`, FOV35°, yaw180° e il layout HUD della schermata 1271×874, senza alterare la fisica.
+- [x] Sette ancore di proiezione foto (centro, quattro angoli, entrambe le porte) verificate alla dimensione 1271×874. Regressioni per altre quattro risoluzioni, due lati F2, yaw0/180 F3, marcatori fisici e F4 SHOWCASE.
+- [x] Shader GPU e indicatori CPU hanno lo stesso FOV35 in entrambe le modalità. Nessuna modifica alla camera ESPOSIZIONE.
+- [ ] GitHub Actions definitiva su commit di codice corretto e aggiornamenti doc per [PR #33](https://github.com/Askeladd22/FoosballPhysicsLab/pull/33).
+- [ ] Foto Windows 1271×874 e 10 tiri veri: verifica percettiva degli omini/pallina ancora da completare.
