@@ -106,22 +106,30 @@ jobs:
           python tools/import_foosball_glb_ccby.py assets/models/foosball_table.glb --output local_assets/3d
       - name: Verify actual GLB legs are BELOW the playfield
         run: python tools/test_foosball_model_upright.py local_assets/3d
-      - name: Verify real 3D model shows GREEN PLAYFIELD (not just wall pixels)
+      - name: SHOWCASE — original full table, real 4 supports and field
         run: |
-          env SDL_AUDIODRIVER=dummy LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a timeout 90s love . --frames=12 --require-3d --verify-3d-pixels --verify-3d-field --verify-3d-legs --capture-3d-frame
-      - name: Preserve a REAL GPU screenshot for visual inspection
+          env SDL_AUDIODRIVER=dummy LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a timeout 90s love . --view=showcase --frames=12 --require-3d --verify-3d-pixels --verify-3d-field --verify-3d-legs --capture-3d-frame
+      - name: Save actual showroom GPU frame
         if: always()
         run: |
-          find "$HOME" -name foosball_3d_camera.png -type f -exec cp {} foosball_3d_camera.png \;
-          test -s foosball_3d_camera.png
+          find "$HOME" -name foosball_3d_camera.png -type f -exec cp {} foosball_3d_showcase.png \;
+          test -s foosball_3d_showcase.png
+      - name: GAMEPLAY — zoomed field / real geometry visible
+        run: |
+          env SDL_AUDIODRIVER=dummy LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a timeout 90s love . --frames=12 --require-3d --verify-3d-pixels --verify-3d-field --capture-3d-frame
+      - name: Save actual gameplay GPU frame
+        if: always()
+        run: |
+          find "$HOME" -name foosball_3d_camera.png -type f -exec cp {} foosball_3d_gameplay.png \;
+          test -s foosball_3d_gameplay.png
       - name: Diagnose actual native GPU frame colors and geometry
         if: always()
         run: |
-          if [ -f foosball_3d_camera.png ]; then
+          if [ -f foosball_3d_gameplay.png ]; then
             python -m pip install -q pillow
             python - <<'PY'
           from PIL import Image
-          im=Image.open("foosball_3d_camera.png").convert("RGB")
+          im=Image.open("foosball_3d_gameplay.png").convert("RGB")
           w,h=im.size
           print("NATIVE_LÖVE_SCREENSHOT",w,h)
           # Visual evidence from the actual GPU framebuffer, not a speculative
@@ -145,6 +153,8 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: real-ccby-foosball-three-quarter-camera
-          path: foosball_3d_camera.png
+          name: real-ccby-foosball-gameplay-and-showcase
+          path: |
+            foosball_3d_gameplay.png
+            foosball_3d_showcase.png
           if-no-files-found: warn
