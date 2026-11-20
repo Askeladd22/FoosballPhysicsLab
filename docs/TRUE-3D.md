@@ -6,7 +6,7 @@ The game's `renderer3d.lua` creates **eleven actual GPU Mesh objects** from the 
 ### Coordinate mapping
 Original author's OBJ: Y is UP, X spans rod shafts/field width, Z spans field length (centimeters). `tools/import_table_soccer_3d.py` maps its X → game Z-width, Z → game X-length, Y → 3D up. Each rod is recentered on its own axis from imported geometry; the GUI dynamically translates it to `rod.x`, `280 + rod.slide` and rotates it around its shaft using `rod.angle`. Because OBJ loses Maya pivot metadata, the conversion reconstructs group pivots at source Y≈83.2. This is a physically plausible rig mapping, not a claim of micrometre-level collider matching.
 
-The 3D ball object is the real source ball sphere, moved each frame to `game.ball.x, 10, game.ball.y`; it is scaled to approximate the simulation's 10-unit ball radius. The **existing fixed-step 2D physical model remains authoritative** for kicks, bounces, goal scoring and dead-ball recovery.
+The 3D ball object is the real source ball sphere, moved each frame to `game.ball.x, 16.5, game.ball.y`; it is scaled to approximate the simulation's 10-unit ball radius and sits on the imported field surface. The **existing fixed-step 2D physical model remains authoritative** for kicks, bounces, goal scoring and dead-ball recovery.
 
 ### Renderer
 LÖVE 11.5's `love.graphics.newMesh` + vertex shader are used with a real perspective projection and depth-buffered render target. Normals support directional shading. The camera is elevated from the near edge, matching the *kind* of view requested in the reference (not a claim to match exactly). `P` or `V` toggles full 3D vs flat procedural 2D with no match restart. There is no fake affine skew and no PNG sprite interpolation in true 3D mode.
