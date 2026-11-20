@@ -301,6 +301,55 @@ function ThreeD.draw(match,w,h)
     end
     return true
 end
+-- Native image semantic test: green FIELD pixels at known field coordinates
+-- (the third-party GLB's ground plane), not just arbitrary nonblack table
+-- wall pixels. An occluding near rail must not pass the game-readability gate.
+function ThreeD.assertFieldVisible()
+    assert(ThreeD.active() and ThreeD.canvas,
+        "Cannot verify 3D pitch without an active render target")
+    local image=ThreeD.canvas:newImageData()
+    local w,h=image:getDimensions()
+    local screenH=h+252
+    local top=ThreeD.viewport(w,screenH)
+    local green,total=0,0
+    local nearGreen,nearTotal=0,0
+    local farGreen,farTotal=0,0
+    for iz=1,9 do
+        local z=45+iz*47
+        for ix=1,11 do
+            local x=75+ix*71
+            -- GLB field material is y ~ -4 after import; the 180° world yaw
+            -- is handled inside ThreeD.project exactly as the GPU shader.
+            local px,py=ThreeD.project(x,-4,z,w,screenH)
+            if px and py then
+                local rx=math.floor(px+0.5)
+                local ry=math.floor(py-top+0.5)
+                if rx>=0 and rx<w and ry>=0 and ry<h then
+                    local cr,cg,cb=image:getPixel(rx,ry)
+                    local isGreen=cg>0.15 and cg>cr*1.35
+                        and cb>cr*1.15
+                    total=total+1
+                    if isGreen then green=green+1 end
+                    if iz<=3 then
+                        nearTotal=nearTotal+1
+                        if isGreen then nearGreen=nearGreen+1 end
+                    elseif iz>=7 then
+                        farTotal=farTotal+1
+                        if isGreen then farGreen=farGreen+1 end
+                    end
+                end
+            end
+        end
+    end
+    print(("3D FIELD visibility: green=%d/%d, near=%d/%d, far=%d/%d"):format(
+        green,total,nearGreen,nearTotal,farGreen,farTotal))
+    assert(total>=75 and green>=math.floor(total*0.46)
+        and nearGreen>=math.floor(nearTotal*0.25)
+        and farGreen>=math.floor(farTotal*0.25),
+        "3D PITCH OCCLUDED: actual green playing surface not visible. Check perspective/rail geometry, not only frame pixels.")
+    return green,total
+end
+
 -- CI / developer-only GPU readback. The old smoke passed with a totally
 -- black frame because it only counted callbacks, never visible pixels.
 function ThreeD.assertVisible()
