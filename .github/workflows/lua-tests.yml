@@ -1,4 +1,4 @@
-name: Lua match simulation
+name: Foosball Lab | Lua + frozen 11vs11 regressions
 on:
   push:
     branches: [main]
@@ -14,7 +14,9 @@ jobs:
       - name: Install Lua and the LÖVE-compatible LuaJIT runtime
         run: sudo apt-get update && sudo apt-get install -y lua5.4 luajit
       - name: Syntax check
-        run: for source in main.lua src/*.lua tests/test_*.lua; do luac5.4 -p "$source" || exit 1; done
+        run: for source in main.lua conf.lua legacy/neon11/main.lua src/*.lua tests/test_*.lua; do luac5.4 -p "$source" || exit 1; done
+      - name: Root Foosball / legacy 11vs11 launcher
+        run: ${{ matrix.lua }} tests/test_project_boot.lua
       - name: Headless match tests
         run: ${{ matrix.lua }} tests/test_sim.lua
       - name: Whole-ball crossings and passing power
