@@ -2,7 +2,7 @@
 project: Foosball Lab
 project_type: custom/game-development
 status: implementing
-plan_version: phase33-auto-microgestures
+plan_version: phase34-edge-corner-ramps
 last_updated: 2026-11-20
 ---
 
@@ -94,3 +94,12 @@ Dieci tiri intenzionali in AUTO, tre in MANUALE, tre blocchi di palla morta e co
 **ASSUMED / DESIGN RISK:** the 60ms window filters sporadic jitter; different mouse devices and player habits may require tuning. Do not claim controller feel is proven by automation.
 **EVIDENCE:** targeted Lua5.4/LuaJIT regression suite passing in [GitHub Actions #44772526612](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44772526612); visual/NEON11 check status is tracked on the PR. 
 **OPEN:** Windows human input test: 10 light, high-polling gestures near AUTO handoff, idle pointer jitter, count mis-selections and response.
+
+## SEED Phase 34 — Rampe anti-punti morti lungo bordi e angoli
+**OBSERVED:** il modello permetteva solo pareti elastiche; la pallina lenta vicino alla sponda poteva fermarsi, senza pendenza che la riportasse verso i piedi.
+**DECIDED:** profilo suolo condiviso in `ramps.lua`: 2 rampe lunghe, 4 segmenti sulle testate esterni alle porte, altezza sommata negli angoli. Profondità 44 unità, quota massima di ogni singolo lato 7 unità, accelerazione massima 240 unità/s² con pendenza quadratica; taper di 24 unità nei pressi dei pali.
+**DECIDED:** 2D e 3D mostrano la stessa impronta; il 3D genera una mesh con normale illuminata e alza la pallina sul piano inclinato. Nuovo componente `ramps.lua` privo di dipendenze esterne. Nessun contatto piede-palla o IA alterato.
+**ASSUMED:** intensità sufficiente a ridurre la permanenza della pallina sul bordo senza accelerare eccessivamente una normale azione di sponda.
+**OUT OF SCOPE:** 11vs11 legacy, multiplayer, carriera, modello 3D sorgente, fisica verticale piena; la fisica resta 2D planare con accelerazione equivalente alla pendenza.
+**OPEN / GAME DESIGN LAB:** playtest Windows e tuning; riprodurre 4 angoli, 4 tratti di testata, 10 tiri di sponda e 5 conclusioni in porta. Misurare falsi cambi direzione, ritmo e leggibilità, senza scambiare CI per valutazione del divertimento.
+**TECHNICAL EVIDENCE:** regressioni dedicate `tests/test_foosball_ramps.lua`, CI collegata alla [PR #32](https://github.com/Askeladd22/FoosballPhysicsLab/pull/32).
