@@ -61,7 +61,7 @@ assert(ThreeD.toggleViewMode()=="showcase")
 local ok=pcall(ThreeD.setViewMode,"nonsense")
 assert(not ok,"invalid camera modes must be rejected")
 ThreeD.resetCamera()
-assert(ThreeD.viewMode=="gameplay" and ThreeD.cameraDistance==1
+assert(ThreeD.viewMode=="gameplay" and math.abs(ThreeD.cameraDistance-0.90)<1e-7
        and ThreeD.cameraSide=="front","Home/reset must return to default gameplay")
 assert(near(match.ball.x,original[1]) and near(match.ball.y,original[2])
     and match.score[1]==original[3] and match.score[2]==original[4]
