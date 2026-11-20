@@ -196,7 +196,9 @@ function ThreeD.draw(match,w,h)
     -- This is the source OBJ's real spherical mesh, animated at the precise
     -- physical ball X/Y; its radius is scaled to ~10 game units.
     local b=match.ball
-    drawMesh(lg,shader,ThreeD.meshes.ball,b.x,10,b.y,0,0.68)
+    -- The imported field's visible surface is at ~6.5 world Y. With a
+    -- ~10-unit scaled mesh radius, 16.5 seats the real sphere on the field.
+    drawMesh(lg,shader,ThreeD.meshes.ball,b.x,16.5,b.y,0,0.68)
     lg.setShader()
     lg.setDepthMode()
     lg.setCanvas()
