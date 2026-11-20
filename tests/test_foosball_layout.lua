@@ -1,6 +1,7 @@
 -- PAUL 17: UI occupies safe bands at the minimum and reference sizes.
 package.path="./?.lua;./?/init.lua;"..package.path
 local Layout=require("layout")
+local Camera=require("camera")
 local Model=require("model")
 for _,window in ipairs({{1280,850},{1279,881},{900,650},{1024,768}}) do
     local w,h=window[1],window[2]
@@ -11,7 +12,9 @@ for _,window in ipairs({{1280,850},{1279,881},{900,650},{1024,768}}) do
     assert(b.boardLeft>=25 and b.boardRight<=w-25,"wood rim cropped horizontally")
     assert(b.footerInfoStart>b.boardBottom,"footer text invades the table")
     assert(b.footerInfoEnd+8<b.helpLineTop,"footer text overlaps controls")
-    assert(math.abs(oy-46*s-b.boardTop)<1e-7)
+    local minX,minY,maxX,maxY=Camera.bounds(-46,-46,1046,606)
+    assert(math.abs(oy+minY*s-b.boardTop)<1e-7)
+    assert(math.abs(oy+maxY*s-b.boardBottom)<1e-7)
 end
 -- The articulated figure must lean with the ACTUAL shoe projection.
 local s=Model.new()
