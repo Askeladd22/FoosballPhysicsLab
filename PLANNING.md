@@ -104,12 +104,11 @@ Dieci tiri intenzionali in AUTO, tre in MANUALE, tre blocchi di palla morta e co
 **OPEN / GAME DESIGN LAB:** playtest Windows e tuning; riprodurre 4 angoli, 4 tratti di testata, 10 tiri di sponda e 5 conclusioni in porta. Misurare falsi cambi direzione, ritmo e leggibilità, senza scambiare CI per valutazione del divertimento.
 **TECHNICAL EVIDENCE:** regressioni dedicate `tests/test_foosball_ramps.lua`, CI collegata alla [PR #32](https://github.com/Askeladd22/FoosballPhysicsLab/pull/32).
 
-## SEED phase 35 — Gameplay camera composition
-**OBSERVED:** screenshot at 1271×874 shows a prominent front rail, obliquely compressed playing surface and less precise visual ball/foot cues. Actual former GAMEPLAY eye offset = (-100, 1060, side*780), FOV35; tilt ~54 degrees.
-**DECIDED:** GAMEPLAY-only camera centered in the table's long axis: eye offset (0, 1200, side*430), tilt ~70°, dedicated FOV33. Do not change `ESPOSIZIONE` eye, goal score, input, ball/foot physics, ramps, 180° yaw or renderer shader coordinate convention.
-**DECIDED:** GPU and CPU marker projection both use `currentFovDegrees()` (33 GAMEPLAY / 35 SHOWCASE). Preserve fixed viewport/HUD margins.
-**EVIDENCE:** dedicated geometry test checks 5 resolutions incl. 1271×874, both side positions and yaw orientations, projected field inside HUD, vertical coverage >= 67%, symmetry, actual ball/foot coordinates, preserved showroom leg visibility. GPU mock test verifies mode FOV switches; native LÖVE/GLB GitHub Actions gate needed.
-**ASSUMED:** approximately zenithal camera improves ability to anticipate ball contact and reduced front-rail occlusion; can reduce perceived furniture depth.
-**OPEN:** Windows screenshot of the actual new camera and ten-shot human playtest with mouse; do not assert that the camera is definitively preferable on feel from tests alone.
-**OUT OF SCOPE:** altering HUD dimensions, physical ball dynamics, AI, rods, asset licenses, legacy NEON11 or graphics pipeline.
-**NEXT:** human A/B in GAMEPLAY vs F4 ESPOSIZIONE, ten precision hits, five side bank shots and four corner rolls. Tweak camera only if demonstrably necessary.
+## SEED phase 35 — Screenshot-accurate 3/4 GAMEPLAY camera
+**OBSERVED:** the user's explicitly chosen 1271×874 image shows the original diagonal 3/4 perspective (from a long rail), with both goals visible, blue/red players and the near cabinet rim. The temporary high/centred 70° camera would NOT resemble the reference. User subsequently clarified that the in-game camera must match their exact photo.
+**DECIDED:** preserve its original GAMEPLAY view: `target={500,10,280}`, eye offset `{-100,+1060,side*780}`, FOV35°, default `front`, yaw180°, zoom100%. Keep `ESPOSIZIONE` unchanged and retain `currentFovDegrees()` for matching GPU shader and CPU overlays. Do not change field HUD viewport.
+**EVIDENCE:** `tests/test_foosball_camera_framing.lua` checks seven source-world projective reference anchors at 1271×874 (centre, four corners and goal midpoints), plus all 5 resolutions, both sides and yaw0/180, contacts and F4 full-cabinet continuity. Independent renderer mock verifies correct focal uniform.
+**REVISED / SUPERSEDED:** prior assumptions about a 70° near-zenith view and 33° FOV are explicitly rejected because the user supplied a visual reference. No speculative redesign of the photo.
+**ASSUMED / OPEN:** screenshot reference test guarantees projected placement, not subjective texture lighting, readability on the user's GPU or ease of mouse control. Native Windows human screenshot and ten-shot input UAT still needed.
+**OUT OF SCOPE:** modifications to physics, ramps, ball hitboxes, lighting, 3D asset mesh, AI, or frozen NEON11.
+**NEXT:** build [PR #33](https://github.com/Askeladd22/FoosballPhysicsLab/pull/33) and compare a 1271×874 native LÖVE screenshot against the user's supplied image; preserve composition when tuning aesthetics later.
