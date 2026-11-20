@@ -1,3 +1,34 @@
+## Correzione 3D — PAUL 26 (2026-11-20)
+
+**Corretto lo schermo nero.** Il renderer inizializzava il depth buffer a 0
+mentre usava `lequal`, impedendo a tutti i triangoli di essere disegnati.
+Adesso viene inizializzato a 1. La CI verifica anche i **pixel realmente visibili**,
+non soltanto l'avvio di LÖVE e il caricamento delle mesh.
+
+**Nuovo asset raccomandato:** `foosball_table (2).glb` allegato dall'utente,
+di **3D Content Online**, CC BY 4.0: **103 mesh separate, 73.636 triangoli,
+otto aste riconoscibili**, utilizzabile con attribuzione anche in progetti
+commerciali. È preferibile all'asset VERTX3D precedente (redistribuzione
+vietata) e ai due Marble (CC BY-NC: uso commerciale non consentito).
+
+### Usare il nuovo modello
+
+1. Copia il tuo `foosball_table (2).glb` in `assets/models/foosball_table.glb`
+   (questo **GLB CC BY può essere versionato in Git**, lasciando i crediti).
+2. Avvia `install-foosball-ccby.bat` dalla root oppure:
+   `py -3 -m pip install trimesh numpy`
+   e `py -3 tools/import_foosball_glb_ccby.py "assets/models/foosball_table.glb"`.
+3. Avvia `love .`. Il gioco utilizzerà **la geometria 3D effettiva**,
+   mantenendo i colpi fisici 2D. `P/V` torna al vecchio 2D.
+
+L'importatore mette le 11 mesh renderizzabili in `local_assets/3d/`
+(ignorata da Git); a differenza dei GLB fusi, usa i componenti separati e
+riorganizza gli omini secondo la fisica 1-2-5-3. Per crediti, fonte e
+modifiche: [assets/models/ATTRIBUTION.md](assets/models/ATTRIBUTION.md).
+Per la validazione: [piano PAUL 26](.paul/phases/26-depth-ccby/26-01-PLAN.md).
+
+---
+
 # FoosballPhysicsLab — Table Soccer 3D REALE
 
 **Foosball Lab** ora utilizza **vere mesh tridimensionali** del modello Table Soccer (LÖVE 11.5), non screenshot o sprite 2.5D: tavolo, campo, pallina e otto aste 3D separate, renderizzati in prospettiva con profondità e illuminazione. Il mouse governa la traslazione e la rotazione delle aste; la fisica esistente resta l'unica fonte di verità.
