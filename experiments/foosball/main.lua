@@ -1,6 +1,7 @@
 local Model=require("model")
 local Layout=require("layout")
 local Theme=require("theme")
+local MeshArt=require("mesh_art")
 local lg=love.graphics
 local match
 local accumulator=0
@@ -21,6 +22,7 @@ local function transform()
 end
 local function pitch()
     Theme.drawGlassTable(lg,Model.W,Model.H,Model.GOAL_HALF)
+    MeshArt.drawTable(lg)
 end
 local function rods()
     local selected=match.rods[match.selected]
@@ -75,12 +77,16 @@ local function rods()
             lg.setFont(fonts.small)
             lg.print(tostring(i),r.x-5,-34)
         end
+        local modelled=MeshArt.drawRod(lg,r,i)
         for j=1,#r.offsets do
             local fx,fy=Model.foot(r,j)
             local left,top,fw,fh=Model.footRect(r,j)
             local bodyX,_,headX,headY=Model.figurePose(r,j)
             local direction=r.team==1 and 1 or -1
             local central=j==math.ceil(#r.offsets/2)
+            -- If locally baked 3D figures exist, use them for the silhouette.
+            -- The white striking edge/outline stays in exact 2D physics space.
+            if not modelled then
             -- Socket stays on the real shaft; leg and body lean with the
             -- actual horizontal shoe projection, instead of looking detached.
             paint(colors.shadow,0.72)
@@ -109,6 +115,7 @@ local function rods()
             lg.rectangle("fill",left,top,fw,fh,3,3)
             paint(colors.cream,0.22)
             lg.rectangle("fill",left+2,top+2,3,fh-4,1,1)
+            end -- legacy procedural figures, used when private model is absent
             -- White is the physical striking edge, gold only outlines the
             -- selected rod. It must remain visibly blue/red, not all yellow.
             if current then
@@ -184,7 +191,7 @@ end
 local function hud(w,h)
     local r=match.rods[match.selected]
     text("FOOSBALL LAB",36,18,fonts.title,colors.cream)
-    text("NEON GLASS  /  MOUSE RODS",38,58,fonts.small,colors.human)
+    text("NEON GLASS  /  "..(MeshArt.active() and "TABLE SOCCER 2.5D" or "PROCEDURALE"),38,58,fonts.small,colors.human)
     text("SU/GIU: scorri l'asta    SINISTRA/DESTRA: ruota e colpisci",
         38,81,fonts.small,colors.muted)
     local score=tostring(match.score[1]).."  :  "..tostring(match.score[2])
@@ -201,9 +208,13 @@ local function hud(w,h)
     lg.setLineWidth(1)
     lg.rectangle("line",30,bottom-8,w-60,79,9,9)
     Theme.glowLine(lg,39,bottom-6,170,bottom-6,colors.gold,1.5,0.48)
-    text("ASTA "..match.selected.."  /  "..r.kind.."  /  rotazione "..angle.." gradi",
+    text((match.controlMode=="auto" and "AUTO" or "MANUALE")..
+        "  /  ASTA "..match.selected.."  /  "..r.kind.."  /  rotazione "..angle.." gradi",
         45,bottom,fonts.normal,colors.cream)
-    if r.stopPulse>0 then text("FINE CORSA",w-175,bottom,fonts.small,colors.gold) end
+    if r.stopPulse>0 then text("FINE CORSA",w-175,bottom,fonts.small,colors.gold)
+    elseif match.autoRodNotice and match.autoRodNotice.expires>match.clock then
+        text("ASTA "..match.autoRodNotice.rod.." SELEZIONATA",w-220,bottom,fonts.small,colors.gold)
+    end
     if match.deadBallNotice and match.deadBallNotice.expires>match.clock then
         local side=match.deadBallNotice.team==1 and "BLU" or "ROSSO"
         text("PALLA MORTA - RIMESSA "..side.." A CENTROCAMPO",
@@ -220,8 +231,9 @@ local function hud(w,h)
     local help=captured and "MOUSE CATTURATO - ESC per sbloccare" or
         "Clic per bloccare il mouse e ruotare senza limiti"
     text(help,45,bottom+52,fonts.small,captured and colors.gold or colors.muted)
-    text("1-4 / rotella: asta     C: piede neutro     - / +: sensibilita     G: glow "..
-        (Theme.glowEnabled and "ON" or "OFF").."     R: reset     F1: debug",
+    text("TAB: AUTO/MANUALE   1-4/rotella: asta   V: 2.5D "..
+        (MeshArt.loaded and (MeshArt.active() and "ON" or "OFF") or "N/D")..
+        "   G: glow "..(Theme.glowEnabled and "ON" or "OFF").."   R: reset",
         39,h-38,fonts.small,colors.muted)
     if match.phase=="goal" or match.phase=="finished" then
         local message=match.phase=="finished" and
@@ -241,6 +253,7 @@ function love.load()
     fonts.normal=lg.newFont(17)
     fonts.small=lg.newFont(14)
     match=Model.new()
+    MeshArt.load()
     love.window.setTitle("FOOSBALL LAB | Neon Glass")
 end
 function love.update(dt)
@@ -284,6 +297,8 @@ function love.keypressed(key,_,repeatKey)
         love.mouse.setRelativeMode(false)
     elseif key=="m" then
         love.mouse.setRelativeMode(not love.mouse.getRelativeMode())
+    elseif key=="tab" then
+        match:toggleAutoRod()
     elseif key=="c" then
         match:neutralRod()
     elseif key=="r" then
@@ -292,6 +307,8 @@ function love.keypressed(key,_,repeatKey)
         debugDraw=not debugDraw
     elseif key=="g" then
         Theme.glowEnabled=not Theme.glowEnabled
+    elseif key=="v" then
+        MeshArt.toggle()
     elseif key=="-" or key=="kp-" then
         match.mouseSensitivity.angle=math.max(0.007,match.mouseSensitivity.angle-0.002)
     elseif key=="=" or key=="+" or key=="kp+" then

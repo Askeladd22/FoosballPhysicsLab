@@ -1,0 +1,8 @@
+# Locally generated sprites from the user's licensed source ZIP.
+# VERTX3D model redistribution is prohibited by its included Readme.
+experiments/foosball/local_assets/
+Table_Soccer.zip
+*.fbx
+*.obj
+*.blend
+__pycache__/

@@ -47,3 +47,20 @@ I examined the attached `foosball_table.glb` (22,855 triangles, one merged mesh,
 - `PLANNING.md`, `.paul/`: active SEED/PAUL state and history.
 
 **Automated tests are not proof of fun.** Validate on Windows by comparing ten intentional mouse strikes, ball tracking and stall recovery with glow on/off.
+
+
+## Table Soccer model integration (local only, PAUL 21)
+
+The provided **Table_Soccer.zip** has eight independently named rod/figure OBJ groups and can be used for **private local 2.5D renders** of the players in nine rotation poses per rod. We do **not** commit the source or converted model to public GitHub: Hend Z. / VERTX3D's Readme forbids redistribution of the model (whole or partial). All generated images are under `experiments/foosball/local_assets/`, ignored by Git. The renderer falls back to the original procedural Neon Glass if images are absent.
+
+To install locally using your **own** ZIP from the repository root:
+
+```sh
+python -m pip install Pillow
+python tools/bake_table_soccer.py "C:/path/to/Table_Soccer.zip"
+love .
+```
+
+On Windows, `install-table-soccer-local.bat` also detects `Table_Soccer.zip` in Downloads after Pillow is installed. The converted asset pack is **not ready for redistribution**; obtain separate rights before publishing a build containing it.
+
+**Controls:** AUTO rod selection is the default (ball position prediction, hysteresis, cooldown, swipe protection). TAB toggles automatic/manual selection; 1–4 and wheel select and **lock** the rod manually. V toggles the optional real-mesh 2.5D renders versus the procedural style. Mouse vertical slide and horizontal rotation still produce every physical kick; the mesh sprites are visual only. Details in [local model instructions](experiments/foosball/LOCAL_ASSETS.md).
