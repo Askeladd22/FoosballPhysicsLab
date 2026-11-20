@@ -1,3 +1,32 @@
+## Fase 29 — Il biliardino è diritto: gambe SOTTO, campo SOPRA
+
+L'immagine di Windows mostrava un campo coperto dalla grande sponda. Il problema
+**non era che i vertici 3D fossero capovolti**: il GLB originale aveva già
+gambe sotto il campo (quota delle gambe −740; campo −4) e parti delle aste che
+fuoriescono dal tavolo. Fare una rotazione verticale di 180° avrebbe messo le
+gambe proprio verso l'alto.
+
+**Correzione implementata:** ripresa 3D prospettica dall'alto (~79° rispetto
+all'orizzonte) con FOV35 e camera sopra la sponda, mantenendo la richiesta
+rotazione di 180° attorno all'asse verticale. Nessuna modifica alla fisica,
+alle mesh, ai materiali, ai controlli o al vecchio progetto 11vs11.
+
+La CI include ora **due controlli reali**:
+1. `tools/test_foosball_model_upright.py` verifica nei file GPU del vero GLB
+   che le gambe si trovino sotto il piano verde.
+2. `--verify-3d-field` analizza 99 punti del framebuffer di LÖVE nei luoghi
+   del campo verde, non solo la presenza di qualsiasi pixel del tavolo.
+   Nel test nativo con il GLB originale sono risultati verdi **73/99 punti**,
+   comprese entrambe le estremità del campo.
+
+**Prova:** `git switch fix/foosball-upright-playable-pitch` e `love .`.
+F2 cambia lato della camera, F3 confronta 0°/180° del tavolo e Home
+ripristina la vista. La conferma della qualità visuale e dei colpi su Windows
+rimane aperta: i test non garantiscono divertimento o perfetto allineamento
+dei piedi ai collider.
+
+---
+
 ## Correzione orientamento: modello 3D ruotato di 180° (PAUL 28)
 
 Il modello completo — **tavolo, campo, otto aste e pallina** — è ora ruotato
