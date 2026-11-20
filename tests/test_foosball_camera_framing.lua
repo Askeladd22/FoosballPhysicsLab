@@ -20,12 +20,13 @@ for _,wh in ipairs(windows) do
     local top,vh=ThreeD.viewport(w,h)
     local bottom=top+vh
     local fit=math.max(1,1.60/(w/vh))
+    local gameplayDistance=0.90*fit
     for _,side in ipairs({"front","back"}) do
         ThreeD.resetCamera()
         if side=="back" then ThreeD.flipCamera() end
         local eye=ThreeD.cameraBasis(w,h)
-        assert(near(eye[1],500) and near(eye[2],-200+1100*fit) and
-            near(eye[3],280+(side=="front" and -915 or 915)*fit),
+        assert(near(eye[1],500) and near(eye[2],-200+1100*gameplayDistance) and
+            near(eye[3],280+(side=="front" and -915 or 915)*gameplayDistance),
             "GAMEPLAY is not centred in front of the long rail")
         local pitch=math.deg(math.atan((eye[2]+200)/abs(eye[3]-280)))
         assert(pitch>=48 and pitch<=53,
@@ -85,7 +86,7 @@ end
 ThreeD.resetCamera()
 ThreeD.resetSceneYaw()
 assert(ThreeD.sceneYaw==180 and ThreeD.cameraSide=="front" and
-       ThreeD.cameraDistance==1 and ThreeD.viewMode=="gameplay")
+       math.abs(ThreeD.cameraDistance-0.90)<1e-7 and ThreeD.viewMode=="gameplay")
 assert(near(match.ball.x,initial[1]) and near(match.ball.y,initial[2]) and
     match.score[1]==initial[3] and match.score[2]==initial[4] and
     match.selected==initial[5] and near(match.rods[4].angle,initial[6]) and
