@@ -2,6 +2,7 @@
 -- Each independent rod is a real GPU mesh, rotated/slid every frame from
 -- model.lua. The physical game is still 2D and owns scoring/ball contacts.
 -- No original or converted third-party model is included in the repository.
+local Model=require("model")
 local ThreeD={
     loaded=false,enabled=false,error=nil,meshes={},canvas=nil,
     viewportHeight=0,viewportWidth=0,
@@ -11,6 +12,7 @@ local ThreeD={
     fovDegrees=35,
     cameraSide="front",
     cameraDistance=1,
+    viewMode="gameplay", -- default: readable feet/ball and enlarged green pitch
     -- Rigid 180-degree Y-axis turn of the ENTIRE 3D WORLD, not the camera.
     sceneYaw=180,
     modelKind="private-original"
@@ -77,7 +79,9 @@ local SHADER=[[
         vec3 n=normalize(vNormal);
         vec3 sunlight=normalize(vec3(-0.35,0.88,0.43));
         float diffuse=abs(dot(n,sunlight));
-        float light=0.56+0.44*diffuse;
+        // Preserve the actual model's materials but lift ambient lighting
+        // so a small coloured figure is distinguishable from its dark rod.
+        float light=0.67+0.33*diffuse;
         return vec4(vertexColor.rgb*light,vertexColor.a);
     }
     #endif
@@ -105,9 +109,18 @@ local function viewportFit(w,h)
     -- Vertical framing dominates standard landscape game windows.
     return math.max(1,1.60/aspect)
 end
+function ThreeD.setViewMode(mode)
+    assert(mode=="gameplay" or mode=="showcase","unknown 3D camera preset")
+    ThreeD.viewMode=mode
+    return mode
+end
+function ThreeD.toggleViewMode()
+    return ThreeD.setViewMode(ThreeD.viewMode=="gameplay" and "showcase" or "gameplay")
+end
 function ThreeD.resetCamera()
     ThreeD.cameraSide="front"
     ThreeD.cameraDistance=1
+    ThreeD.viewMode="gameplay"
 end
 function ThreeD.setSceneYaw(degrees)
     assert(degrees==0 or degrees==180,"scene rotation must be 0 or 180 degrees")
@@ -136,17 +149,25 @@ function ThreeD.zoomCamera(delta)
     return ThreeD.cameraDistance
 end
 function ThreeD.cameraBasis(w,h)
-    -- Mid-height of the *real object*, not the pitch:
-    -- supports -740, raised rim +130 => center -305.
-    local target={500,-305,280}
     local side=ThreeD.cameraSide=="front" and -1 or 1
     local distance=ThreeD.cameraDistance*viewportFit(w,h)
-    -- Camera calibrated with a rendered copy of the actual CC BY GLB
-    -- (4 distinct legs + complete green field visible simultaneously).
-    -- 3/4 oblique eye, ~45 degrees down, F2 switches the opposite long side.
-    local eye={target[1]-1012.35*distance,
-               target[2]+2119.05*distance,
-               target[3]+side*1795.20*distance}
+    local target,eye
+    if ThreeD.viewMode=="showcase" then
+        -- Presentation/inspection only: entire upright cabinet and 4 legs.
+        -- Keep the verified 3/4 composition from PAUL phase 30.
+        target={500,-305,280}
+        eye={target[1]-1012.35*distance,
+             target[2]+2119.05*distance,
+             target[3]+side*1795.20*distance}
+    else
+        -- Actual match camera: prioritize a large, unobstructed green pitch.
+        -- Calibrated for 900x650..1920x1080, preserving real perspective.
+        -- Do not rotate/scale the mesh or change the game physics.
+        target={500,10,280}
+        eye={target[1]-250*distance,
+             target[2]+1220*distance,
+             target[3]+side*860*distance}
+    end
     local fx,fy,fz=norm(target[1]-eye[1],target[2]-eye[2],target[3]-eye[3])
     local rx,ry,rz=norm(cross(fx,fy,fz,0,1,0))
     local ux,uy,uz=cross(rx,ry,rz,fx,fy,fz)
@@ -257,6 +278,28 @@ function ThreeD.project(x,y,z,w,h)
     return w/2+px*focal/ratio/depth*w/2,
         top+height/2-py*focal/depth*height/2
 end
+-- Authoritative projected contact markers: the highlighted toe centers are
+-- read from the SAME model.foot used by ball/foot collision resolution.
+function ThreeD.playerIndicators(match,w,h)
+    local r=assert(match.rods[match.selected],"selected physical rod missing")
+    local x1,y1=ThreeD.project(r.x,ThreeD.axisHeight,0,w,h)
+    local x2,y2=ThreeD.project(r.x,ThreeD.axisHeight,560,w,h)
+    local feet={}
+    for i=1,#r.offsets do
+        local fx,fz=Model.foot(r,i)
+        local px,py=ThreeD.project(fx,ThreeD.ballHeight,fz,w,h)
+        feet[#feet+1]={x=px,y=py,worldX=fx,worldZ=fz}
+    end
+    return {shaft={x1,y1,x2,y2},feet=feet}
+end
+function ThreeD.ballIndicator(match,w,h)
+    local ball=match.ball
+    local px,py=ThreeD.project(ball.x,ThreeD.ballHeight+5,ball.y,w,h)
+    local vx,vy=ThreeD.project(ball.x+ball.vx*0.09,
+        ThreeD.ballHeight+5,ball.y+ball.vy*0.09,w,h)
+    return {x=px,y=py,velocityX=vx,velocityY=vy,
+            worldX=ball.x,worldZ=ball.y}
+end
 function ThreeD.draw(match,w,h)
     if not ThreeD.active() then return false end
     local lg=love.graphics
@@ -304,16 +347,59 @@ function ThreeD.draw(match,w,h)
     lg.pop()
     lg.setColor(1,1,1,1)
     lg.draw(ThreeD.canvas,0,top)
-    -- Highlight which full 3D rod the mouse owns, never move its geometry.
-    local active=match.rods[match.selected]
-    local x,y=ThreeD.project(active.x,ThreeD.axisHeight+28,280+active.slide,w,h)
-    if x then
-        lg.setColor(1,0.76,0.35,0.90)
-        lg.setLineWidth(2.5)
-        lg.circle("line",x,y,19)
-        lg.line(x+14,y-14,x+27,y-27)
-        lg.setColor(1,1,1,1)
+    if ThreeD.viewMode=="gameplay" then
+        -- Minimal world-anchored feedback: distinguish the selected rod,
+        -- its *physical* striking feet, and the actual moving ball.
+        -- No changes to native mesh, angle, slide or collision rectangles.
+        local marker=ThreeD.playerIndicators(match,w,h)
+        local shaft=marker.shaft
+        if shaft[1] and shaft[3] then
+            lg.setLineWidth(5)
+            lg.setColor(0.01,0.025,0.04,0.80)
+            lg.line(shaft[1],shaft[2],shaft[3],shaft[4])
+            lg.setLineWidth(2.2)
+            lg.setColor(1,0.77,0.28,0.85)
+            lg.line(shaft[1],shaft[2],shaft[3],shaft[4])
+        end
+        for _,foot in ipairs(marker.feet) do
+            if foot.x then
+                lg.setColor(0.01,0.025,0.04,0.80)
+                lg.setLineWidth(3.0)
+                lg.circle("line",foot.x,foot.y,8)
+                lg.setColor(1,0.78,0.29,0.95)
+                lg.setLineWidth(1.8)
+                lg.circle("line",foot.x,foot.y,7)
+            end
+        end
+        local ball=ThreeD.ballIndicator(match,w,h)
+        if ball.x then
+            lg.setColor(0.01,0.035,0.045,0.90)
+            lg.setLineWidth(4.0)
+            lg.circle("line",ball.x,ball.y,13)
+            lg.setColor(0.93,0.98,0.83,0.96)
+            lg.setLineWidth(2)
+            lg.circle("line",ball.x,ball.y,12)
+            if ball.velocityX then
+                local dx,dy=ball.velocityX-ball.x,ball.velocityY-ball.y
+                if dx*dx+dy*dy>16 then
+                    lg.setColor(0.93,0.98,0.83,0.66)
+                    lg.setLineWidth(2)
+                    lg.line(ball.x,ball.y,ball.velocityX,ball.velocityY)
+                end
+            end
+        end
+    else
+        -- A light-touch identifier when inspecting the complete furniture.
+        local active=match.rods[match.selected]
+        local x,y=ThreeD.project(active.x,ThreeD.axisHeight+28,280+active.slide,w,h)
+        if x then
+            lg.setColor(1,0.76,0.35,0.90)
+            lg.setLineWidth(2.5)
+            lg.circle("line",x,y,19)
+            lg.line(x+14,y-14,x+27,y-27)
+        end
     end
+    lg.setColor(1,1,1,1)
     return true
 end
 -- Native image semantic test: green FIELD pixels at known field coordinates
