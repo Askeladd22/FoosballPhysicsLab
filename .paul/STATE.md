@@ -44,3 +44,9 @@ Branch `feat/true-3d-table-soccer-runtime`. L'utente ha scartato esplicitamente 
 **Art direction:** select user-uploaded CC BY 4.0 `foosball_table (2).glb` from 3D Content Online. 103 mesh parts converted to 11 game rigs, re-instanced to physical 1-2-5-3, more efficient than private old VERTX3D model.
 **Asset provenance:** `assets/models/ATTRIBUTION.md` and offline importer committed. Full CC BY binary GLB provided in separate repo-ready downloadable package but **NOT uploaded to GitHub yet**, due lack of direct binary attachment bridging into connector. Do not misrepresent its Git state. Frozen NEON11 untouched.
 **Human native Windows UAT:** NOT_RUN. Read [PLAN](phases/26-depth-ccby/26-01-PLAN.md) · [UNIFY](phases/26-depth-ccby/26-01-SUMMARY.md).
+
+## Phase 27 — CAMERA opposite-side, adaptive zoom (2026-11-20)
+**Branch:** `fix/foosball-3d-camera-orientation-distance`, [PR #25](https://github.com/Askeladd22/FoosballPhysicsLab/pull/25) draft, `main` not modified by this PR.
+**Implementation:** The CC BY real 3D tabletop now defaults to a farther/elevated view from the opposite long edge. The eye is adapted to viewport aspect; F2 flips the side, PageUp/PageDown zoom, Home resets. Same GPU shader/CPU camera basis. Physics, mouse rods, 3D GLB and frozen NEON11 not changed.
+**Verification:** [GitHub Actions run #44731794359](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44731794359) **7/7 PASS**, including native rendering with the actual CC BY GLB (169/255 visible framebuffer pixel probes), synthetic mesh smoke, camera geometry tests and both Lua Foosball/NEON11 suites.
+**Not verified:** real screenshot with this exact new camera on user's Windows PC and human readability/feel. [PLAN](phases/27-camera-fix/27-01-PLAN.md) · [UNIFY](phases/27-camera-fix/27-01-SUMMARY.md).
