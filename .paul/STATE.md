@@ -4,7 +4,7 @@
 **Frozen:** NEON 11 with full source, test and documentation in `legacy/neon11/`.
 **Current phase:** 34 — side/corner anti-dead-zone ramps (3D camera review separately OPEN).
 **Branch:** `feat/foosball-edge-corner-ramps`, [draft PR #32](https://github.com/Askeladd22/FoosballPhysicsLab/pull/32).
-**Status:** `VERIFIED_AUTOMATED / UAT_NOT_RUN` for first ramp implementation (7/7 CI); final native mesh-to-ball height correction awaiting its own fresh CI. Windows gameplay UAT NOT_RUN.
+**Status:** `VERIFIED_AUTOMATED / UAT_NOT_RUN`; latest ramp geometry, marker and native GLB GPU CI 7/7 PASS (run 44778209050). Native Windows gameplay/camera UAT NOT_RUN.
 **Date:** 2026-11-20.
 
 ## SEED decisions
@@ -16,7 +16,7 @@
 - No additional career, rankings, multiplayer, 11vs11 gameplay or Project Folio changes.
 
 ## Evidence
-[PLAN phase 34](phases/34-edge-corner-ramps/34-01-PLAN.md) · [UNIFY phase 34](phases/34-edge-corner-ramps/34-01-SUMMARY.md) · [CI 44777414138](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44777414138) 7/7 PASS on initial slopes; follow-up 3D height alignment CI pending. Native camera/play feel not verified.
+[PLAN phase 34](phases/34-edge-corner-ramps/34-01-PLAN.md) · [UNIFY phase 34](phases/34-edge-corner-ramps/34-01-SUMMARY.md) · [CI 44778209050](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44778209050) 7/7 PASS on completed 3D height alignment. Native camera/play feel not verified.
 
 ## Next single action
 Native Windows playtest: four corners, side and goal-wing ramps, ten ordinary bank shots and five goal attempts; compare ball foot contact and projection in GAMEPLAY versus SHOWCASE (F4).
@@ -105,3 +105,5 @@ The **whole world** yaw is now 180° about upright Y, rigidly rotating the actua
 **Later camera-related correction:** GPU ramp floor now begins at the actual rendered ball contact altitude; tracking marker follows lifted ball. Regression added; fresh CI required.
 **SEED / Game Design Lab:** ramp width/intensity unverified on Windows. Independently, camera GAMEPLAY FOV35, fixed vertical viewport/header/footer, 180 degree world yaw and camera perspective may make gameplay hard to read even if mesh/projected markers are mathematically aligned. Do not claim screenshot/player feel verified without native user playtest.
 [PLAN](phases/34-edge-corner-ramps/34-01-PLAN.md) · [SUMMARY](phases/34-edge-corner-ramps/34-01-SUMMARY.md).
+
+**Phase 34 latest verification:** [run 44778209050](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44778209050) 7/7 PASS on commit `3c64bbd70475886cdeb07bc7b945c70078a0ea22` for finalized ramp and marker code. Subsequent documentation-only commits do not alter the code under test. Camera composition remains a separate open design task, not silently changed in this branch.
