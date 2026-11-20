@@ -1,3 +1,25 @@
+## Camera frontale da lato lungo — PAUL 36 (20 novembre 2026)
+
+La camera **PARTITA** ora mostra il biliardino realmente **di fronte al lato
+lungo**, come nella foto fornita dall'utente: sponde orizzontali, tavolo
+centrato, entrambe le porte e **quattro gambe** nell'inquadratura. Non è
+più la visuale diagonale precedente (il PR #33 non aveva cambiato l'angolo).
+
+Il preset PARTITA punta al centro del mobile: target `(500,-200,280)`,
+offset camera `(0,1100,±915)`, FOV **43°** e circa **50° di elevazione**.
+L'inquadratura **ESPOSIZIONE** (F4) conserva la precedente prospettiva
+di tre quarti/FOV 35°, e rimangono F2 lato, F3 rotazione e Home reset.
+Nessuna modifica a pallina, sponde inclinate, aste, controlli o vecchio NEON11.
+
+**Test:** [GitHub Actions #44789804738](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44789804738)
+**7/7 PASS** sul codice della camera; vero LÖVE con modello GLB CC BY
+**4/4 gambe visibili** anche in PARTITA, campo 62/99 campioni verdi.
+[Anteprime GPU reali PARTITA ed ESPOSIZIONE](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44789804738/artifacts/14655132976).
+Controllo Windows ancora necessario: foto a 1271×874 e dieci colpi con
+mouse, per verificare la leggibilità della pallina da questa distanza.
+
+---
+
 ## Gameplay Readability — PAUL 31 (20 novembre 2026)
 
 Il 3D reale del biliardino è finalmente orientato correttamente. La visuale
