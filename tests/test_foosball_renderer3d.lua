@@ -87,6 +87,18 @@ for _,send in ipairs(fake.sends) do
 end
 assert(worldUniform,"3D world transform not sent to GPU")
 assert(#fake.draws==12,"expected static table+field, 8 moving rods, ball, and color canvas")
+local indicator=ThreeD.playerIndicators(match,1280,850)
+assert(#indicator.feet==#match.rods[match.selected].offsets,
+       "selected rod did not project ALL real physical feet")
+for i,foot in ipairs(indicator.feet) do
+    local ax,az=Model.foot(match.rods[match.selected],i)
+    assert(math.abs(foot.worldX-ax)<1e-8 and math.abs(foot.worldZ-az)<1e-8,
+        "selected foot marker not grounded in authoritative physical collision")
+end
+local ballMarker=ThreeD.ballIndicator(match,1280,850)
+assert(math.abs(ballMarker.worldX-match.ball.x)<1e-8 and
+       math.abs(ballMarker.worldZ-match.ball.y)<1e-8,
+       "ball indicator must use physical ball, never an invented animation")
 local rodTranslations={}
 for i,send in ipairs(fake.sends) do
     if send[1]=="uMove" then
