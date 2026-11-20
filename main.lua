@@ -48,10 +48,9 @@ local function pitch()
     MeshArt.drawTable(lg)
 end
 local function rods()
-    local selected=match.rods[match.selected]
     for i,r in ipairs(match.rods) do
         local c=r.team==1 and colors.human or colors.away
-        local current=r==selected
+        local current=match:isRodControlled(i)
         if current then
             -- A moving marker makes *translation* explicit in oblique view.
             -- Rod shaft does not move in x, while all figures slide in y.
@@ -253,7 +252,9 @@ local function hud(w,h)
     local display=ThreeD.active() and "TABLE SOCCER - MESH 3D REALI / PROSPETTIVA" or
         (ThreeD.loaded and "FOOSBALL 2D / MODELLO 3D PAUSATO" or "FOOSBALL 2D / ASSET 3D ASSENTI")
     text("NEON GLASS / "..display,38,58,fonts.small,colors.human)
-    text("SU/GIU: scorri l'asta    SINISTRA/DESTRA: ruota e colpisci",
+    text(match.controlMode=="dual" and
+        "DOPPIA: SU/GIU scorri Difesa+Attacco  SIN/DES ruota entrambe" or
+        "SU/GIU: scorri l'asta    SINISTRA/DESTRA: ruota e colpisci",
         38,81,fonts.small,colors.muted)
     local score=tostring(match.score[1]).."  :  "..tostring(match.score[2])
     text(score,w-174,21,fonts.title,colors.cream)
@@ -269,9 +270,16 @@ local function hud(w,h)
     lg.setLineWidth(1)
     lg.rectangle("line",30,bottom-8,w-60,79,9,9)
     Theme.glowLine(lg,39,bottom-6,170,bottom-6,colors.gold,1.5,0.48)
-    text((match.controlMode=="auto" and "AUTO" or "MANUALE")..
-        "  /  ASTA "..match.selected.."  /  "..r.kind.."  /  rotazione "..angle.." gradi",
-        45,bottom,fonts.normal,colors.cream)
+    local status
+    if match.controlMode=="dual" then
+        local def=math.floor(match.rods[2].angle*180/math.pi+0.5)
+        status="DOPPIA  /  DIFESA 2 + ATTACCO 4  /  rot. D "..def.."  A "..angle
+    else
+        status=(match.controlMode=="auto" and "AUTO" or "MANUALE")..
+            "  /  ASTA "..match.selected.."  /  "..r.kind..
+            "  /  rotazione "..angle.." gradi"
+    end
+    text(status,45,bottom,fonts.normal,colors.cream)
     if r.stopPulse>0 then text("FINE CORSA",w-175,bottom,fonts.small,colors.gold)
     elseif match.autoRodNotice and match.autoRodNotice.expires>match.clock then
         text("ASTA "..match.autoRodNotice.rod.." SELEZIONATA",w-220,bottom,fonts.small,colors.gold)
@@ -286,7 +294,9 @@ local function hud(w,h)
             45,bottom+27,fonts.small,colors.gold)
     else
         text((ThreeD.active() and ThreeD.viewMode=="gameplay") and
-            "ORO = asta e punti di tiro   /   BIANCO = pallina e traiettoria" or
+            (match.controlMode=="dual" and
+            "ORO = Difesa + Attacco controllate insieme  /  BIANCO = pallina" or
+            "ORO = asta e punti di tiro   /   BIANCO = pallina e traiettoria") or
             (ThreeD.active() and "MODELLO 3D / GAMBE REALI" or
             "Bordo BIANCO = faccia di tiro   /   BLU: destra   /   ROSSO: sinistra"),
             45,bottom+27,fonts.small,colors.muted)
@@ -305,9 +315,9 @@ local function hud(w,h)
     end
     local shortcuts
     if w<1180 then
-        shortcuts="TAB: auto/manuale  1-4: asta  P/V: 2D/3D  F4: vista  F2: lato  F3: gira  Home: reset"
+        shortcuts="D: doppia  TAB: auto/manuale  1-4: asta  P/V: 2D/3D  F4: vista  F2: lato  F3: gira  Home: reset"
     else
-        shortcuts="TAB: auto/manuale  1-4/rotella: asta  P/V: 2D/3D  F4: Partita/Esposizione  F2: lato  F3: gira  PagSu/Giu: zoom  Home: reset"
+        shortcuts="D: doppia  TAB: auto/manuale  1-4/rotella: asta  P/V: 2D/3D  F4: vista  F2: lato  F3: gira  PgSu/Giu: zoom  Home: reset"
     end
     text(shortcuts.."  glow "..(Theme.glowEnabled and "ON" or "OFF"),
         39,h-38,fonts.small,colors.muted)
@@ -422,6 +432,8 @@ function love.keypressed(key,_,repeatKey)
         love.mouse.setRelativeMode(not love.mouse.getRelativeMode())
     elseif key=="tab" then
         match:toggleAutoRod()
+    elseif key=="d" then
+        match:toggleDualRod()
     elseif key=="c" then
         match:neutralRod()
     elseif key=="r" then
