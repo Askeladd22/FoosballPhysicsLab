@@ -5,7 +5,10 @@
 local ThreeD={
     loaded=false,enabled=false,error=nil,meshes={},canvas=nil,
     viewportHeight=0,viewportWidth=0,
-    source="local_assets/3d/",stride=28,axisHeight=(83.2-76.64)*(560/83.56)
+    source="local_assets/3d/",stride=28,
+    axisHeight=(83.2-76.64)*(560/83.56),
+    ballHeight=16.5,ballScale=0.68,
+    modelKind="private-original"
 }
 local ROLES={"goalkeeper","defence","midfield","attack"}
 local FORMAT={
@@ -91,6 +94,9 @@ function ThreeD.load(g,filesystem,dataAPI)
     ThreeD.loaded,ThreeD.enabled=false,false
     ThreeD.error=nil
     ThreeD.meshes={}
+    ThreeD.axisHeight=(83.2-76.64)*(560/83.56)
+    ThreeD.ballHeight,ThreeD.ballScale=16.5,0.68
+    ThreeD.modelKind="private-original"
     g=g or (love and love.graphics)
     filesystem=filesystem or (love and love.filesystem)
     dataAPI=dataAPI or (love and love.data)
@@ -98,6 +104,18 @@ function ThreeD.load(g,filesystem,dataAPI)
             filesystem.getInfo(ThreeD.assetPath("table"))) then
         ThreeD.error="Pacchetto 3D assente: local_assets/3d/"
         return false
+    end
+    -- CC BY 4.0 Sketchfab import: the player's rod bearings sit ~50 units
+    -- above its real field, and its generated ball is already radius 10.
+    -- The previous VERTX3D/OBJ mesh pack remains backwards compatible.
+    if filesystem.read then
+        local manifest=filesystem.read(ThreeD.source.."manifest.json")
+        if type(manifest)=="string" and
+            manifest:find("5f70863c2cf74e99ad084a493209dbac",1,true) then
+            ThreeD.axisHeight=50.0
+            ThreeD.ballHeight,ThreeD.ballScale=10.0,1.0
+            ThreeD.modelKind="cc-by-glb"
+        end
     end
     if not (g and g.newShader and g.newMesh and dataAPI and dataAPI.newByteData) then
         ThreeD.error="GPU / API LÖVE 11.5 per mesh 3D non disponibili"
@@ -129,7 +147,8 @@ function ThreeD.load(g,filesystem,dataAPI)
         return false
     end
     ThreeD.loaded,ThreeD.enabled=true,true
-    print("Table Soccer TRUE 3D: 11 independent GPU meshes loaded.")
+    print("Table Soccer TRUE 3D: 11 independent GPU meshes loaded ("..
+        ThreeD.modelKind..").")
     return true
 end
 function ThreeD.active()
@@ -201,7 +220,7 @@ function ThreeD.draw(match,w,h)
     local b=match.ball
     -- The imported field's visible surface is at ~6.5 world Y. With a
     -- ~10-unit scaled mesh radius, 16.5 seats the real sphere on the field.
-    drawMesh(lg,shader,ThreeD.meshes.ball,b.x,16.5,b.y,0,0.68)
+    drawMesh(lg,shader,ThreeD.meshes.ball,b.x,ThreeD.ballHeight,b.y,0,ThreeD.ballScale)
     lg.setShader()
     lg.setDepthMode()
     lg.setCanvas()
