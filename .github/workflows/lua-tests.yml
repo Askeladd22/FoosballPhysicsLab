@@ -88,3 +88,22 @@ jobs:
         run: python -m pip install -q 'trimesh>=4,<5' numpy
       - name: Real 103-component GLB structure and license gates
         run: python tools/test_foosball_glb_ccby.py
+
+  native-ccby-table-smoke:
+    name: True 3D / real CC BY GLB / visible pixels
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install native LÖVE and virtual GPU
+        run: sudo apt-get update && sudo apt-get install -y love xvfb libgl1-mesa-dri
+      - name: Convert the actual versioned CC BY 4.0 model to independent GPU rigs
+        run: |
+          test -f assets/models/foosball_table.glb
+          python -m pip install -q 'trimesh>=4,<5' numpy
+          python tools/import_foosball_glb_ccby.py assets/models/foosball_table.glb --output local_assets/3d
+      - name: Verify real model renders VISIBLE pixels at runtime
+        run: |
+          env SDL_AUDIODRIVER=dummy LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a timeout 90s love . --frames=12 --require-3d --verify-3d-pixels
