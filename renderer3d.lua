@@ -108,7 +108,8 @@ function ThreeD.load(g,filesystem,dataAPI)
     -- CC BY 4.0 Sketchfab import: the player's rod bearings sit ~50 units
     -- above its real field, and its generated ball is already radius 10.
     -- The previous VERTX3D/OBJ mesh pack remains backwards compatible.
-    if filesystem.read then
+    if filesystem.read and filesystem.getInfo and
+        filesystem.getInfo(ThreeD.source.."manifest.json") then
         local manifest=filesystem.read(ThreeD.source.."manifest.json")
         if type(manifest)=="string" and
             manifest:find("5f70863c2cf74e99ad084a493209dbac",1,true) then
