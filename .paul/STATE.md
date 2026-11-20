@@ -50,3 +50,9 @@ Branch `feat/true-3d-table-soccer-runtime`. L'utente ha scartato esplicitamente 
 **Implementation:** The CC BY real 3D tabletop now defaults to a farther/elevated view from the opposite long edge. The eye is adapted to viewport aspect; F2 flips the side, PageUp/PageDown zoom, Home resets. Same GPU shader/CPU camera basis. Physics, mouse rods, 3D GLB and frozen NEON11 not changed.
 **Verification:** [GitHub Actions run #44731794359](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44731794359) **7/7 PASS**, including native rendering with the actual CC BY GLB (169/255 visible framebuffer pixel probes), synthetic mesh smoke, camera geometry tests and both Lua Foosball/NEON11 suites.
 **Not verified:** real screenshot with this exact new camera on user's Windows PC and human readability/feel. [PLAN](phases/27-camera-fix/27-01-PLAN.md) · [UNIFY](phases/27-camera-fix/27-01-SUMMARY.md).
+
+## Phase 28 — Whole-world 180° 3D rotation (2026-11-20)
+**Branch:** `fix/foosball-rotate-world-180`; new draft PR covers this change, independent of previously merged camera and model work.
+**Change:** actual Table Soccer GPU geometry rotated **180° about world Y** centered at (500,280) in X/Z space. The ball, all eight rods, field, table, lighting normals and CPU selected-rod marker use the same transform. Source mesh buffers and the fixed-step physical game are not rotated or overwritten. **F3** toggles 180°/0°, **F2** still flips camera, **Home** resets camera and 180°.
+**SEED:** no g3d dependency; unnecessary, because the existing true-3D shader already supports a rigid world transform.
+**PAUL:** [PLAN](phases/28-world-rotation/28-01-PLAN.md); UNIFY follows CI results. **Native user screenshot/playtest NOT_RUN**.

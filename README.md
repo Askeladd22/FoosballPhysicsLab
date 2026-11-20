@@ -1,3 +1,31 @@
+## Correzione orientamento: modello 3D ruotato di 180° (PAUL 28)
+
+Il modello completo — **tavolo, campo, otto aste e pallina** — è ora ruotato
+**di 180° attorno all'asse verticale Y**, al centro del biliardino.
+È una rotazione rigida delle **vere mesh 3D**, non una rotazione della sola
+camera e non un'inversione della fisica. Il gioco resta alla risoluzione
+dell'originale, con collisioni, IA e mouse immutati.
+
+**Nuovo tasto F3:** alterna orientamento 180° (default richiesto) e
+orientamento originale 0° per confrontarli nella stessa partita.
+**F2:** cambia *solo la camera*, non il tavolo. **Home** ripristina
+camera e orientamento del tavolo a 180°. L'indicatore di selezione
+viene proiettato attraverso la stessa trasformazione delle mesh, quindi
+non rimane scollegato dalle aste.
+
+Il renderer esistente basato su `love.graphics.newMesh` e shader GPU
+supporta questa rotazione senza aggiungere g3d: introdurre un secondo
+framework non risolverebbe il problema dell'orientamento e creerebbe
+due pipeline geometriche difficili da mantenere. La visuale 2D
+procedurale resta disponibile con P/V, invariata.
+
+*Game Design Lab:* il flip intorno a Y è verificabile nel codice, ma
+solo un nuovo screenshot può confermare se elimina anche la sponda
+che copriva il campo. Se la sponda continua a ostruire, occorrerà
+intervenire separatamente su altezza/angolo di ripresa, non sulla fisica.
+
+---
+
 ## Fase 27 — camera 3D corretta (2026-11-20)
 
 La precedente visuale era ripresa dal lato non desiderato, troppo vicina al campo:

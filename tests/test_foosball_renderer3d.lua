@@ -102,5 +102,18 @@ assert(math.abs(rodTranslations[11][1]-match.ball.x)<0.001 and
 local px,py=ThreeD.project(500,15,280,1280,850)
 assert(px>100 and px<1180 and py>0 and py<850,
        "camera projected game center off-screen")
+-- A/B compare real 180° world rotation and unrotated source geometry.
+fake.sends={}
+assert(ThreeD.toggleSceneYaw()==0)
+assert(ThreeD.draw(match,1280,850))
+local sawIdentity=false
+for _,sent in ipairs(fake.sends) do
+    if sent[1]=="uWorldOrientation" then
+        assert(sent[2]==1,"0-degree source must send identity scene yaw")
+        sawIdentity=true
+    end
+end
+assert(sawIdentity,"renderer failed to send orientation after F3")
+assert(ThreeD.resetSceneYaw()==180)
 love=oldLove
-print("PASS: real GPU mesh contract, 8 moving 3D rods, ball, depth and perspective")
+print("PASS: GPU source/oriented world toggles, 8 moving rigs, ball, depth and perspective")
