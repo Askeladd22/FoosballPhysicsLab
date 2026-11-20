@@ -330,15 +330,18 @@ local function stepBall(s,dt)
     if inGoal and b.x<-b.r then s:goal(2) end
     if inGoal and b.x>W+b.r then s:goal(1) end
 end
-local DEAD_BALL_SPEED=6
 local DEAD_BALL_SECONDS=2.0
 M.DEAD_BALL_SECONDS=DEAD_BALL_SECONDS
 
 local function updateDeadBall(s,dt)
     local b=s.ball
     local inside=b.x>=b.r and b.x<=W-b.r and b.y>=b.r and b.y<=H-b.r
-    local slow=b.vx*b.vx+b.vy*b.vy<DEAD_BALL_SPEED*DEAD_BALL_SPEED
-    if inside and slow and not M.isBallReachable(s) then
+    -- Reachability, not instantaneous speed, determines a trapped ball.
+    -- A ball can ricochet vertically between the cushions indefinitely while
+    -- staying in an X corridor that no foot can enter. That is still dead ball.
+    -- A normal horizontal pass exits the unreachable corridor before timeout,
+    -- at which point its countdown resets without interrupting play.
+    if inside and not M.isBallReachable(s) then
         s.deadBallTimer=s.deadBallTimer+dt
         if s.deadBallTimer>=DEAD_BALL_SECONDS then
             s:recoverDeadBall()

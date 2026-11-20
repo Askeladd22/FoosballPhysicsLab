@@ -2,7 +2,7 @@
 project: Foosball Lab
 project_type: custom/game-development
 status: implementing
-plan_version: phase22-directory-split
+plan_version: phase32-unreachable-ball-recovery
 last_updated: 2026-11-20
 ---
 
@@ -79,3 +79,11 @@ Dieci tiri intenzionali in AUTO, tre in MANUALE, tre blocchi di palla morta e co
 **DECIDED:** two separate 3D cameras: GAMEPLAY as default on full field; SHOWCASE unchanged for the full four-leg table; F4 switch without gameplay reset; Home to GAMEPLAY. Project highlighted human rod shaft, all selected physical feet directly from `Model.foot`, ball and short velocity cue from `match.ball`; maintain original GLB and 2D simulation.
 **VERIFIED:** [7/7 CI](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44761457020) on Foosball/NEON11 Lua5.4+LuaJIT and two real GPU GLB modes; SHOWCASE 4/4 legs and 56/255 scene probes, GAMEPLAY 207/255 scene probes, green 74/99.
 **UNVERIFIED:** perceived player silhouette and foot impact clarity on the actual Windows display and 10-shot human outcome. Do not call the game finished until UAT.
+
+## SEED Phase 32 — Physics: unreachable vertical ricochet
+**OBSERVED:** `model.lua` originally gated dead-ball recovery on the *total* ball velocity falling below 6, even in X corridors where no shoe can ever contact the ball. Persistent vertical ricochets can keep the ball unplayable without ever triggering the timer.
+**DECIDED:** use two seconds of uninterrupted **geometric non-reachability** as the condition; a horizontal escape resets the timer at the first reachable step, not merely because it gained speed.
+**DECIDED:** preserve the neutral re-serve team alternation, 120 Hz simulation, physical rod contacts and 3D presentation unchanged. No forced artificial ball impulses or extra buttons.
+**VERIFIED:** [7/7 CI jobs](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44766380466), including new bouncing/escape tests and existing score/false-deadball regressions; frozen NEON11 untouched.
+**ASSUMED:** the existing two-second house rule is a good player-facing compromise.
+**UNVERIFIED / NEXT:** Windows playtest to assess perceived fairness when vertically ricocheting and when shooting across the midfield corridor.
