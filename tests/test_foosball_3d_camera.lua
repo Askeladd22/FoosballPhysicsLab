@@ -13,6 +13,11 @@ local physical=Model.new()
 local ballX,ballY=physical.ball.x,physical.ball.y
 local score1,score2=physical.score[1],physical.score[2]
 ThreeD.resetCamera()
+-- This legacy test checks the CAMERA direction relative to unrotated source
+-- coordinates. The new default is a separate 180° MODEL rotation: test the
+-- source reference here, while test_foosball_world_yaw.lua covers the actual
+-- rotated game and its selection-marker projection.
+ThreeD.setSceneYaw(0)
 assert(ThreeD.cameraSide=="front" and close(ThreeD.cameraDistance,1))
 assert(close(ThreeD.fovDegrees,42),"default camera fov unexpectedly changed")
 for _,window in ipairs(windows) do
@@ -65,4 +70,6 @@ assert(ThreeD.cameraSide=="front" and close(ThreeD.cameraDistance,1),
 assert(physical.ball.x==ballX and physical.ball.y==ballY and
     physical.score[1]==score1 and physical.score[2]==score2,
     "camera changes altered gameplay")
+ThreeD.resetSceneYaw()
+assert(ThreeD.sceneYaw==180,"world yaw default was not restored")
 print("PASS: opposite default view, full board visibility in 4 resolutions, reversible camera and zoom")
