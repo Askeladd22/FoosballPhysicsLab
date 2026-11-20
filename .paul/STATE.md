@@ -1,25 +1,25 @@
 # PAUL State — FoosballPhysicsLab
 
-**Active:** Foosball Lab directly in root, Neon Glass / optional private Table Soccer 2.5D sprites.
+**Active:** Foosball Lab in root, real CC BY GLB true 3D as default, Neon Glass 2D fallback.
 **Frozen:** NEON 11 with full source, test and documentation in `legacy/neon11/`.
-**Current phase:** 32 — unreachable-ball recovery between rods.
-**Branch:** `fix/foosball-unreachable-ball-recovery`, [draft PR #30](https://github.com/Askeladd22/FoosballPhysicsLab/pull/30).
-**Status:** `VERIFIED_AUTOMATED / UAT_NOT_RUN`; seven of seven CI jobs passed for phase 32, native Windows mouse playtest still open.
+**Current phase:** 33 — AUTO microgesture protection for high-polling mouse events.
+**Branch:** `fix/foosball-auto-mouse-microgestures`, [draft PR #31](https://github.com/Askeladd22/FoosballPhysicsLab/pull/31).
+**Status:** `VERIFIED_AUTOMATED / UAT_NOT_RUN`; phase 33 passed 7/7 CI, native Windows mouse playtest pending.
 **Date:** 2026-11-20.
 
 ## SEED decisions
 - Keep the original 2D ball, collision and 120 Hz fixed outer simulation.
 - Human-only input rods use bounded, low-latency target-following; AI's slower spring unchanged.
 - AUTO recognizes sustained small mouse movements as a gesture; TAB manual lock remains.
-- Display original Table Soccer as **local pre-rendered 2.5D sprites** only, not 3D meshes: avoid ghost double pose, increase table visibility, preserve selected physical strike edge. 25-frame local re-bake available; 9-frame pack compatible.
-- User-provided Table Soccer material and derived images stay outside GitHub due redistribution restriction.
+- Current true 3D runtime renders the CC BY GLB table and real rigged feet; the flat 2D fallback remains available. Earlier 2.5D sprite experiments are historical, not the present default.
+- Proprietary Table Soccer content stays outside GitHub; the openly licensed CC BY GLB model is versioned with its required attribution.
 - No additional career, rankings, multiplayer, 11vs11 gameplay or Project Folio changes.
 
 ## Evidence
-[PLAN phase 32](phases/32-unreachable-ball-recovery/32-01-PLAN.md) · [UNIFY phase 32](phases/32-unreachable-ball-recovery/32-01-SUMMARY.md) · [CI 44766380466](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44766380466) 7/7 PASS. Native mouse feel not verified.
+[PLAN phase 33](phases/33-auto-microgestures/33-01-PLAN.md) · [UNIFY phase 33](phases/33-auto-microgestures/33-01-SUMMARY.md) · [CI 44772526612](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44772526612) 7/7 PASS. Native mouse feel not verified.
 
 ## Next single action
-Native Windows playtest: reproduce an unreachable vertical ricochet between rods, verify the two-second neutral restart, then try ten ordinary passes with no spurious re-serve.
+Native Windows playtest: make ten deliberate gentle mouse swipes near AUTO rod handoffs, then test ten idle/jitter intervals; report any missed or unexpected rod switch.
 
 
 ## Phase 24 — Oblique 2.5D camera and physical shoe linkage
@@ -89,3 +89,11 @@ The **whole world** yaw is now 180° about upright Y, rigidly rotating the actua
 **Proof:** [run 44766380466](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44766380466) **7/7 PASS**, including targeted ricochet, horizontal-escape regressions, Lua5.4/LuaJIT, legacy NEON11 and actual 3D GLB smoke.
 **UAT:** NOT_RUN; mouse feel and timing fairness require human testing on Windows.
 [PLAN](phases/32-unreachable-ball-recovery/32-01-PLAN.md) · [SUMMARY](phases/32-unreachable-ball-recovery/32-01-SUMMARY.md).
+
+### PAUL phase 33 — microgesture AUTO protection (2026-11-20)
+**Branch:** `fix/foosball-auto-mouse-microgestures` · [draft PR #31](https://github.com/Askeladd22/FoosballPhysicsLab/pull/31), not merged to main.
+**Defect:** old single-callback mouse delta >=3px gate ignored rapid consecutive 1px mouse events and allowed AUTO rod changes mid-stroke.
+**Fix:** aggregate a maximum 3px within 60ms between events, reuse 200ms hold and clear history when resetting or toggling AUTO/MANUALE.
+**Automated proof:** [7/7 GitHub Actions PASS](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44772526612), actual CC BY GLB native GPU plus Lua Foosball/NEON11. 
+**Still unknown:** real Windows mouse polling and perceived fairness; UAT NOT_RUN.
+[PLAN](phases/33-auto-microgestures/33-01-PLAN.md) · [UNIFY](phases/33-auto-microgestures/33-01-SUMMARY.md).
