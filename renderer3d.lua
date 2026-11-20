@@ -164,9 +164,9 @@ function ThreeD.cameraBasis(w,h)
         -- Calibrated for 900x650..1920x1080, preserving real perspective.
         -- Do not rotate/scale the mesh or change the game physics.
         target={500,10,280}
-        eye={target[1]-250*distance,
-             target[2]+1220*distance,
-             target[3]+side*860*distance}
+        eye={target[1]-100*distance,
+             target[2]+1060*distance,
+             target[3]+side*780*distance}
     end
     local fx,fy,fz=norm(target[1]-eye[1],target[2]-eye[2],target[3]-eye[3])
     local rx,ry,rz=norm(cross(fx,fy,fz,0,1,0))
