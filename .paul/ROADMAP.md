@@ -46,5 +46,5 @@
 - [x] Accelerazione dolce dentro la zona inclinata, senza impulso scriptato; ball wake-up anche a velocità iniziale zero.
 - [x] Pavimentazione visibile in 2D Neon Glass e vera mesh di rampe procedurali nel renderer 3D; palla alzata sulla pendenza.
 - [x] Nuove regressioni per gli angoli, sponde, porte, geometria 3D, determinismo e rendering; Lua 5.4/LuaJIT PASS su [run 44777414138](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44777414138).
-- [ ] Evidenza finale 7/7 GitHub Actions (in corso all'ultimo controllo).
+- [x] [GitHub Actions 44777414138](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44777414138) **7/7 PASS** sul commit di codice `08e0f032`, incluso il vero modello GLB CC BY.
 - [ ] UAT Windows: gioco con mouse, rampe/porte visivamente allineate e tiri di sponda non eccessivamente deviati.
