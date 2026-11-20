@@ -77,9 +77,9 @@ for i,send in ipairs(fake.sends) do
     end
 end
 assert(#rodTranslations==11,"rig transform not sent for every 3D mesh")
-assert(math.abs(rodTranslations[7][1]-match.rods[4].x)<0.001,
+assert(math.abs(rodTranslations[6][1]-match.rods[4].x)<0.001,
        "attacker x must follow 2D collision rod origin")
-assert(math.abs(rodTranslations[7][3]-(280+match.rods[4].slide))<0.001,
+assert(math.abs(rodTranslations[6][3]-(280+match.rods[4].slide))<0.001,
        "attacker slide not reflected in 3D position")
 assert(math.abs(rodTranslations[11][1]-match.ball.x)<0.001 and
        math.abs(rodTranslations[11][3]-match.ball.y)<0.001,
