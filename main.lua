@@ -17,11 +17,14 @@ local Model=require("model")
 local Layout=require("layout")
 local Camera=require("camera")
 local Theme=require("theme")
-local MeshArt=require("mesh_art")
+local MeshArt=require("mesh_art") -- retained only for optional old experiments
+local ThreeD=require("renderer3d")
 local lg=love.graphics
 local match
 local accumulator=0
 local STEP=1/120
+local frameLimit=nil
+local frameCount=0
 local debugDraw=false
 local fonts={}
 local colors=Theme.colors
@@ -243,8 +246,9 @@ end
 local function hud(w,h)
     local r=match.rods[match.selected]
     text("FOOSBALL LAB",36,18,fonts.title,colors.cream)
-    text("NEON GLASS / "..(MeshArt.active() and "TABLE SOCCER - SPRITE 2.5D" or "PROCEDURALE")..
-        " / CAMERA "..(Camera.isOblique() and "RIALZATA" or "TOP-DOWN"),38,58,fonts.small,colors.human)
+    local display=ThreeD.active() and "TABLE SOCCER - MESH 3D REALI / PROSPETTIVA" or
+        (ThreeD.loaded and "FOOSBALL 2D / MODELLO 3D PAUSATO" or "FOOSBALL 2D / ASSET 3D ASSENTI")
+    text("NEON GLASS / "..display,38,58,fonts.small,colors.human)
     text("SU/GIU: scorri l'asta    SINISTRA/DESTRA: ruota e colpisci",
         38,81,fonts.small,colors.muted)
     local score=tostring(match.score[1]).."  :  "..tostring(match.score[2])
@@ -277,7 +281,9 @@ local function hud(w,h)
         text(string.format("PALLA IRRAGGIUNGIBILE - RIMESSA FRA %.1f s",remain),
             45,bottom+27,fonts.small,colors.gold)
     else
-        text("Bordo BIANCO = faccia di tiro   /   BLU: destra   /   ROSSO: sinistra",
+        text(ThreeD.active() and
+            "GEOMETRIA 3D REALE: 8 ASTE MOBILI / PALLA FISICA 2D" or
+            "Bordo BIANCO = faccia di tiro   /   BLU: destra   /   ROSSO: sinistra",
             45,bottom+27,fonts.small,colors.muted)
     end
     local captured=love.mouse.getRelativeMode()
@@ -286,9 +292,8 @@ local function hud(w,h)
     -- In the screenshot the pointer was still free: bright guidance explains
     -- why rotation stops when the OS cursor reaches the window edge.
     text(help,45,bottom+52,fonts.small,colors.gold)
-    text("TAB: AUTO/MANUALE   1-4/rotella: asta   V: 2.5D "..
-        (MeshArt.loaded and (MeshArt.active() and "ON" or "OFF") or "N/D")..
-        "   P: CAMERA   G: glow "..(Theme.glowEnabled and "ON" or "OFF").."   R: reset",
+    text("TAB: AUTO/MANUALE  1-4/rotella: asta  P/V: 3D / 2D  G: glow "..
+        (Theme.glowEnabled and "ON" or "OFF").."  R: reset",
         39,h-38,fonts.small,colors.muted)
     if match.phase=="goal" or match.phase=="finished" then
         local message=match.phase=="finished" and
@@ -308,8 +313,22 @@ function love.load()
     fonts.normal=lg.newFont(17)
     fonts.small=lg.newFont(14)
     match=Model.new()
-    MeshArt.load()
-    love.window.setTitle("FOOSBALL LAB | Neon Glass")
+    -- The real 3D OBJ rigs replace all former sprite-based 2.5D illustrations.
+    -- Source/converted third-party meshes stay private in local_assets/3d.
+    Camera.setMode("topdown")
+    local real3d=ThreeD.load()
+    if not real3d then
+        print("Foosball 3D unavailable: "..tostring(ThreeD.error))
+    end
+    for _,value in pairs(rawget(_G,"arg") or {}) do
+        local frames=tostring(value):match("^%-%-frames=(%d+)$")
+        if frames then frameLimit=tonumber(frames) end
+        if value=="--require-3d" then
+            assert(real3d,"Expected true 3D renderer: "..tostring(ThreeD.error))
+        end
+    end
+    love.window.setTitle(real3d and
+        "FOOSBALL LAB | Table Soccer TRUE 3D" or "FOOSBALL LAB | 2D fallback")
 end
 function love.update(dt)
     accumulator=accumulator+math.min(dt,0.08)
@@ -320,19 +339,33 @@ function love.update(dt)
         n=n+1
     end
     if n==12 then accumulator=0 end
+    if frameLimit then
+        frameCount=frameCount+1
+        if frameCount>=frameLimit and love.event and love.event.quit then
+            print("PASS: native LÖVE "..(ThreeD.active() and "TRUE 3D" or "2D")..
+                " frame smoke ("..frameCount.." frames)")
+            love.event.quit(0)
+        end
+    end
 end
 function love.draw()
     local ox,oy,scale,w,h=transform()
     lg.clear(colors.background[1],colors.background[2],colors.background[3])
     Theme.drawBackdrop(lg,w,h)
-    lg.push()
-    lg.translate(ox,oy)
-    lg.scale(scale)
-    Camera.apply(lg)
-    pitch()
-    rods()
-    drawBall()
-    lg.pop()
+    if ThreeD.active() then
+        -- TRUE GPU vertex meshes, depth buffer, perspective shader.
+        -- Never superimpose old pre-rendered 2.5D sprites in this mode.
+        ThreeD.draw(match,w,h)
+    else
+        lg.push()
+        lg.translate(ox,oy)
+        lg.scale(scale)
+        Camera.apply(lg)
+        pitch()
+        rods()
+        drawBall()
+        lg.pop()
+    end
     hud(w,h)
 end
 function love.mousemoved(_,_,dx,dy)
@@ -363,10 +396,10 @@ function love.keypressed(key,_,repeatKey)
         debugDraw=not debugDraw
     elseif key=="g" then
         Theme.glowEnabled=not Theme.glowEnabled
-    elseif key=="v" then
-        MeshArt.toggle()
-    elseif key=="p" then
-        Camera.toggle()
+    elseif key=="v" or key=="p" then
+        -- A/B test: original geometry in perspective vs honest flat 2D.
+        -- Camera/rig selection never resets simulation or scores.
+        ThreeD.toggle()
     elseif key=="-" or key=="kp-" then
         match.mouseSensitivity.angle=math.max(0.007,match.mouseSensitivity.angle-0.002)
     elseif key=="=" or key=="+" or key=="kp+" then

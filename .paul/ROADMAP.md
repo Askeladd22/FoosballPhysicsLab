@@ -12,3 +12,11 @@
 - [ ] Test visivo 2.5D/procedurale e frame time Windows.
 
 **Esclusi:** carriera, ranking, multiplayer e nuove tattiche 11vs11. Storico PAUL nel legacy.
+
+
+## Fase 25 — 3D vero
+- [x] Importer locale OBJ → 11 buffer GPU con materiale per componente e normali.
+- [x] Renderer prospettico LÖVE, depth buffer e aste 3D mobili guidate dalla fisica 2D.
+- [x] Fallback procedurale 2D e commutazione P/V senza reset.
+- [ ] Confermare avvio LÖVE nativo con modello originale, FPS e allineamento piedi/collider.
+- [ ] Eventuale integrazione delle texture originali e affinamento pivot solo dopo playtest.

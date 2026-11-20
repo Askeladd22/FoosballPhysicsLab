@@ -52,14 +52,16 @@ for _,s in ipairs(drawing) do
     if s:find("NEON GLASS",1,true) then glassLabel=true end
 end
 assert(glassLabel,"new glass-theme HUD label not found")
--- New camera is reversible without touching the physical simulation.
+-- Without private 3D files, the honest procedural 2D view remains usable.
 local Camera=require("camera")
-assert(Camera.isOblique(),"elevated view should be primary")
+local ThreeD=require("renderer3d")
+assert(Camera.mode=="topdown","fallback should not skew the top-down game")
+assert(not ThreeD.active(),"no privately installed model exists in headless test")
 love.keypressed("p",nil,false)
-assert(Camera.mode=="topdown")
+assert(not ThreeD.active(),"P cannot invent a missing third-party 3D model")
 love.draw()
 love.keypressed("p",nil,false)
-assert(Camera.isOblique())
+assert(Camera.mode=="topdown")
 love.keypressed("g",nil,false)
 local before=glowCalls
 drawing={}
