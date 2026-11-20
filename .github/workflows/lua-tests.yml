@@ -1,103 +1,63 @@
-name: Foosball Lab | Lua + frozen 11vs11 regressions
+name: Foosball root / frozen NEON11
 on:
   push:
     branches: [main]
   pull_request:
 jobs:
-  syntax-and-simulation:
+  foosball:
+    name: Foosball (LUA)
     runs-on: ubuntu-latest
     strategy:
       matrix:
         lua: [lua5.4, luajit]
     steps:
       - uses: actions/checkout@v4
-      - name: Install Lua and the LÖVE-compatible LuaJIT runtime
+      - name: Install Lua
         run: sudo apt-get update && sudo apt-get install -y lua5.4 luajit
-      - name: Syntax check
-        run: for source in main.lua conf.lua legacy/neon11/main.lua experiments/foosball/*.lua src/*.lua tests/test_*.lua; do luac5.4 -p "$source" || exit 1; done
-      - name: Safe GLB/STEP metadata parsing (no model redistribution)
-        run: python3 tools/inspect_foosball_models.py --self-test
-      - name: Root Foosball / legacy 11vs11 launcher
-        run: ${{ matrix.lua }} tests/test_project_boot.lua
-      - name: Headless match tests
-        run: ${{ matrix.lua }} tests/test_sim.lua
-      - name: Whole-ball crossings and passing power
-        run: ${{ matrix.lua }} tests/test_boundary_passing.lua
-      - name: Reachable passes and physical receptions
-        run: ${{ matrix.lua }} tests/test_passing.lua
-      - name: Full matches as goalkeeper and midfielder
-        run: ${{ matrix.lua }} tests/test_match_passing.lua
-      - name: Tactical AI scenarios
-        run: ${{ matrix.lua }} tests/test_tactics.lua
-      - name: Contests and scoring opportunities
-        run: ${{ matrix.lua }} tests/test_gameplay_flow.lua
-      - name: Team outlets and replacement cover
-        run: ${{ matrix.lua }} tests/test_team_shape.lua
-      - name: Approach balls at the touchlines
-        run: ${{ matrix.lua }} tests/test_touchline_escape.lua
-      - name: Goal kicks and human goalkeeper
-        run: ${{ matrix.lua }} tests/test_goal_kicks.lua
-      - name: Eleven-a-side formation
-        run: ${{ matrix.lua }} tests/test_eleven.lua
-      - name: Sprint and release
-        run: ${{ matrix.lua }} tests/test_sprint.lua
-      - name: Football restarts and goal restrictions
-        run: ${{ matrix.lua }} tests/test_football_rules.lua
-      - name: Offside phases and exemptions
-        run: ${{ matrix.lua }} tests/test_offside.lua
-      - name: Five minute clock
-        run: ${{ matrix.lua }} tests/test_match_clock.lua
-      - name: Physical AI actions
-        run: ${{ matrix.lua }} tests/test_ai_match.lua
-      - name: Gameplay recovery input, physics, tactics
-        run: ${{ matrix.lua }} tests/test_gameplay_recovery.lua
-      - name: Corner routines and delivery
-        run: ${{ matrix.lua }} tests/test_corners.lua
-      - name: Tap pass and charged shot inputs
-        run: ${{ matrix.lua }} tests/test_space_actions.lua
-      - name: First touch and contested shielding
-        run: ${{ matrix.lua }} tests/test_ball_control.lua
-      - name: One-twos and overlapping runs
-        run: ${{ matrix.lua }} tests/test_dynamic_team.lua
-      - name: Role duties and zonal marking
-        run: ${{ matrix.lua }} tests/test_role_tactics.lua
-      - name: FM24 role vocabulary and duties
-        run: ${{ matrix.lua }} tests/test_football_roles.lua
-      - name: Tactical configuration and state preservation
-        run: ${{ matrix.lua }} tests/test_tactical_settings.lua
-      - name: Configured tactical behaviour
-        run: ${{ matrix.lua }} tests/test_tactical_behaviour.lua
-      - name: Automatic coach decisions and stable plans
-        run: ${{ matrix.lua }} tests/test_coach.lua
-      - name: Tactical panel through controller callbacks
-        run: ${{ matrix.lua }} tests/test_tactics_panel.lua
-      - name: Contextual action choices and pass memory
-        run: ${{ matrix.lua }} tests/test_ai_choices.lua
-      - name: Runner ball priority and short carrying touch
-        run: ${{ matrix.lua }} tests/test_runner_ball.lua
-      - name: Opponent-aware passing outlets
-        run: ${{ matrix.lua }} tests/test_support_space.lua
-      - name: Permanent goalkeeper and midfield roles
-        run: ${{ matrix.lua }} tests/test_roles.lua
-      - name: Prematch role selection through actual callbacks
-        run: ${{ matrix.lua }} tests/test_main_roles.lua
-      - name: Mocked 2D view smoke
-        run: ${{ matrix.lua }} tests/test_view.lua
-      - name: Foosball independent LÖVE modules syntax
-        run: for source in experiments/foosball/*.lua; do luac5.4 -p "$source" || exit 1; done
-      - name: Foosball mouse rods and ball physics
-        run: ${{ matrix.lua }} tests/test_foosball.lua
-      - name: Foosball unreachable dead ball recovery
-        run: ${{ matrix.lua }} tests/test_foosball_deadball.lua
-      - name: Foosball mocked LÖVE controls and view
-        run: ${{ matrix.lua }} tests/test_foosball_view.lua
-      - name: Foosball screen fit and pose consistency
-        run: ${{ matrix.lua }} tests/test_foosball_layout.lua
-      - name: Foosball neon glass palette and glow
-        run: ${{ matrix.lua }} tests/test_foosball_theme.lua
-      - name: Fast AUTO / MANUALE rod switching
-        run: ${{ matrix.lua }} tests/test_foosball_selector.lua
-      - name: Optional Table Soccer mesh rendering and safe fallback
-        run: ${{ matrix.lua }} tests/test_foosball_mesh_art.lua
-      - name: Original Table Soccer ZIP parser (synthetic fixture)
-        run: python3 tools/bake_table_soccer.py --self-test
+      - name: Foosball syntax
+        run: |
+          set -e
+          for f in main.lua conf.lua model.lua layout.lua theme.lua mesh_art.lua rod_selector.lua tests/test_foosball*.lua tests/test_project_boot.lua; do
+            luac5.4 -p "$f"
+          done
+      - name: Repository structure guard
+        run: python3 tests/test_repository_layout.py
+      - name: Offline model metadata tests
+        run: |
+          python3 tools/inspect_foosball_models.py --self-test
+          python3 tools/bake_table_soccer.py --self-test
+      - name: Foosball full headless suite
+        run: |
+          set -e
+          for t in tests/test_project_boot.lua tests/test_foosball*.lua; do
+            echo "::group::$t"
+            ${{ matrix.lua }} "$t"
+            echo "::endgroup::"
+          done
+
+  neon11-legacy:
+    name: Frozen NEON11 (LUA)
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        lua: [lua5.4, luajit]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Lua
+        run: sudo apt-get update && sudo apt-get install -y lua5.4 luajit
+      - name: Historic code syntax
+        run: |
+          set -e
+          cd legacy/neon11
+          for f in main.lua conf.lua src/*.lua tests/test_*.lua; do
+            luac5.4 -p "$f"
+          done
+      - name: Complete frozen 11vs11 regression suite
+        run: |
+          set -e
+          cd legacy/neon11
+          for t in tests/test_*.lua; do
+            echo "::group::$t"
+            ${{ matrix.lua }} "$t"
+            echo "::endgroup::"
+          done

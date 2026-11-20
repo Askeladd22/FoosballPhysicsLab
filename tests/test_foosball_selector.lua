@@ -1,7 +1,7 @@
 -- Contextual AUTO vs sticky manual selection. All rod impulses still come from mouse.
 package.path="./?.lua;./?/init.lua;"..package.path
-local M=require("experiments.foosball.model")
-local Selector=require("experiments.foosball.rod_selector")
+local M=require("model")
+local Selector=require("rod_selector")
 local s=M.new()
 local dt=1/120
 assert(s.selected==4 and s.controlMode=="auto","Foosball should default to AUTO attack")

@@ -2,8 +2,7 @@
 -- Physical dimensions are prototype pixels, not claims about tournament equipment.
 local M={}
 -- Native LÖVE sees foosball/ as its root; isolated root-based Lua tests do not.
-local found,RodSelector=pcall(require,"rod_selector")
-if not found then RodSelector=require("experiments.foosball.rod_selector") end
+local RodSelector=require("rod_selector")
 M.W,M.H=1000,560
 M.GOAL_HALF=94
 M.BALL_RADIUS=10

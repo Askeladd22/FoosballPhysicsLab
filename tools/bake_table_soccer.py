@@ -152,7 +152,7 @@ def main():
     parser.add_argument("archive",nargs="?",type=Path,
                         help="Your own original Table_Soccer.zip")
     parser.add_argument("--output",type=Path,
-                        default=Path("experiments/foosball/local_assets"))
+                        default=Path("local_assets"))
     parser.add_argument("--inspect-only",action="store_true")
     parser.add_argument("--self-test",action="store_true")
     args=parser.parse_args()

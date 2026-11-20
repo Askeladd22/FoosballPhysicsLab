@@ -1,22 +1,24 @@
-# PAUL State — Foosball Lab
+# PAUL State — FoosballPhysicsLab
 
-**Primary:** Foosball Lab (active, scoped single-player game).
-**Legacy:** NEON 11 / FootballPhysicsLab 11vs11 (FROZEN; not deleted).
-**Phase:** 20 — Foosball-first repository and supplied GLB/STEP audit.
-**Branch:** `feature/foosball-primary-project-pivot`.
-**Updated:** 2026-11-20
-**Status:** APPLY underway, UAT native LÖVE NOT_RUN.
+**Gioco attivo:** Foosball Lab direttamente nella root.
+**Gioco congelato:** NEON 11 (11vs11), isolato in `legacy/neon11/`.
+**Fase:** 22 — migrazione fisica delle cartelle.
+**Branch:** `refactor/foosball-root-neon11-legacy`.
+**Stato:** `DONE_WITH_CONCERNS` (codice e regressioni PASS; UAT Windows/LÖVE NOT_RUN).
+**Data:** 2026-11-20.
 
-Foosball launch: `love .`. Legacy launch: `love . --legacy`.
-NEON 11 historical record preserved: [legacy state](../legacy/neon11/PAUL-STATE.md); all earlier PAUL phase folders remain unchanged.
-This pivot does not modify `src/`, the Foosball physics model, or the user's other Project Folio repository.
+## Verifica
+[PLAN](phases/22-directory-split/22-01-PLAN.md) · [SUMMARY](phases/22-directory-split/22-01-SUMMARY.md).
 
-## Next gate
-Run all LuaJIT and Lua5.4 regression suites; play mouse-controlled Foosball natively before calling the new entry point validated. GLB/STEP assets remain reference-only until runtime/rights decisions.
+- `love .` avvia il vero gioco Foosball dalla root.
+- `love legacy/neon11` avvia NEON 11 da un progetto LÖVE indipendente; `love . --legacy` resta opzionale.
+- 16 moduli e 32 test storici spostati bitwise-identici, insieme alla texture e alla documentazione.
+- I moduli Foosball sono `main.lua`, `model.lua`, `layout.lua`, `theme.lua`, `mesh_art.lua`, `rod_selector.lua`.
+- Table Soccer: file privati 2.5D in `local_assets/`, ignorati da Git; baker local-only; nessuna redistribuzione.
+- [CI 44707375249](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44707375249): **4 job PASS** (Foosball + NEON11, Lua 5.4 + LuaJIT). Non sono stati dichiarati playtest umani.
 
+## Scopo SEED
+Focalizzarsi su fisica, mouse, IA avversaria semplice, leggibilità e sessioni brevi. Nessuna carriera, classifica, espansione 11vs11 o riapertura di Project Folio da questo repo.
 
-## Phase 21 — Table Soccer local visuals + contextual rod selector (2026-11-20)
-**Current branch:** `feature/table-soccer-local-mesh-and-auto-rod` (draft PR review).
-**Active:** default AUTO selects the best human rod as the ball changes X zones, with hysteresis/gesture hold; manual wheel/1-4 locks until TAB. 2.5D original model-derived sprites are generated **locally** with `tools/bake_table_soccer.py` from the user's own ZIP and never tracked by Git. V is A/B 2.5D/procedural. Physical collision 2D unchanged.
-**Rights:** VERTX3D original Readme forbids redistribution in whole/part; no 3D source or derived sprite shipped via public repo. **Frozen:** NEON 11, all original sources/tests preserved.
-**UAT:** native LÖVE and human feel NOT_RUN. See [PAUL 21 plan](phases/21-table-soccer/21-01-PLAN.md).
+## Unica prossima azione
+Avviare `love .` e `love legacy/neon11` sul PC Windows e verificare i controlli del biliardino durante dieci tiri.

@@ -1,6 +1,6 @@
 -- Optional 3D sprite renderer: all-or-nothing loads and safe fallback.
 package.path="./?.lua;./?/init.lua;"..package.path
-local Art=require("experiments.foosball.mesh_art")
+local Art=require("mesh_art")
 local fake={images={},draws=0,colors=0}
 love={graphics={
   newImage=function(path)
@@ -12,7 +12,7 @@ love={graphics={
 },filesystem={getInfo=function() return nil end}}
 assert(not Art.load() and not Art.active(),"missing local renders must be optional")
 assert(not Art.drawTable(love.graphics) and not Art.drawRod(love.graphics,{angle=0,x=100,slide=0},1))
-local prefix="experiments/foosball/local_assets/"
+local prefix="local_assets/"
 love.filesystem.getInfo=function(path)
   if path:sub(1,#prefix)==prefix then return {type="file"} end
 end

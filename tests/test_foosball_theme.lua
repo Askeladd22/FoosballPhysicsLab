@@ -1,7 +1,7 @@
 -- PAUL18 visual-only quality gate (does not replace native screenshot/UAT).
 package.path="./?.lua;./?/init.lua;"..package.path
-local Theme=require("experiments.foosball.theme")
-local Model=require("experiments.foosball.model")
+local Theme=require("theme")
+local Model=require("model")
 local c=Theme.colors
 local function luminance(color)
     return color[1]*0.2126+color[2]*0.7152+color[3]*0.0722

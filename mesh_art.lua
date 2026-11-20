@@ -19,7 +19,7 @@ function Art.load()
     Art.rodFrames={}
     Art.tableImage=nil
     local prefix=nil
-    for _,candidate in ipairs({"experiments/foosball/local_assets/","local_assets/"}) do
+    for _,candidate in ipairs({"local_assets/","experiments/foosball/local_assets/"}) do
         if exists(candidate.."manifest.json") then prefix=candidate;break end
     end
     if not prefix then return false end

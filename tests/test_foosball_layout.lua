@@ -1,7 +1,7 @@
 -- PAUL 17: UI occupies safe bands at the minimum and reference sizes.
 package.path="./?.lua;./?/init.lua;"..package.path
-local Layout=require("experiments.foosball.layout")
-local Model=require("experiments.foosball.model")
+local Layout=require("layout")
+local Model=require("model")
 for _,window in ipairs({{1280,850},{1279,881},{900,650},{1024,768}}) do
     local w,h=window[1],window[2]
     local b=Layout.bounds(w,h)

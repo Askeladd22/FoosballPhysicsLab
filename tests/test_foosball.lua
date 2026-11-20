@@ -1,6 +1,6 @@
 -- Pure-Lua checks for the independent foosball control/physics experiment.
 package.path="./?.lua;./?/init.lua;"..package.path
-local M=require("experiments.foosball.model")
+local M=require("model")
 local dt=1/120
 local function nearly(x,y) return math.abs(x-y)<1e-7 end
 local s=M.new()

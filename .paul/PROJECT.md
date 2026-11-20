@@ -1,20 +1,19 @@
-# Football Physics Lab — PAUL Project
+# FoosballPhysicsLab — PAUL Project
 
-**Type:** game development  
-**Core value:** Direct-control one-disc arcade football with tactical teammates and a later individual single-player career.
+**Tipo:** videogame single-player in LÖVE2D/Lua.
+**Core value:** controllo delle stecche tramite gesti del mouse e sfida contro un'IA semplice in partite brevi.
 
-## Non-negotiables
-- LÖVE2D / Lua; native desktop prototype.
-- Human controls exactly one disc throughout each match; no player-switching.
-- No multiplayer, magnetic possession or scripted dribbling.
-- Preserve the older physics lab for comparisons.
-- Use the uploaded Etrusco Unico ball reference for the experimental sprite only; review rights before distribution.
+## Vincoli
+- Movimento verticale = scorrimento, orizzontale = rotazione, colpo fisico.
+- Geometria collisioni 2D reale, senza magnetismo o tiri scriptati.
+- Sele­zione AUTO stabilizzata, alternativa MANUALE sticky.
+- Glow e pose 2.5D devono aiutare a leggere pallina e faccia di tiro.
+- Nessun asset derivato dalle mesh Table Soccer può essere distribuito senza licenza idonea.
+- Nessun nuovo sviluppo NEON 11: conservato in `legacy/neon11/` con test e vecchie fasi PAUL.
 
-## Architecture
-Root `main.lua` is the entry point. `src/sim.lua` implements deterministic world physics, `src/ai.lua` tactical decisions, `src/view.lua` rendering. `tests/test_sim.lua` contains headless assertions.
+## Architettura
+Root: `main.lua`, `model.lua`, `rod_selector.lua`, `theme.lua`, `mesh_art.lua`, `layout.lua`; test `tests/test_foosball*.lua`.
+NEON 11: `legacy/neon11/main.lua`, `legacy/neon11/src/`, `legacy/neon11/tests/`.
 
-## Quality gates
-- Syntax check and headless Lua checks.
-- Manual LÖVE playtests of collision/goal/controls.
-- Verify stable single-disc control and actual agency without the ball.
-- No phase considered complete without relevant evidence.
+## Gates
+Suite distinte Lua 5.4 e LuaJIT, avvio LÖVE nativo, playtest delle aste e della grafica; la CI non dimostra divertimento.
