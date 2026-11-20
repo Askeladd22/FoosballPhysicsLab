@@ -27,8 +27,8 @@ function Layout.bounds(w,h)
         boardTop=oy+minY*scale,
         boardBottom=oy+maxY*scale,
         headerTextBottom=111,
-        footerInfoStart=oy+(H+FRAME)*scale+17,
-        footerInfoEnd=oy+(H+FRAME)*scale+84,
+        footerInfoStart=oy+maxY*scale+17,
+        footerInfoEnd=oy+maxY*scale+84,
         helpLineTop=h-40
     }
 end
