@@ -2,7 +2,7 @@
 project: Foosball Lab
 project_type: custom/game-development
 status: implementing
-plan_version: phase35-gameplay-camera-composition
+plan_version: phase36-front-long-side-photo-camera
 last_updated: 2026-11-20
 ---
 
@@ -112,3 +112,13 @@ Dieci tiri intenzionali in AUTO, tre in MANUALE, tre blocchi di palla morta e co
 **ASSUMED / OPEN:** screenshot reference test guarantees projected placement, not subjective texture lighting, readability on the user's GPU or ease of mouse control. Native Windows human screenshot and ten-shot input UAT still needed.
 **OUT OF SCOPE:** modifications to physics, ramps, ball hitboxes, lighting, 3D asset mesh, AI, or frozen NEON11.
 **NEXT:** build [PR #33](https://github.com/Askeladd22/FoosballPhysicsLab/pull/33) and compare a 1271×874 native LÖVE screenshot against the user's supplied image; preserve composition when tuning aesthetics later.
+
+## SEED phase 36 — Frontal long-rail camera / actual photographed table
+**OBSERVED:** user complained the implementation did not change the view. Repository PR #33 was merged and preserved the exact diagonal view visible in their new screenshot. The earlier user-provided commercial foosball photo (not their old game screenshot) is the intended camera reference: centered on the LONG side, level rails, both goals, complete cabinet with legs.
+**DECIDED:** real new GAMEPLAY camera `target={500,-200,280}`, `eye=(500,900,280±915)` at zoom100%, **43° FOV**, 50.2° elevation, level X axis. This moves camera X to the centre and framing down to show y=-740 legs. SHOWCASE F4 retains its original camera/FOV35.
+**OBSERVED PROOF:** [GitHub Actions #44789804738](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44789804738): initial implementation **7/7 PASS**. Actual CC BY 4.0 model LÖVE framebuffer green samples 62/99 in GAMEPLAY, legs **4/4**, and both photos are captured in [artifact #14655132976](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44789804738/artifacts/14655132976). Subsequently strengthened GAMEPLAY pitch coverage gate to >=55% green (separate CI to confirm).
+**DECIDED / QA:** replace old screenshot-locking tests with observable physical reference invariants: level long rails, centred target, four legs inside viewport at five window sizes / two sides / yaw0/180, and GPU-CPU FOV alignment. These checks cannot establish *perceived* control or whether the user prefers a larger pitch; only a human A/B can.
+**ASSUMED:** camera matches the perspective and proportions of the photo sufficiently despite different model assets/colors. Do not claim exact visual reproduction of another manufacturer's model.
+**OPEN:** native Windows screenshot at actual display scaling, 10 aimed shots with mouse, evaluation of whether smaller ball needs UI enhancement. No changes to scoring, inputs, ball physics, ramps, AI or frozen NEON11.
+**TRAIL OF BITS scope:** C++ Review not applicable to Lua camera; used spec-compliance audit rather than inventing C++ defects.
+**NEXT:** compare genuine new GAMEPLAY screenshot from CI/Windows to user's commercial photo, then merge PR #34 only after human review.
