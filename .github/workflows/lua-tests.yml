@@ -17,7 +17,7 @@ jobs:
       - name: Foosball syntax
         run: |
           set -e
-          for f in main.lua conf.lua model.lua layout.lua theme.lua mesh_art.lua rod_selector.lua tests/test_foosball*.lua tests/test_project_boot.lua; do
+          for f in main.lua conf.lua camera.lua model.lua layout.lua theme.lua mesh_art.lua rod_selector.lua tests/test_foosball*.lua tests/test_project_boot.lua; do
             luac5.4 -p "$f"
           done
       - name: Repository structure guard
