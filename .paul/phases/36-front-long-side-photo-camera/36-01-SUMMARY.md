@@ -1,7 +1,7 @@
 # PAUL 36-01 — UNIFY / Fix reale della camera fronte lato lungo
 
 **Status:** DONE_WITH_CONCERNS · CODE+GPU VERIFIED · WINDOWS HUMAN UAT NOT_RUN.
-**PR:** [#34](https://github.com/Askeladd22/FoosballPhysicsLab/pull/34) in bozza sul branch `fix/foosball-front-long-side-photo-camera`; `main` non toccato da questa PR.
+**PR:** [#34](https://github.com/Askeladd22/FoosballPhysicsLab/pull/34) **MERGED** in `main` con squash commit `5130617e67b63e8a6950ca2771028695aaa4dc6f`.
 **Verified code revision:** `185a59e19b2eb643485eb0ea00db137161a6465f` (include il gate più rigoroso 55% di campo visibile).
 **CI:** [run 44790760084](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44790760084) **7/7 PASS** including 2 Lua Foosball, 2 frozen NEON11, 3 real/synthetic GLB and GPU validations.
 **Visual evidence:** [native LÖVE GPU run 44789804738](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44789804738) **7/7 PASS**, actual CC BY 4.0 model and [gameplay/showcase screenshot artifact 14655132976](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44789804738/artifacts/14655132976).
@@ -37,3 +37,6 @@ On Windows launch `love .` from an updated PR #34 checkout, capture a GAMEPLAY s
 
 ## Invariants
 Source GLB and licence attribution unchanged. No edits to `legacy/neon11/`, foot hitboxes, AI, scoring, 120Hz ball dynamics, ramps, ball spin, mouse controls or original SHOWCASE camera.
+
+## Post-merge
+PR #34 merged successfully after 7/7 verified code CI. The fixed front-facing camera is now on `main`; run `git pull` in the local repository. User Windows playtest/subjective visual sign-off remains OPEN.
