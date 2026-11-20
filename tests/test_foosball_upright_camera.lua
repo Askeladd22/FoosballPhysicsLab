@@ -1,40 +1,59 @@
--- PAUL29 / SEED: a truly upright field, NOT a false 180° X/Z flip.
--- Camera is steep enough to clear the near frame (Y≈130) at every supported
--- viewport; the old shallow angle visually hid the playing field.
+-- PAUL 30 — A foosball TABLE requires visible downward legs, not just green pixels.
+-- Compare real imported GLB geometry: field Y=-4, four supports down to Y=-740.
+-- This test protects perspective of the FULL OBJECT in all normal window sizes.
 package.path="./?.lua;./?/init.lua;"..package.path
 local ThreeD=require("renderer3d")
 local Model=require("model")
 local sim=Model.new()
 local function eq(a,b) return math.abs(a-b)<1e-6 end
-local before={sim.ball.x,sim.ball.y,sim.ball.vx,sim.ball.vy}
-assert(ThreeD.sceneYaw==180,"user-requested Y-axis 180° orientation was lost")
-assert(ThreeD.fovDegrees<=36,"upright game camera must fill viewport without flat shearing")
-for _,screen in ipairs({{900,650},{1280,850},{1650,895},{1920,1080}}) do
-  local w,h=screen[1],screen[2]
-  local top,vh=ThreeD.viewport(w,h)
-  for _,side in ipairs({"front","back"}) do
-    ThreeD.cameraSide=side
-    local eye=ThreeD.cameraBasis(w,h)
-    local elev=eye[2]-15
-    local offset=math.abs(eye[3]-280)
-    assert(elev>950 and math.deg(math.atan(elev/offset))>75,
-        "camera still looks sideways into rail, hiding the field")
-    -- Eye Z must be *inside* the raised side rails while projecting
-    -- the pitch from above, not behind the near wooden wall.
-    assert(eye[3]>-66 and eye[3]<626,
-        "camera should look over the field rather than through near rail")
-    for _,p in ipairs({{100,-4,80},{900,-4,80},
-                         {100,-4,480},{900,-4,480},
-                         {500,-4,280}}) do
-       local x,y=ThreeD.project(p[1],p[2],p[3],w,h)
-       assert(x and x>0 and x<w and y>top and y<top+vh,
-          "physically upper playing field clipped outside viewport")
+local ball={sim.ball.x,sim.ball.y,sim.ball.vx,sim.ball.vy}
+assert(ThreeD.sceneYaw==180,"keep the user's 180-degree horizontal table orientation")
+assert(ThreeD.fovDegrees==35,"calibrated full-object camera FOV changed")
+assert(ThreeD.cameraSide=="front")
+ThreeD.resetCamera()
+
+for _,size in ipairs({{900,650},{1280,850},{1650,895},{1920,1080}}) do
+    local w,h=size[1],size[2]
+    local top,vh=ThreeD.viewport(w,h)
+    for _,side in ipairs({"front","back"}) do
+        ThreeD.cameraSide=side
+        local eye=ThreeD.cameraBasis(w,h)
+        local targetY=-305
+        local elev=eye[2]-targetY
+        local horizontal=math.sqrt((eye[1]-500)^2+(eye[3]-280)^2)
+        local pitch=math.deg(math.atan(elev/horizontal))
+        assert(pitch>39 and pitch<55,
+            "camera became top-down or near-horizontal: table legs unreadable")
+        assert(eye[2]>1000 and eye[2]<3000,"camera eye Y out of bounds")
+        local fullRim={{-106,130,-66},{1106,130,-66},
+                       {-106,130,626},{1106,130,626}}
+        for _,pt in ipairs(fullRim) do
+            local x,y=ThreeD.project(pt[1],pt[2],pt[3],w,h)
+            assert(x and x>10 and x<w-10 and y>top+10 and y<top+vh-10,
+                ("top rim clipped at %dx%d / %s"):format(w,h,side))
+        end
+        local fieldPoints={{75,-4,75},{925,-4,75},
+                           {75,-4,485},{925,-4,485},{500,-4,280}}
+        for _,p in ipairs(fieldPoints) do
+            local x,y=ThreeD.project(p[1],p[2],p[3],w,h)
+            assert(x and x>10 and x<w-10 and y>top+10 and y<top+vh-10,
+                "playing field out of viewport")
+        end
+        local feet={{0,0},{0,560},{1000,0},{1000,560}}
+        for _,pt in ipairs(feet) do
+            local x,y=ThreeD.project(pt[1],-740,pt[2],w,h)
+            local xx,fieldY=ThreeD.project(pt[1],-4,pt[2],w,h)
+            assert(x and xx and x>10 and x<w-10 and
+                y>top+10 and y<top+vh-10,
+                ("one of FOUR actual legs is off-screen at %dx%d %s"):format(w,h,side))
+            assert(y>fieldY+20,
+                "leg bottom is not visually BELOW the tabletop in the 3D view")
+        end
     end
-  end
 end
 ThreeD.resetCamera()
 assert(ThreeD.sceneYaw==180 and ThreeD.cameraSide=="front")
-assert(eq(sim.ball.x,before[1]) and eq(sim.ball.y,before[2])
-   and eq(sim.ball.vx,before[3]) and eq(sim.ball.vy,before[4]),
-   "camera presentation touched authoritative ball physics")
-print("PASS: true Y-up high camera, no near-rail sightline, complete playfield and physics unchanged")
+assert(eq(sim.ball.x,ball[1]) and eq(sim.ball.y,ball[2]) and
+    eq(sim.ball.vx,ball[3]) and eq(sim.ball.vy,ball[4]),
+    "camera change altered physics")
+print("PASS: actual 3D board four support FEET BELOW field in 4 viewports and 2 sides")
