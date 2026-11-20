@@ -30,8 +30,8 @@ love={
         setRelativeMode=function(mode) mouseCaptured=mode end
     }
 }
-package.path="./experiments/foosball/?.lua;./?.lua;"..package.path
-dofile("experiments/foosball/main.lua")
+package.path="./?.lua;"..package.path
+dofile("main.lua")
 love.load()
 love.update(1/60)
 love.draw()

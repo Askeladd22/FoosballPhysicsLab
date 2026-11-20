@@ -1,37 +1,32 @@
--- Root application dispatch: Foosball native, 11vs11 explicit --legacy and old headless mocks.
+-- Foosball is now the real root controller; legacy lives in its own tree.
 package.path="./?.lua;./?/init.lua;"..package.path
-local originalLove,originalArg,originalPath=love,arg,package.path
-local original={}
-for _,name in ipairs({"experiments.foosball.main","legacy.neon11.main"}) do
-    original[name]={preload=package.preload[name],loaded=package.loaded[name]}
-end
-local chosen={}
-package.preload["experiments.foosball.main"]=function()
-    chosen[#chosen+1]="foosball"
-    return true
-end
+local oldLove,oldArg,oldPath=love,arg,package.path
+local oldPreload=package.preload["legacy.neon11.main"]
+local oldLoaded=package.loaded["legacy.neon11.main"]
+love={graphics={}}
+arg={[0]="."}
+dofile("main.lua")
+assert(type(love.load)=="function" and type(love.draw)=="function"
+    and type(love.mousemoved)=="function","Foosball isn't the root game")
+local normalLoad=love.load
+-- Legacy opt-in must happen BEFORE Foosball callbacks are reinstalled.
+local legacyCalls=0
 package.preload["legacy.neon11.main"]=function()
-    chosen[#chosen+1]="legacy"
+    legacyCalls=legacyCalls+1
     return true
 end
-local function check(simulatedLove,arguments,expected)
-    love,arg=simulatedLove,arguments
-    package.loaded["experiments.foosball.main"]=nil
-    package.loaded["legacy.neon11.main"]=nil
-    dofile("main.lua")
-    assert(chosen[#chosen]==expected,"expected "..expected.." launch")
-    if expected=="foosball" then
-        assert(package.path:find("experiments/foosball/?.lua",1,true),"Foosball module path absent")
-    end
-end
-check({_version_major=11},{[0]="."},"foosball")
-check({_version_major=11},{[0]=".",[1]="--legacy"},"legacy")
-check({_version="11.5"},{[1]="--neon11"},"legacy")
-check({window={}},{},"legacy") -- prior 11vs11 Lua tests use mocked love tables
-love,arg,package.path=originalLove,originalArg,originalPath
-for name,values in pairs(original) do
-    package.preload[name]=values.preload
-    package.loaded[name]=values.loaded
-end
-assert(#chosen==4)
-print("PASS: root Foosball default, opt-in legacy 11vs11 and test-mock compatibility")
+package.loaded["legacy.neon11.main"]=nil
+love={graphics={}}
+arg={[0]=".",[1]="--legacy"}
+dofile("main.lua")
+assert(legacyCalls==1 and love.load==nil,"--legacy was not routed before Foosball")
+love={graphics={}}
+arg={[0]=".",[1]="--neon11"}
+package.loaded["legacy.neon11.main"]=nil
+dofile("main.lua")
+assert(legacyCalls==2,"--neon11 shortcut was not routed")
+package.preload["legacy.neon11.main"]=oldPreload
+package.loaded["legacy.neon11.main"]=oldLoaded
+love,arg,package.path=oldLove,oldArg,oldPath
+assert(normalLoad~=nil)
+print("PASS: actual Foosball root controller and explicit frozen legacy routes")

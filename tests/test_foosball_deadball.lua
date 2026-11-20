@@ -1,7 +1,7 @@
 -- PAUL 19: regression reproduction from screenshot: completely unreachable
 -- middle corridor between fixed-X midfield rods (430 and 570).
 package.path="./?.lua;./?/init.lua;"..package.path
-local M=require("experiments.foosball.model")
+local M=require("model")
 local dt=1/120
 local function nearly(a,b) return math.abs(a-b)<1e-7 end
 local function dead()
