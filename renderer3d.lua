@@ -8,7 +8,9 @@ local ThreeD={
     source="local_assets/3d/",stride=28,
     axisHeight=(83.2-76.64)*(560/83.56),
     ballHeight=16.5,ballScale=0.68,
-    fovDegrees=45,
+    fovDegrees=42,
+    cameraSide="front",
+    cameraDistance=1,
     modelKind="private-original"
 }
 local ROLES={"goalkeeper","defence","midfield","attack"}
@@ -70,12 +72,34 @@ end
 local function cross(ax,ay,az,bx,by,bz)
     return ay*bz-az*by,az*bx-ax*bz,ax*by-ay*bx
 end
-function ThreeD.cameraBasis()
-    -- An honest perspective camera, elevated above the near side of the table.
-    -- Frame the entire playing surface rather than leaving ~70% black margin.
-    -- Perspective remains valid at both 900x650 and 1640x900.
-    local eye={500,520,750}
+-- Camera-only correction: source geometry and 2D physics never rotate.
+-- The default eye is now on the opposite long edge from the upside-down
+-- over-close screenshot, elevated to see the feet and far wall clearly.
+local function viewportFit(w,h)
+    local vh=math.max(240,(h or 850)-252)
+    local aspect=(w or 1280)/vh
+    -- Adapt camera distance to maintain safe rim margins at 900/1280/1650px.
+    return math.max(1,2.62/aspect)
+end
+function ThreeD.resetCamera()
+    ThreeD.cameraSide="front"
+    ThreeD.cameraDistance=1
+end
+function ThreeD.flipCamera()
+    ThreeD.cameraSide=ThreeD.cameraSide=="front" and "back" or "front"
+    return ThreeD.cameraSide
+end
+function ThreeD.zoomCamera(delta)
+    ThreeD.cameraDistance=math.max(0.80,
+        math.min(1.80,ThreeD.cameraDistance+delta))
+    return ThreeD.cameraDistance
+end
+function ThreeD.cameraBasis(w,h)
     local target={500,15,280}
+    local side=ThreeD.cameraSide=="front" and -1 or 1
+    local distance=ThreeD.cameraDistance*viewportFit(w,h)
+    local eye={500,target[2]+765*distance,
+               target[3]+side*640*distance}
     local fx,fy,fz=norm(target[1]-eye[1],target[2]-eye[2],target[3]-eye[3])
     local rx,ry,rz=norm(cross(fx,fy,fz,0,1,0))
     local ux,uy,uz=cross(rx,ry,rz,fx,fy,fz)
@@ -174,7 +198,7 @@ function ThreeD.viewport(w,h)
 end
 function ThreeD.project(x,y,z,w,h)
     local top,height=ThreeD.viewport(w,h)
-    local eye,right,up,forward=ThreeD.cameraBasis()
+    local eye,right,up,forward=ThreeD.cameraBasis(w,h)
     local dx,dy,dz=x-eye[1],y-eye[2],z-eye[3]
     local depth=dx*forward[1]+dy*forward[2]+dz*forward[3]
     if depth<=2 then return nil end
@@ -195,7 +219,7 @@ function ThreeD.draw(match,w,h)
         ThreeD.viewportWidth,ThreeD.viewportHeight=w,vh
     end
     local shader=ThreeD.shader
-    local eye,right,up,forward=ThreeD.cameraBasis()
+    local eye,right,up,forward=ThreeD.cameraBasis(w,h)
     lg.push("all")
     lg.setCanvas({ThreeD.canvas,depth=true})
     -- CRITICAL: lequal depth testing only draws fragments <= the stored depth.
