@@ -52,3 +52,10 @@ Dieci tiri intenzionali in AUTO, tre in MANUALE, tre blocchi di palla morta e co
 **DECIDED:** mouse wheel still switches rods; no physics/mesh rescale or hidden gameplay changes. P/V remains 2D fallback.
 **UNVERIFIED:** perceived player/foot clarity and comfort at the user's resolution; only actual screenshot/playtest can confirm subjective quality.
 **GATE:** camera projected outer board rim remains in 3D viewport at 900×650, 1280×850, 1650×895 and 1920×1080, plus non-black GPU smoke and Lua regressions.
+
+## SEED Phase 28 — Rotate the 3D world by 180°
+**DECIDED:** user requested rotation of the **whole foosball table**, not merely a camera-side switch. Default is a 180° rigid yaw about the world-up Y-axis at table center (500, *, 280): field, table, eight rods, ball and their shading normals transform together.
+**DECIDED:** authoritative 2D physics and mouse input remain unchanged. World turn is a single GPU shader transform after the individual rig movements, with matching CPU selection-marker projection. F3 compares 0°/180°, Home restores 180° and camera defaults; F2 changes camera only.
+**DECIDED:** no g3d library is added; the existing LÖVE GPU renderer supports real 3D meshes, depth and rigid model transforms already.
+**ASSUMED:** "180 degrees" means horizontal yaw about the table's world-up axis, not flipping the table over or rolling the user's screen.
+**UNVERIFIED:** whether near-wall occlusion and subjective playing orientation improve on user's Windows monitor; the actual screenshot and 10 deliberate strikes are the next gate.
