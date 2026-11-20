@@ -292,7 +292,8 @@ local function hud(w,h)
     -- In the screenshot the pointer was still free: bright guidance explains
     -- why rotation stops when the OS cursor reaches the window edge.
     text(help,45,bottom+52,fonts.small,colors.gold)
-    text("TAB: AUTO/MANUALE  1-4/rotella: asta  P/V: 3D / 2D  G: glow  R: reset",
+    text("TAB: AUTO/MANUALE  1-4/rotella: asta  P/V: 3D / 2D  G: glow "..
+        (Theme.glowEnabled and "ON" or "OFF").."  R: reset",
         39,h-38,fonts.small,colors.muted)
     if match.phase=="goal" or match.phase=="finished" then
         local message=match.phase=="finished" and
