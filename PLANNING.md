@@ -39,3 +39,9 @@ Dieci tiri intenzionali in AUTO, tre in MANUALE, tre blocchi di palla morta e co
 **DECIDED:** rendere il vero OBJ Table Soccer con 11 buffer GPU, shader prospettico e depth buffer. Otto aste e pallina ereditano le trasformazioni della fisica 2D esistente; nessun nuovo sistema di collisione e niente vecchi sprite sovrapposti alla vista 3D.
 **DECIDED:** importer Python locale da ZIP di proprietà dell'utente; il repository pubblico distribuisce solo codice, non asset o mesh derivate. **P/V:** 3D/2D istantaneo. **NEON11:** legacy completamente congelato.
 **ASSUMED:** proporzioni del modello autore e pivot ricostruiti (l'OBJ perde i pivot Maya) rendono visivamente leggibili i colpi. **OPEN:** prestazioni native e precisione delle scarpe 3D rispetto ai collider 2D in un playtest reale. **UNVERIFIED:** il modello è visivamente convincente prima di prova reale su LÖVE.
+
+## SEED Phase 26 — Black-frame gate + openly licensed model
+**OBSERVED:** the previous 3D depth clear value was 0 under `lequal`, causing a black screen despite successful mesh initialization.
+**DECIDED:** clear to 1; fail native CI if actual canvas pixels contain no geometry. Select 3D Content Online's `foosball_table (2).glb` (103 primitives, 73,636 triangles, CC BY 4.0), not the single-mesh or Marble NC models. Re-rig players to 1-2-5-3 rather than changing game collisions to match the asset.
+**DECIDED:** original CC BY GLB can live at `assets/models/foosball_table.glb` with source/attribution; converted GPU buffers are generated locally from it and need not be versioned.
+**OPEN:** Windows user visual review and camera/pivot feel. **OUT OF SCOPE:** changes to frozen 11vs11 or career.

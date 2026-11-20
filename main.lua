@@ -25,6 +25,7 @@ local accumulator=0
 local STEP=1/120
 local frameLimit=nil
 local frameCount=0
+local verifyPixels=false
 local debugDraw=false
 local fonts={}
 local colors=Theme.colors
@@ -325,6 +326,8 @@ function love.load()
         if frames then frameLimit=tonumber(frames) end
         if value=="--require-3d" then
             assert(real3d,"Expected true 3D renderer: "..tostring(ThreeD.error))
+        elseif value=="--verify-3d-pixels" then
+            verifyPixels=true
         end
     end
     love.window.setTitle(real3d and
@@ -342,6 +345,7 @@ function love.update(dt)
     if frameLimit then
         frameCount=frameCount+1
         if frameCount>=frameLimit and love.event and love.event.quit then
+            if verifyPixels then ThreeD.assertVisible() end
             print("PASS: native LÖVE "..(ThreeD.active() and "TRUE 3D" or "2D")..
                 " frame smoke ("..frameCount.." frames)")
             love.event.quit(0)

@@ -36,3 +36,11 @@ Branch `feat/true-3d-table-soccer-runtime`. L'utente ha scartato esplicitamente 
 
 ### Phase 25 UNIFY
 [PLAN](phases/25-true-3d/25-01-PLAN.md) · [SUMMARY](phases/25-true-3d/25-01-SUMMARY.md) · [Verified code CI](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44717700176). **5/5 jobs PASS** including native software GPU LÖVE 11.5 with synthetic meshes and all Lua Foosball/NEON11 regressions. Local original OBJ converted to 11 real mesh buffers; user's full-model native Windows screenshot/FPS/input UAT remains **NOT_RUN**. PR #23 draft, main untouched.
+
+## Phase 26 — Black-screen fixed and CC BY model pipeline
+**Branch:** `fix/3d-depth-and-ccby-model-pipeline`. **PR:** [#24](https://github.com/Askeladd22/FoosballPhysicsLab/pull/24), draft.
+**Code/CI status:** `IMPLEMENTED / 6 of 6 PASS` in [run 44728693467](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44728693467), including actual canvas pixel coverage 46/255 and synthetic 103-part GLB importer.
+**Diagnosis:** mistakenly initialized depth=0 with `lequal`, hiding all 3D triangles. Fixed to depth=1.
+**Art direction:** select user-uploaded CC BY 4.0 `foosball_table (2).glb` from 3D Content Online. 103 mesh parts converted to 11 game rigs, re-instanced to physical 1-2-5-3, more efficient than private old VERTX3D model.
+**Asset provenance:** `assets/models/ATTRIBUTION.md` and offline importer committed. Full CC BY binary GLB provided in separate repo-ready downloadable package but **NOT uploaded to GitHub yet**, due lack of direct binary attachment bridging into connector. Do not misrepresent its Git state. Frozen NEON11 untouched.
+**Human native Windows UAT:** NOT_RUN. Read [PLAN](phases/26-depth-ccby/26-01-PLAN.md) · [UNIFY](phases/26-depth-ccby/26-01-SUMMARY.md).

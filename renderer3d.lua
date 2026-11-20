@@ -5,7 +5,11 @@
 local ThreeD={
     loaded=false,enabled=false,error=nil,meshes={},canvas=nil,
     viewportHeight=0,viewportWidth=0,
-    source="local_assets/3d/",stride=28,axisHeight=(83.2-76.64)*(560/83.56)
+    source="local_assets/3d/",stride=28,
+    axisHeight=(83.2-76.64)*(560/83.56),
+    ballHeight=16.5,ballScale=0.68,
+    fovDegrees=45,
+    modelKind="private-original"
 }
 local ROLES={"goalkeeper","defence","midfield","attack"}
 local FORMAT={
@@ -68,8 +72,10 @@ local function cross(ax,ay,az,bx,by,bz)
 end
 function ThreeD.cameraBasis()
     -- An honest perspective camera, elevated above the near side of the table.
-    local eye={500,790,1240}
-    local target={500,30,280}
+    -- Frame the entire playing surface rather than leaving ~70% black margin.
+    -- Perspective remains valid at both 900x650 and 1640x900.
+    local eye={500,520,750}
+    local target={500,15,280}
     local fx,fy,fz=norm(target[1]-eye[1],target[2]-eye[2],target[3]-eye[3])
     local rx,ry,rz=norm(cross(fx,fy,fz,0,1,0))
     local ux,uy,uz=cross(rx,ry,rz,fx,fy,fz)
@@ -91,6 +97,9 @@ function ThreeD.load(g,filesystem,dataAPI)
     ThreeD.loaded,ThreeD.enabled=false,false
     ThreeD.error=nil
     ThreeD.meshes={}
+    ThreeD.axisHeight=(83.2-76.64)*(560/83.56)
+    ThreeD.ballHeight,ThreeD.ballScale=16.5,0.68
+    ThreeD.modelKind="private-original"
     g=g or (love and love.graphics)
     filesystem=filesystem or (love and love.filesystem)
     dataAPI=dataAPI or (love and love.data)
@@ -98,6 +107,19 @@ function ThreeD.load(g,filesystem,dataAPI)
             filesystem.getInfo(ThreeD.assetPath("table"))) then
         ThreeD.error="Pacchetto 3D assente: local_assets/3d/"
         return false
+    end
+    -- CC BY 4.0 Sketchfab import: the player's rod bearings sit ~50 units
+    -- above its real field, and its generated ball is already radius 10.
+    -- The previous VERTX3D/OBJ mesh pack remains backwards compatible.
+    if filesystem.read and filesystem.getInfo and
+        filesystem.getInfo(ThreeD.source.."manifest.json") then
+        local manifest=filesystem.read(ThreeD.source.."manifest.json")
+        if type(manifest)=="string" and
+            manifest:find("5f70863c2cf74e99ad084a493209dbac",1,true) then
+            ThreeD.axisHeight=50.0
+            ThreeD.ballHeight,ThreeD.ballScale=10.0,1.0
+            ThreeD.modelKind="cc-by-glb"
+        end
     end
     if not (g and g.newShader and g.newMesh and dataAPI and dataAPI.newByteData) then
         ThreeD.error="GPU / API LÖVE 11.5 per mesh 3D non disponibili"
@@ -129,7 +151,8 @@ function ThreeD.load(g,filesystem,dataAPI)
         return false
     end
     ThreeD.loaded,ThreeD.enabled=true,true
-    print("Table Soccer TRUE 3D: 11 independent GPU meshes loaded.")
+    print("Table Soccer TRUE 3D: 11 independent GPU meshes loaded ("..
+        ThreeD.modelKind..").")
     return true
 end
 function ThreeD.active()
@@ -156,7 +179,7 @@ function ThreeD.project(x,y,z,w,h)
     local depth=dx*forward[1]+dy*forward[2]+dz*forward[3]
     if depth<=2 then return nil end
     local ratio=w/height
-    local focal=1/math.tan(math.rad(54)/2)
+    local focal=1/math.tan(math.rad(ThreeD.fovDegrees)/2)
     local px=dx*right[1]+dy*right[2]+dz*right[3]
     local py=dx*up[1]+dy*up[2]+dz*up[3]
     return w/2+px*focal/ratio/depth*w/2,
@@ -175,7 +198,10 @@ function ThreeD.draw(match,w,h)
     local eye,right,up,forward=ThreeD.cameraBasis()
     lg.push("all")
     lg.setCanvas({ThreeD.canvas,depth=true})
-    lg.clear(0.016,0.025,0.040,1,1,0)
+    -- CRITICAL: lequal depth testing only draws fragments <= the stored depth.
+    -- Clearing depth to 0 made *every real 3D mesh invisible* on the user's PC.
+    -- Initialize stencil=0 and depth=1 (the farthest possible depth).
+    lg.clear(0.016,0.025,0.040,1,0,1)
     lg.setDepthMode("lequal",true)
     lg.setShader(shader)
     lg.setColor(1,1,1,1)
@@ -184,7 +210,7 @@ function ThreeD.draw(match,w,h)
     shader:send("uUp",up)
     shader:send("uForward",forward)
     shader:send("uAspect",w/vh)
-    shader:send("uFocal",1/math.tan(math.rad(54)/2))
+    shader:send("uFocal",1/math.tan(math.rad(ThreeD.fovDegrees)/2))
     drawMesh(lg,shader,ThreeD.meshes.table,0,0,0,0,1)
     drawMesh(lg,shader,ThreeD.meshes.field,0,0,0,0,1)
     for i,r in ipairs(match.rods) do
@@ -198,7 +224,7 @@ function ThreeD.draw(match,w,h)
     local b=match.ball
     -- The imported field's visible surface is at ~6.5 world Y. With a
     -- ~10-unit scaled mesh radius, 16.5 seats the real sphere on the field.
-    drawMesh(lg,shader,ThreeD.meshes.ball,b.x,16.5,b.y,0,0.68)
+    drawMesh(lg,shader,ThreeD.meshes.ball,b.x,ThreeD.ballHeight,b.y,0,ThreeD.ballScale)
     lg.setShader()
     lg.setDepthMode()
     lg.setCanvas()
@@ -216,5 +242,29 @@ function ThreeD.draw(match,w,h)
         lg.setColor(1,1,1,1)
     end
     return true
+end
+-- CI / developer-only GPU readback. The old smoke passed with a totally
+-- black frame because it only counted callbacks, never visible pixels.
+function ThreeD.assertVisible()
+    assert(ThreeD.active() and ThreeD.canvas,
+        "Cannot verify visibility without an active true-3D Canvas")
+    local image=ThreeD.canvas:newImageData()
+    local w,h=image:getDimensions()
+    local lit,total=0,0
+    for j=3,17 do
+        local y=math.floor((j/20)*h)
+        for i=2,18 do
+            local x=math.floor((i/20)*w)
+            local r,g,b=image:getPixel(x,y)
+            -- Compare with the documented 3D background, NOT full black:
+            -- antialiasing variations are tolerated.
+            if r>0.095 or g>0.12 or b>0.16 then lit=lit+1 end
+            total=total+1
+        end
+    end
+    print(("3D GPU visible pixel probes: %d/%d"):format(lit,total))
+    assert(lit>=6,
+        "3D EMPTY FRAME: GPU mesh loading succeeded but no geometry appeared. Check depth, camera and shaders.")
+    return lit,total
 end
 return ThreeD
