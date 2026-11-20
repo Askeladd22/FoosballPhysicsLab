@@ -75,3 +75,16 @@ jobs:
       - name: Run 12 real 3D frames AND prove visible pixels (no black screen)
         run: |
           env SDL_AUDIODRIVER=dummy LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a timeout 45s love . --frames=12 --require-3d --verify-3d-pixels
+
+  ccby-glb-model:
+    name: CC BY model importer (synthetic 103-part GLB)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Offline converter Python dependencies
+        run: python -m pip install -q 'trimesh>=4,<5' numpy
+      - name: Real 103-component GLB structure and license gates
+        run: python tools/test_foosball_glb_ccby.py
