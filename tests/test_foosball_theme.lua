@@ -35,12 +35,14 @@ function g.rectangle(...) calls.rectangle=calls.rectangle+1 end
 function g.polygon(...) end
 Theme.glowEnabled=true
 Theme.drawGlassTable(g,1000,560,94)
+Theme.drawRamps(g,Model.Ramps,1000,560,94,Model.BALL_RADIUS)
 Theme.glowCircle(g,740,280,10,c.cream)
 assert(calls.add>0 and calls.core>5 and calls.rectangle>0 and calls.circle>0)
 assert(mode=="alpha","theme left additive blend enabled and broke world rendering")
 Theme.glowEnabled=false
 calls.add,calls.core=0,0
 Theme.drawGlassTable(g,1000,560,94)
+Theme.drawRamps(g,Model.Ramps,1000,560,94,Model.BALL_RADIUS)
 Theme.glowCircle(g,740,280,10,c.cream)
 assert(calls.add==0,"glow toggle did not disable emissive rendering")
 assert(calls.core>5,"disabling glow removed crisp essential field geometry")
@@ -50,6 +52,7 @@ Theme.glowEnabled=true
 local s=Model.new()
 local x,y,vx,vy=s.ball.x,s.ball.y,s.ball.vx,s.ball.vy
 Theme.drawGlassTable(g,Model.W,Model.H,Model.GOAL_HALF)
+Theme.drawRamps(g,Model.Ramps,Model.W,Model.H,Model.GOAL_HALF,Model.BALL_RADIUS)
 assert(s.ball.x==x and s.ball.y==y and s.ball.vx==vx and s.ball.vy==vy,
     "visual-only renderer mutated physics state")
 print("PASS: neon palette contrast, additive light isolation, glow-off fallback and no physics mutation")
