@@ -62,6 +62,26 @@ function M.figurePose(rod,index)
     local headX=rod.x+lean*0.9
     return bodyX,footY,headX,footY-19
 end
+
+-- Full possible contact envelope, not just the feet's current position.
+-- Because the rods cannot translate in X, some gaps are *truly unreachable*
+-- despite unlimited mouse movement. Ball speed is checked separately.
+function M.isBallReachable(s)
+    local b=s.ball
+    local xRange=M.FOOT_REACH*sin(limits.max)+M.FOOT_HALF_WIDTH+b.r+0.01
+    local halfHeight=M.FOOT_HALF_HEIGHT+b.r+0.01
+    for _,r in ipairs(s.rods) do
+        if abs(b.x-r.x)<=xRange then
+            for _,offset in ipairs(r.offsets) do
+                local middle=H/2+offset
+                if abs(b.y-middle)<=r.travel+halfHeight then
+                    return true
+                end
+            end
+        end
+    end
+    return false
+end
 function M.new()
     local self=setmetatable({},Game)
     self:reset()
@@ -79,14 +99,46 @@ function Game:reset()
     self.lastScorer=nil
     self.hits=0
     self.lastHit=nil
+    self.deadBallTimer=0
+    self.deadBallCount=0
+    self.deadBallLastTeam=nil
+    self.deadBallNotice=nil
     self.mouseSensitivity={slide=0.83,angle=0.020}
     self:serve()
 end
 function Game:serve()
-    -- Start next to the forward human rod, so the first test needs only a mouse swipe.
+    -- Standard training/goal serve near the forward human rod.
     self.ball={x=746,y=H/2,vx=0,vy=0,r=M.BALL_RADIUS}
     self.phase="play"
     self.phaseClock=0
+    self.deadBallTimer=0
+    self.deadBallNotice=nil
+    self.lastHit=nil
+end
+
+function Game:recoverDeadBall()
+    -- House-rule neutral restart: award the opposite of the last striker;
+    -- if nobody has touched the ball, alternate between the two teams.
+    local team
+    if self.lastHit and self.lastHit.team then
+        team=3-self.lastHit.team
+    else
+        team=self.deadBallLastTeam==1 and 2 or 1
+    end
+    local rod=self.rods[team==1 and 3 or 7]
+    local attack=team==1 and 1 or -1
+    self.ball={
+        x=rod.x+attack*35,
+        y=H/2,
+        vx=0,vy=0,r=M.BALL_RADIUS
+    }
+    self.deadBallTimer=0
+    self.deadBallCount=self.deadBallCount+1
+    self.deadBallLastTeam=team
+    self.deadBallNotice={team=team,expires=self.clock+1.55}
+    self.lastHit=nil
+    -- Intentionally preserve the score, rod states, running match clock and phase.
+    return team
 end
 function Game:selectRod(slot)
     if slot>=1 and slot<=4 and slot==math.floor(slot) then
@@ -233,6 +285,24 @@ local function stepBall(s,dt)
     if inGoal and b.x<-b.r then s:goal(2) end
     if inGoal and b.x>W+b.r then s:goal(1) end
 end
+local DEAD_BALL_SPEED=6
+local DEAD_BALL_SECONDS=2.0
+M.DEAD_BALL_SECONDS=DEAD_BALL_SECONDS
+
+local function updateDeadBall(s,dt)
+    local b=s.ball
+    local inside=b.x>=b.r and b.x<=W-b.r and b.y>=b.r and b.y<=H-b.r
+    local slow=b.vx*b.vx+b.vy*b.vy<DEAD_BALL_SPEED*DEAD_BALL_SPEED
+    if inside and slow and not M.isBallReachable(s) then
+        s.deadBallTimer=s.deadBallTimer+dt
+        if s.deadBallTimer>=DEAD_BALL_SECONDS then
+            s:recoverDeadBall()
+        end
+    else
+        s.deadBallTimer=0
+    end
+end
+
 function Game:step(dt)
     if dt<=0 then return end
     dt=min(dt,1/30)
@@ -255,6 +325,7 @@ function Game:step(dt)
         stepBall(self,micro)
         if self.phase~="play" then break end
     end
+    if self.phase=="play" then updateDeadBall(self,dt) end
 end
 M.Game=Game
 return M

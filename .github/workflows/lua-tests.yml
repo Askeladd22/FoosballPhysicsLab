@@ -83,6 +83,8 @@ jobs:
         run: for source in experiments/foosball/*.lua; do luac5.4 -p "$source" || exit 1; done
       - name: Foosball mouse rods and ball physics
         run: ${{ matrix.lua }} tests/test_foosball.lua
+      - name: Foosball unreachable dead ball recovery
+        run: ${{ matrix.lua }} tests/test_foosball_deadball.lua
       - name: Foosball mocked LÖVE controls and view
         run: ${{ matrix.lua }} tests/test_foosball_view.lua
       - name: Foosball screen fit and pose consistency
