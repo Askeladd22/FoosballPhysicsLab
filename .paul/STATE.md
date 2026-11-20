@@ -2,9 +2,9 @@
 
 **Active:** Foosball Lab directly in root, Neon Glass / optional private Table Soccer 2.5D sprites.
 **Frozen:** NEON 11 with full source, test and documentation in `legacy/neon11/`.
-**Current phase:** 23 — human rod responsiveness and visual 2.5D clarity.
-**Branch:** `fix/foosball-direct-rods-crisp-table-soccer`, [draft PR #21](https://github.com/Askeladd22/FoosballPhysicsLab/pull/21).
-**Status:** `DONE_WITH_CONCERNS`; Foosball and legacy regression gates verified on LuaJIT/Lua5.4, native Windows/LÖVE UAT not yet done.
+**Current phase:** 32 — unreachable-ball recovery between rods.
+**Branch:** `fix/foosball-unreachable-ball-recovery`, [draft PR #30](https://github.com/Askeladd22/FoosballPhysicsLab/pull/30).
+**Status:** `VERIFIED_AUTOMATED / UAT_NOT_RUN`; seven of seven CI jobs passed for phase 32, native Windows mouse playtest still open.
 **Date:** 2026-11-20.
 
 ## SEED decisions
@@ -16,11 +16,10 @@
 - No additional career, rankings, multiplayer, 11vs11 gameplay or Project Folio changes.
 
 ## Evidence
-[PLAN](phases/23-foosball-response/23-01-PLAN.md) · [UNIFY](phases/23-foosball-response/23-01-SUMMARY.md).
-[CI 44709666789](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44709666789) 4/4 PASS. Final guidance UI adjustment has independent [run 44709875435](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44709875435) (legacy Lua5.4 still running at last check). Real mouse feel and native visuals not verified.
+[PLAN phase 32](phases/32-unreachable-ball-recovery/32-01-PLAN.md) · [UNIFY phase 32](phases/32-unreachable-ball-recovery/32-01-SUMMARY.md) · [CI 44766380466](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44766380466) 7/7 PASS. Native mouse feel not verified.
 
 ## Next single action
-Native Windows playtest: click once to capture the mouse, perform 10 rapid physical shots with AUTO and MANUALE, compare V on/off and report perceived response and sprite alignment.
+Native Windows playtest: reproduce an unreachable vertical ricochet between rods, verify the two-second neutral restart, then try ten ordinary passes with no spurious re-serve.
 
 
 ## Phase 24 — Oblique 2.5D camera and physical shoe linkage
@@ -81,3 +80,12 @@ The **whole world** yaw is now 180° about upright Y, rigidly rotating the actua
 **Automated proof:** [CI 44761457020](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44761457020), **7/7 jobs PASS**, actual CC BY GLB used in both real LÖVE modes. SHOWCASE 4/4 legs, 56/255 pixel probes; GAMEPLAY 207/255 pixel probes, 74/99 green field. Two native 3D screenshots in [artifact](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44761457020/artifacts/14641711806). Physical gameplay, original GLB, frozen 11vs11 untouched.
 [PLAN](phases/31-gameplay-readability/31-01-PLAN.md) · [UNIFY](phases/31-gameplay-readability/31-01-SUMMARY.md).
 **Remaining:** Windows human screenshot + 10-shot input/readability UAT NOT_RUN. Next action: test default GAMEPLAY with intentional strokes.
+
+
+### PAUL phase 32 — unreachable-ball recovery (2026-11-20)
+**Branch:** `fix/foosball-unreachable-ball-recovery` · [PR #30](https://github.com/Askeladd22/FoosballPhysicsLab/pull/30) (draft, main unaffected).
+**Root cause:** a velocity cutoff prevented the 2-second dead-ball timer from advancing if the unreachable ball continued ricocheting vertically between cushions.
+**Change:** count continuous geometric unreachability even during movement; reset only on restored reachability or exit. Restore team serve without modifying collision physics, score or 3D view.
+**Proof:** [run 44766380466](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44766380466) **7/7 PASS**, including targeted ricochet, horizontal-escape regressions, Lua5.4/LuaJIT, legacy NEON11 and actual 3D GLB smoke.
+**UAT:** NOT_RUN; mouse feel and timing fairness require human testing on Windows.
+[PLAN](phases/32-unreachable-ball-recovery/32-01-PLAN.md) · [SUMMARY](phases/32-unreachable-ball-recovery/32-01-SUMMARY.md).
