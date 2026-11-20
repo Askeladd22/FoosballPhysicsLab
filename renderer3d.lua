@@ -60,8 +60,16 @@ local SHADER=[[
             (n.x*uRotate.x-n.y*uRotate.y)*uWorldOrientation,
              n.x*uRotate.y+n.y*uRotate.x,
              n.z*uWorldOrientation));
+        // CRITICAL LÖVE Canvas correction: when a manually projected 3D
+        // clip-space position is rendered into an offscreen Canvas and then
+        // displayed with love.graphics.draw(canvas), framebuffer Y is flipped
+        // relative to the screen's upper-left pixel coordinate system.
+        // Before this minus sign, the whole foosball appeared UPSIDE-DOWN:
+        // table legs drew above the field even though source Y was correct.
+        // CPU ThreeD.project already uses screen Y = center - projected UP.
+        // Negate this GPU clip-Y ONLY to match CPU projection after Canvas.
         return vec4(dot(delta,uRight)*uFocal/uAspect,
-                    dot(delta,uUp)*uFocal,depth,d);
+                    -dot(delta,uUp)*uFocal,depth,d);
     }
     #endif
     #ifdef PIXEL

@@ -10,6 +10,8 @@ local graphics={
     newShader=function(source)
         assert(source:find("vertex_position.xyz",1,true),"3D geometry vertex shader absent")
         assert(source:find("uFocal",1,true),"perspective projection absent")
+        assert(source:find("-dot(delta,uUp)*uFocal",1,true),
+            "LÖVE Canvas requires clip-Y inversion to keep legs below table")
         assert(source:find("VertexNormal",1,true),"lighting absent")
         assert(source:find("uWorldOrientation",1,true),
             "shader must turn all 3D geometry in one rigid 180-degree pass")
