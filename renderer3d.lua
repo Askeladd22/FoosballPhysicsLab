@@ -9,8 +9,8 @@ local ThreeD={
     source="local_assets/3d/",stride=28,
     axisHeight=(83.2-76.64)*(560/83.56),
     ballHeight=16.5,ballScale=0.68,
-    fovDegrees=35, -- retain the verified showcase perspective
-    gameplayFovDegrees=33, -- tighter projection only for physical play
+    fovDegrees=35, -- user's 1271x874 three-quarter screenshot reference
+    gameplayFovDegrees=35, -- deliberate: SAME photographed FOV as SHOWCASE
     cameraSide="front",
     cameraDistance=1,
     viewMode="gameplay", -- default: readable feet/ball and enlarged green pitch
@@ -165,14 +165,15 @@ function ThreeD.cameraBasis(w,h)
              target[2]+2119.05*distance,
              target[3]+side*1795.20*distance}
     else
-        -- MATCH, not PRODUCT: nearly top-down (~70 degrees) and squarely
-        -- aligned to the table's long axis. Older 3/4 offset (-100,1060,780)
-        -- foreshortened the feet and gave the near rail too much emphasis.
-        -- Keep a genuine perspective for depth while revealing both goals.
+        -- User's photographed 1271x874 reference: genuine three-quarter
+        -- oblique view from a LONG edge, not a near-zenith 70-degree view.
+        -- Preserve the slight X-axis skew and visible near cabinet rim.
+        -- This is the same verified camera that produced the user image;
+        -- do not silently replace it with a top-down editorial composition.
         target={500,10,280}
-        eye={target[1],
-             target[2]+1200*distance,
-             target[3]+side*430*distance}
+        eye={target[1]-100*distance,
+             target[2]+1060*distance,
+             target[3]+side*780*distance}
     end
     local fx,fy,fz=norm(target[1]-eye[1],target[2]-eye[2],target[3]-eye[3])
     local rx,ry,rz=norm(cross(fx,fy,fz,0,1,0))
