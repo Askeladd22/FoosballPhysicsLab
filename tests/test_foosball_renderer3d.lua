@@ -112,8 +112,8 @@ end
 local function targetFocal(fov)
     return 1/math.tan(math.rad(fov)/2)
 end
-assert(gpuFocal() and math.abs(gpuFocal()-targetFocal(33))<1e-7,
-    "GAMEPLAY shader perspective does not match CPU marker FOV")
+assert(gpuFocal() and math.abs(gpuFocal()-targetFocal(35))<1e-7,
+    "GAMEPLAY must use the photographed 35-degree shader perspective")
 assert(#fake.draws==13,
     "expected table+field, 8 moving rods, ball, sloped ramp mesh and canvas")
 local indicator=ThreeD.playerIndicators(match,1280,850)
@@ -189,7 +189,7 @@ assert(gpuFocal() and math.abs(gpuFocal()-targetFocal(35))<1e-7,
 assert(ThreeD.setViewMode("gameplay")=="gameplay")
 fake.sends={}
 assert(ThreeD.draw(match,1280,850))
-assert(gpuFocal() and math.abs(gpuFocal()-targetFocal(33))<1e-7,
-    "F4 return must update GPU projection to GAMEPLAY focal length")
+assert(gpuFocal() and math.abs(gpuFocal()-targetFocal(35))<1e-7,
+    "F4 return must preserve user-reference GAMEPLAY focal length")
 love=oldLove
 print("PASS: GPU source/oriented world toggles, 8 moving rigs, ball, depth and perspective")
