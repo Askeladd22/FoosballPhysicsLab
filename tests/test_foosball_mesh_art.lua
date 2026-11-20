@@ -14,6 +14,9 @@ assert(not Art.load() and not Art.active(),"missing local renders must be option
 assert(not Art.drawTable(love.graphics) and not Art.drawRod(love.graphics,{angle=0,x=100,slide=0},1))
 local prefix="local_assets/"
 love.filesystem.getInfo=function(path)
+  -- Emulate the user's OLD nine-pose pack before testing the 25-pose upgrade.
+  local index=path:match("_(%d%d)%.png$")
+  if index and tonumber(index)>8 then return nil end
   if path:sub(1,#prefix)==prefix then return {type="file"} end
 end
 assert(Art.load() and Art.active(),"local original model images failed to load")
