@@ -2,7 +2,7 @@
 project: Foosball Lab
 project_type: custom/game-development
 status: implementing
-plan_version: phase32-unreachable-ball-recovery
+plan_version: phase33-auto-microgestures
 last_updated: 2026-11-20
 ---
 
@@ -87,3 +87,10 @@ Dieci tiri intenzionali in AUTO, tre in MANUALE, tre blocchi di palla morta e co
 **VERIFIED:** [7/7 CI jobs](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44766380466), including new bouncing/escape tests and existing score/false-deadball regressions; frozen NEON11 untouched.
 **ASSUMED:** the existing two-second house rule is a good player-facing compromise.
 **UNVERIFIED / NEXT:** Windows playtest to assess perceived fairness when vertically ricocheting and when shooting across the midfield corridor.
+
+## SEED Phase 33 — Input: high-polling AUTO microgestures
+**OBSERVED (code):** the old `mouseMoved` accepted any one event with at least 3 px to hold AUTO. A rapid sequence of individually 1px mouse events could change the rod during an intentional stroke because none individually passed the threshold.
+**DECIDED:** recognize 3 cumulative px in a continuous sequence with no inter-event gap over 60ms, cap the accumulated value, and reuse the existing 200ms AUTO hold. Clear gesture history on reset and mode toggle. Mouse sensitivity, manual behavior, 120Hz simulation, AI and collision physics are unchanged.
+**ASSUMED / DESIGN RISK:** the 60ms window filters sporadic jitter; different mouse devices and player habits may require tuning. Do not claim controller feel is proven by automation.
+**EVIDENCE:** targeted Lua5.4/LuaJIT regression suite passing in [GitHub Actions #44772526612](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44772526612); visual/NEON11 check status is tracked on the PR. 
+**OPEN:** Windows human input test: 10 light, high-polling gestures near AUTO handoff, idle pointer jitter, count mis-selections and response.
