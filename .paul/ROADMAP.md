@@ -62,3 +62,12 @@
 - [x] Shader GPU e indicatori CPU hanno lo stesso FOV35 in entrambe le modalità. Nessuna modifica alla camera ESPOSIZIONE.
 - [x] [GitHub Actions #44786693825](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44786693825) **7/7 PASS** sul commit di codice `d38f2096`, inclusi i 7 landmark della foto e il GLB CC BY nativo. Commit documentali successivi non modificano il codice verificato.
 - [ ] Foto Windows 1271×874 e 10 tiri veri: verifica percettiva degli omini/pallina ancora da completare.
+
+## Fase 36 — Camera REALMENTE frontale come la foto del biliardino
+- [x] Diagnosticato il no-op della PR #33 già merged: proteggeva l'inquadratura diagonale sbagliata.
+- [x] Camera GAMEPLAY centrata frontalmente sul lato lungo, bordi orizzontali: target `{500,-200,280}`, offset `{0,+1100,±915}`, FOV43 (~50° dal piano).
+- [x] Tavolo completo + 4 supporti y=-740 dentro viewport a 900×650, 1271×874, 1280×850, 1650×895, 1920×1080, entrambi i lati e yaw 0/180; indicatori fisici non scollegati.
+- [x] Vista ESPOSIZIONE F4 originale preservata; nessuna modifica a IA, dinamica, rampette, score, input o NEON11.
+- [x] [GitHub Actions #44789804738](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44789804738) **7/7 PASS** sul codice iniziale, modello CC BY GLB vero con **4/4 gambe** e **62/99** campioni verdi in PARTITA, 67/99 in ESPOSIZIONE. [Due screenshot GPU nativi](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44789804738/artifacts/14655132976).
+- [ ] Ricontrollare ultima CI del gate più severo verde 55% dopo commit dedicato.
+- [ ] UAT Windows: confronto alla foto di riferimento e dieci tiri con mouse, controllando visibilità e risposta della pallina.
