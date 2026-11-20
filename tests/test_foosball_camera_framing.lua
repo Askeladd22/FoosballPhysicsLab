@@ -20,7 +20,7 @@ for _,wh in ipairs(windows) do
     local top,vh=ThreeD.viewport(w,h)
     local bottom=top+vh
     local fit=math.max(1,1.60/(w/vh))
-    local gameplayDistance=0.90*fit
+    local gameplayDistance=0.78*fit
     for _,side in ipairs({"front","back"}) do
         ThreeD.resetCamera()
         if side=="back" then ThreeD.flipCamera() end
@@ -43,14 +43,16 @@ for _,wh in ipairs(windows) do
             assert(centerX and near(centerX,w/2,0.1) and
                 near(centerY,top+vh/2,0.1),
                 "whole table is not centred on screen")
+            -- GAMEPLAY now intentionally prioritizes a larger pitch;
+            -- cabinet legs/rim may be cropped at 128-143% close-up.
+            -- F4 SHOWCASE remains the guaranteed four-leg full-table view.
             for _,xyz in ipairs({
                 {0,-4,0},{1000,-4,0},{0,-4,560},{1000,-4,560},
-                {0,-740,0},{1000,-740,0},{0,-740,560},{1000,-740,560},
-                {-106,130,-66},{1106,130,-66},{-106,130,626},{1106,130,626}
+                {0,-4,280},{1000,-4,280}
             }) do
                 local px,py=ThreeD.project(xyz[1],xyz[2],xyz[3],w,h)
                 assert(px and px>6 and px<w-6 and py>top+6 and py<bottom-6,
-                    ("front long-side camera crops the table/legs at %dx%d"):format(w,h))
+                    ("close-up GAMEPLAY crops the physical playing field or goals at %dx%d"):format(w,h))
             end
             -- Both goals should remain legible; the table is not a tiny
             -- dark object in a large empty viewport.
@@ -86,7 +88,7 @@ end
 ThreeD.resetCamera()
 ThreeD.resetSceneYaw()
 assert(ThreeD.sceneYaw==180 and ThreeD.cameraSide=="front" and
-       math.abs(ThreeD.cameraDistance-0.90)<1e-7 and ThreeD.viewMode=="gameplay")
+       math.abs(ThreeD.cameraDistance-0.78)<1e-7 and ThreeD.viewMode=="gameplay")
 assert(near(match.ball.x,initial[1]) and near(match.ball.y,initial[2]) and
     match.score[1]==initial[3] and match.score[2]==initial[4] and
     match.selected==initial[5] and near(match.rods[4].angle,initial[6]) and
