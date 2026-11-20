@@ -14,7 +14,7 @@ jobs:
       - name: Install Lua and the LÖVE-compatible LuaJIT runtime
         run: sudo apt-get update && sudo apt-get install -y lua5.4 luajit
       - name: Syntax check
-        run: for source in main.lua conf.lua legacy/neon11/main.lua src/*.lua tests/test_*.lua; do luac5.4 -p "$source" || exit 1; done
+        run: for source in main.lua conf.lua legacy/neon11/main.lua experiments/foosball/*.lua src/*.lua tests/test_*.lua; do luac5.4 -p "$source" || exit 1; done
       - name: Safe GLB/STEP metadata parsing (no model redistribution)
         run: python3 tools/inspect_foosball_models.py --self-test
       - name: Root Foosball / legacy 11vs11 launcher
@@ -95,3 +95,9 @@ jobs:
         run: ${{ matrix.lua }} tests/test_foosball_layout.lua
       - name: Foosball neon glass palette and glow
         run: ${{ matrix.lua }} tests/test_foosball_theme.lua
+      - name: Fast AUTO / MANUALE rod switching
+        run: ${{ matrix.lua }} tests/test_foosball_selector.lua
+      - name: Optional Table Soccer mesh rendering and safe fallback
+        run: ${{ matrix.lua }} tests/test_foosball_mesh_art.lua
+      - name: Original Table Soccer ZIP parser (synthetic fixture)
+        run: python3 tools/bake_table_soccer.py --self-test
