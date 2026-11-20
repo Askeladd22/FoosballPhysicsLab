@@ -4,7 +4,7 @@
 **Frozen:** NEON 11 with full source, test and documentation in `legacy/neon11/`.
 **Current phase:** 36 — actual centered front-of-long-rail photo camera with four visible legs.
 **Branch:** `fix/foosball-front-long-side-photo-camera`, [draft PR #34](https://github.com/Askeladd22/FoosballPhysicsLab/pull/34).
-**Status:** `VERIFIED_AUTOMATED / UAT_NOT_RUN`; phase 36 real frontal camera passed 7/7 GitHub Actions #44789804738, CC BY GLB GPU shows 4/4 real legs. Windows screenshot and mouse UAT NOT_RUN; stronger field gate follow-up CI pending.
+**Status:** `VERIFIED_AUTOMATED / UAT_NOT_RUN`; phase 36 camera and stricter field-visibility gate passed [CI 44790760084](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44790760084) **7/7** on code 185a59e, 4/4 real CC BY GLB legs. Windows mouse/visual UAT NOT_RUN.
 **Date:** 2026-11-20.
 
 ## SEED decisions
@@ -16,7 +16,7 @@
 - No additional career, rankings, multiplayer, 11vs11 gameplay or Project Folio changes.
 
 ## Evidence
-[PLAN phase 36](phases/36-front-long-side-photo-camera/36-01-PLAN.md) · [UNIFY phase 36](phases/36-front-long-side-photo-camera/36-01-SUMMARY.md) · [CI 44789804738](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44789804738) 7/7 PASS for real front long-rail camera. Native human playtest NOT_RUN.
+[PLAN phase 36](phases/36-front-long-side-photo-camera/36-01-PLAN.md) · [UNIFY phase 36](phases/36-front-long-side-photo-camera/36-01-SUMMARY.md) · [CI 44790760084](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44790760084) 7/7 PASS for real front long-rail camera with >55% green GPU coverage gate. Native human playtest NOT_RUN.
 
 ## Next single action
 Native Windows playtest: at 1271×874 compare GAMEPLAY screenshot with the earlier commercial-table photo, verify horizontal sponde and all real support legs, then ten aimed mouse shots; compare SHOWCASE via F4.
