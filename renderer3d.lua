@@ -357,6 +357,55 @@ function ThreeD.assertFieldVisible()
     return green,total
 end
 
+-- Verify the gameplay view contains real UNDER-TABLE SUPPORTS as well as
+-- the green pitch. Generic "non-black framebuffer" tests previously accepted
+-- views with no table legs. This gate runs only for the actual CC BY GLB.
+function ThreeD.assertLegVisible()
+    assert(ThreeD.active() and ThreeD.canvas,"3D leg test requires a GPU frame")
+    local image=ThreeD.canvas:newImageData()
+    local w,vh=image:getDimensions()
+    local screenH=vh+252
+    local top=ThreeD.viewport(w,screenH)
+    local present=0
+    for _,leg in ipairs({{0,0},{0,560},{1000,0},{1000,560}}) do
+        -- The real GLB legs go to Y=-740. Inspect their solid dark section at
+        -- Y=-590, *far below the green pitch* at roughly Y=-4.
+        local x,y=ThreeD.project(leg[1],-590,leg[2],w,screenH)
+        local hits=0
+        if x and y then
+            local cx,cy=math.floor(x+0.5),math.floor(y-top+0.5)
+            for dy=-18,18,3 do
+                for dx=-18,18,3 do
+                    local px,py=cx+dx,cy+dy
+                    if px>=0 and px<w and py>=0 and py<vh then
+                        local red,green,blue=image:getPixel(px,py)
+                        if red>0.075 and green>0.075 and blue>0.075 then
+                            hits=hits+1
+                        end
+                    end
+                end
+            end
+        end
+        if hits>=8 then present=present+1 end
+    end
+    print(("3D UNDER-TABLE LEGS visible: %d/4"):format(present))
+    assert(present>=3,
+        "3D FULL TABLE NOT VISIBLE: less than 3 of 4 support legs have projected GPU geometry")
+    return present
+end
+
+-- Capture a real LÖVE software/hardware GPU frame into the game save
+-- directory for native CI review, not a fabricated mock screenshot.
+function ThreeD.captureFrame()
+    assert(ThreeD.canvas,"no true-3D frame to capture")
+    local image=ThreeD.canvas:newImageData()
+    local encoded=image:encode("png")
+    assert(love.filesystem.write("foosball_3d_camera.png",encoded:getString()),
+        "failed to save native GPU screenshot")
+    print("NATIVE_3D_SCREENSHOT: "..love.filesystem.getSaveDirectory()..
+        "/foosball_3d_camera.png")
+end
+
 -- CI / developer-only GPU readback. The old smoke passed with a totally
 -- black frame because it only counted callbacks, never visible pixels.
 function ThreeD.assertVisible()
