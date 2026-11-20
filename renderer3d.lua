@@ -236,8 +236,12 @@ function ThreeD.load(g,filesystem,dataAPI)
         -- A small native GPU floor mesh (not a decal) mirrors the same
         -- mathematical slope applied to the ball in model.lua. Retain every
         -- original third-party field, rod, table and ball mesh unchanged.
+        -- Build the slope at the ball's actual ground-contact altitude.
+        -- A fixed positive field Y would float above the imported GLB
+        -- and mask the ball from a steep gameplay camera.
+        local rampGround=ThreeD.ballHeight-Model.BALL_RADIUS
         local rampVerts=Model.Ramps.meshVertices(Model.W,Model.H,
-            Model.GOAL_HALF,Model.BALL_RADIUS,7.2)
+            Model.GOAL_HALF,Model.BALL_RADIUS,rampGround)
         assert(#rampVerts>0 and #rampVerts%3==0,"invalid ramp triangles")
         local rampMesh=g.newMesh(FORMAT,#rampVerts,"triangles","static")
         rampMesh:setVertices(rampVerts)
@@ -303,9 +307,14 @@ function ThreeD.playerIndicators(match,w,h)
 end
 function ThreeD.ballIndicator(match,w,h)
     local ball=match.ball
-    local px,py=ThreeD.project(ball.x,ThreeD.ballHeight+5,ball.y,w,h)
-    local vx,vy=ThreeD.project(ball.x+ball.vx*0.09,
-        ThreeD.ballHeight+5,ball.y+ball.vy*0.09,w,h)
+    local lift=Model.Ramps.heightAt(ball.x,ball.y,Model.W,Model.H,
+        Model.GOAL_HALF,ball.r)
+    local px,py=ThreeD.project(ball.x,ThreeD.ballHeight+5+lift,ball.y,w,h)
+    local futureX,futureY=ball.x+ball.vx*0.09,ball.y+ball.vy*0.09
+    local futureLift=Model.Ramps.heightAt(futureX,futureY,Model.W,Model.H,
+        Model.GOAL_HALF,ball.r)
+    local vx,vy=ThreeD.project(futureX,
+        ThreeD.ballHeight+5+futureLift,futureY,w,h)
     return {x=px,y=py,velocityX=vx,velocityY=vy,
             worldX=ball.x,worldZ=ball.y}
 end
