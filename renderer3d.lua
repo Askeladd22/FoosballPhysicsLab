@@ -8,6 +8,7 @@ local ThreeD={
     source="local_assets/3d/",stride=28,
     axisHeight=(83.2-76.64)*(560/83.56),
     ballHeight=16.5,ballScale=0.68,
+    fovDegrees=45,
     modelKind="private-original"
 }
 local ROLES={"goalkeeper","defence","midfield","attack"}
@@ -71,8 +72,10 @@ local function cross(ax,ay,az,bx,by,bz)
 end
 function ThreeD.cameraBasis()
     -- An honest perspective camera, elevated above the near side of the table.
-    local eye={500,790,1240}
-    local target={500,30,280}
+    -- Frame the entire playing surface rather than leaving ~70% black margin.
+    -- Perspective remains valid at both 900x650 and 1640x900.
+    local eye={500,520,750}
+    local target={500,15,280}
     local fx,fy,fz=norm(target[1]-eye[1],target[2]-eye[2],target[3]-eye[3])
     local rx,ry,rz=norm(cross(fx,fy,fz,0,1,0))
     local ux,uy,uz=cross(rx,ry,rz,fx,fy,fz)
@@ -176,7 +179,7 @@ function ThreeD.project(x,y,z,w,h)
     local depth=dx*forward[1]+dy*forward[2]+dz*forward[3]
     if depth<=2 then return nil end
     local ratio=w/height
-    local focal=1/math.tan(math.rad(54)/2)
+    local focal=1/math.tan(math.rad(ThreeD.fovDegrees)/2)
     local px=dx*right[1]+dy*right[2]+dz*right[3]
     local py=dx*up[1]+dy*up[2]+dz*up[3]
     return w/2+px*focal/ratio/depth*w/2,
@@ -207,7 +210,7 @@ function ThreeD.draw(match,w,h)
     shader:send("uUp",up)
     shader:send("uForward",forward)
     shader:send("uAspect",w/vh)
-    shader:send("uFocal",1/math.tan(math.rad(54)/2))
+    shader:send("uFocal",1/math.tan(math.rad(ThreeD.fovDegrees)/2))
     drawMesh(lg,shader,ThreeD.meshes.table,0,0,0,0,1)
     drawMesh(lg,shader,ThreeD.meshes.field,0,0,0,0,1)
     for i,r in ipairs(match.rods) do
