@@ -40,3 +40,17 @@
 - [x] Test automatici: 4 eventi da 1px, jitter isolato, sblocco AUTO e cambio modalità.
 - [ ] UAT Windows: 10 gesti lenti e intenzionali, pausa del mouse, contare cambi asta inattesi.
 - [x] GitHub Actions #44772526612: 7/7 PASS, compreso smoke nativo 3D con GLB CC BY.
+
+## Fase 34 — Rampe agli angoli e lungo i lati
+- [x] Geometria condivisa: 2 rampe lungo i lati lunghi e 4 rampe sulle testate fuori dalle porte, con inclinazione risultante negli angoli.
+- [x] Accelerazione dolce dentro la zona inclinata, senza impulso scriptato; ball wake-up anche a velocità iniziale zero.
+- [x] Pavimentazione visibile in 2D Neon Glass e vera mesh di rampe procedurali nel renderer 3D; palla alzata sulla pendenza.
+- [x] Nuove regressioni per gli angoli, sponde, porte, geometria 3D, determinismo e rendering; Lua 5.4/LuaJIT PASS su [run 44777414138](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44777414138).
+- [x] [GitHub Actions 44778209050](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44778209050) **7/7 PASS** sul commit `3c64bbd`, compreso vero GLB CC BY e nuova verifica dell'allineamento fisico/rendering delle rampe.
+- [ ] UAT Windows: gioco con mouse, rampe/porte visivamente allineate e tiri di sponda non eccessivamente deviati.
+
+## Revisione separata proposta — Camera GAMEPLAY (input screenshot)
+- [ ] Audit inquadratura di tutti i punti gioco a 900×650, 1280×850, 1650×895, 1920×1080, senza sacrificare l'HUD.
+- [ ] Rivedere altezza/obliquità, distanza, FOV35 e banda viewport fissa 112px top + 140px bottom.
+- [ ] Verificare pallina, piedi, sponde e rampette da front/back e yaw 0/180 in un frame reale, non solo test matematica proiezione.
+- [ ] Separare le modifiche camera in una nuova PR: questo PR #32 contiene soltanto rampe e loro allineamento GPU.

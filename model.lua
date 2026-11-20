@@ -3,6 +3,8 @@
 local M={}
 -- Native LÖVE sees foosball/ as its root; isolated root-based Lua tests do not.
 local RodSelector=require("rod_selector")
+local Ramps=require("ramps")
+M.Ramps=Ramps
 M.W,M.H=1000,560
 M.GOAL_HALF=94
 M.BALL_RADIUS=10
@@ -329,9 +331,16 @@ local function stepBall(s,dt)
     local b=s.ball
     local drag=exp(-0.68*dt)
     b.vx,b.vy=b.vx*drag,b.vy*drag
+    -- Floor ramps slope gently inward near rails and outside goal mouths.
+    -- In a corner, X and Y slopes combine; a resting ball rolls back into
+    -- play without synthetic hits or changes to the existing contact solver.
+    local ax,ay=Ramps.acceleration(b,W,H,M.GOAL_HALF)
+    b.vx,b.vy=b.vx+ax*dt,b.vy+ay*dt
     local speed=magnitude(b.vx,b.vy)
     if speed>1320 then b.vx,b.vy=b.vx*1320/speed,b.vy*1320/speed end
-    if speed<1.15 then b.vx,b.vy=0,0 end
+    -- Do not let the low-speed sleep threshold swallow a ramp's first,
+    -- sub-1.15px/s microstep: that would make resting balls remain stuck.
+    if speed<1.15 and ax==0 and ay==0 then b.vx,b.vy=0,0 end
     b.x,b.y=b.x+b.vx*dt,b.y+b.vy*dt
     for _,rod in ipairs(s.rods) do
         for i=1,#rod.offsets do contact(s,rod,i) end
