@@ -233,6 +233,15 @@ function ThreeD.load(g,filesystem,dataAPI)
             mesh:setVertices(dataAPI.newByteData(raw))
             meshes[name]=mesh
         end
+        -- A small native GPU floor mesh (not a decal) mirrors the same
+        -- mathematical slope applied to the ball in model.lua. Retain every
+        -- original third-party field, rod, table and ball mesh unchanged.
+        local rampVerts=Model.Ramps.meshVertices(Model.W,Model.H,
+            Model.GOAL_HALF,Model.BALL_RADIUS,7.2)
+        assert(#rampVerts>0 and #rampVerts%3==0,"invalid ramp triangles")
+        local rampMesh=g.newMesh(FORMAT,#rampVerts,"triangles","static")
+        rampMesh:setVertices(rampVerts)
+        meshes.ramps=rampMesh
         ThreeD.shader=shader
         ThreeD.meshes=meshes
     end)
@@ -340,7 +349,12 @@ function ThreeD.draw(match,w,h)
     local b=match.ball
     -- The imported field's visible surface is at ~6.5 world Y. With a
     -- ~10-unit scaled mesh radius, 16.5 seats the real sphere on the field.
-    drawMesh(lg,shader,ThreeD.meshes.ball,b.x,ThreeD.ballHeight,b.y,0,ThreeD.ballScale)
+    local rampHeight=Model.Ramps.heightAt(b.x,b.y,Model.W,Model.H,
+        Model.GOAL_HALF,b.r)
+    drawMesh(lg,shader,ThreeD.meshes.ball,b.x,
+        ThreeD.ballHeight+rampHeight,b.y,0,ThreeD.ballScale)
+    -- Depth-tested true 3D slopes; they remain under the visible ball.
+    drawMesh(lg,shader,ThreeD.meshes.ramps,0,0,0,0,1)
     lg.setShader()
     lg.setDepthMode()
     lg.setCanvas()
