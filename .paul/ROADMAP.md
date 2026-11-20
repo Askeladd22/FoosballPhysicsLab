@@ -40,3 +40,11 @@
 - [x] Test automatici: 4 eventi da 1px, jitter isolato, sblocco AUTO e cambio modalità.
 - [ ] UAT Windows: 10 gesti lenti e intenzionali, pausa del mouse, contare cambi asta inattesi.
 - [x] GitHub Actions #44772526612: 7/7 PASS, compreso smoke nativo 3D con GLB CC BY.
+
+## Fase 34 — Rampe agli angoli e lungo i lati
+- [x] Geometria condivisa: 2 rampe lungo i lati lunghi e 4 rampe sulle testate fuori dalle porte, con inclinazione risultante negli angoli.
+- [x] Accelerazione dolce dentro la zona inclinata, senza impulso scriptato; ball wake-up anche a velocità iniziale zero.
+- [x] Pavimentazione visibile in 2D Neon Glass e vera mesh di rampe procedurali nel renderer 3D; palla alzata sulla pendenza.
+- [x] Nuove regressioni per gli angoli, sponde, porte, geometria 3D, determinismo e rendering; Lua 5.4/LuaJIT PASS su [run 44777414138](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44777414138).
+- [ ] Evidenza finale 7/7 GitHub Actions (in corso all'ultimo controllo).
+- [ ] UAT Windows: gioco con mouse, rampe/porte visivamente allineate e tiri di sponda non eccessivamente deviati.
