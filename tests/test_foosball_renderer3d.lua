@@ -202,6 +202,7 @@ assert(ThreeD.draw(match,1280,850))
 -- inner gold ring (10), while the white ball retains its two rings.
 assert(fake.markerCircleCount>=12,
     "DUAL mode did not render both physically selected 3D rod/foot markers")
-assert(match:toggleDualRod()=="auto")
+assert(match:toggleDualRod()=="manual" and match.selected==4,
+    "D must return to the explicitly selected manual rod")
 love=oldLove
 print("PASS: GPU world toggle, dual physical rod markers, ball, depth and perspective")
