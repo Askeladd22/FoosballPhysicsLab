@@ -71,3 +71,12 @@
 - [x] [GitHub Actions #44789804738](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44789804738) **7/7 PASS** sul codice iniziale, modello CC BY GLB vero con **4/4 gambe** e **62/99** campioni verdi in PARTITA, 67/99 in ESPOSIZIONE. [Due screenshot GPU nativi](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44789804738/artifacts/14655132976).
 - [x] [CI 44790760084](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44790760084) **7/7 PASS** su codice `185a59e`, compreso gate GAMEPLAY >55% verde, 4/4 supporti real GLB nativo, Foosball Lua5.4/LuaJIT e NEON11.
 - [ ] UAT Windows: confronto alla foto di riferimento e dieci tiri con mouse, controllando visibilità e risposta della pallina.
+
+## Phase 37 — Double rod input (Difesa + Attacco) and closer default GAMEPLAY camera
+- [x] Separate `dual` mode bound to **D**; 1-packet mouse controls both human rods 2/4 with independent clamps and real 120Hz physical contact.
+- [x] Restore AUTO/MANUALE and prior selected slot on D-off; TAB into AUTO, number/wheel into MANUALE, C neutralizes both target angles. No AI rods under human input.
+- [x] Highlight two human rods in 2D and 3D with 5 physical toe markers. Show DOPPIA/HUD and D shortcut without replacing controls.
+- [x] GAMEPLAY defaults to distance 0.78 (~128%) vs 1.00; min 0.70 (~143%), true perspective preserved; SHOWCASE visually remains at original reset fit 100%.
+- [x] Focused tests: `tests/test_foosball_dual_rods.lua`, 3D marker mock, root HUD D key, camera/zoom and F4 regressions.
+- [x] CI: [run 44798062408](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44798062408) **7/7 PASS** on code commit `153522d`, including real CC BY GLB native smoke and frozen NEON11. Prior failed CI runs were due to restrictive/inaccurate test expectations and have been corrected; no unresolved failing job in referenced green run.
+- [ ] Native Windows UAT: 10 parate + 10 attacchi in DOPPIA, comparison AUTO, check false simultaneous shots and readability at default 128% vs the original screenshot at 125%, with max zoom 143%.

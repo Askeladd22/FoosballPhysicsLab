@@ -3,6 +3,7 @@
 -- model.lua. The physical game is still 2D and owns scoring/ball contacts.
 -- No original or converted third-party model is included in the repository.
 local Model=require("model")
+local DEFAULT_GAMEPLAY_DISTANCE=0.78
 local ThreeD={
     loaded=false,enabled=false,error=nil,meshes={},canvas=nil,
     viewportHeight=0,viewportWidth=0,
@@ -12,7 +13,7 @@ local ThreeD={
     fovDegrees=35, -- original 3/4 SHOWCASE camera preserved
     gameplayFovDegrees=43, -- front long-rail full-table frame including legs
     cameraSide="front",
-    cameraDistance=1,
+    cameraDistance=DEFAULT_GAMEPLAY_DISTANCE, -- 128% at launch; preserve full-table SHOWCASE
     viewMode="gameplay", -- default: readable feet/ball and enlarged green pitch
     -- Rigid 180-degree Y-axis turn of the ENTIRE 3D WORLD, not the camera.
     sceneYaw=180,
@@ -124,7 +125,7 @@ function ThreeD.currentFovDegrees()
 end
 function ThreeD.resetCamera()
     ThreeD.cameraSide="front"
-    ThreeD.cameraDistance=1
+    ThreeD.cameraDistance=DEFAULT_GAMEPLAY_DISTANCE
     ThreeD.viewMode="gameplay"
 end
 function ThreeD.setSceneYaw(degrees)
@@ -149,13 +150,21 @@ function ThreeD.flipCamera()
     return ThreeD.cameraSide
 end
 function ThreeD.zoomCamera(delta)
-    ThreeD.cameraDistance=math.max(0.80,
+    ThreeD.cameraDistance=math.max(0.70,
         math.min(1.80,ThreeD.cameraDistance+delta))
+    return ThreeD.cameraDistance
+end
+-- Preserve the showroom's original 100% fit when GAMEPLAY defaults to
+-- 111% close-up. Zoom still works with the same buttons in either view.
+function ThreeD.effectiveCameraDistance()
+    if ThreeD.viewMode=="showcase" then
+        return ThreeD.cameraDistance/DEFAULT_GAMEPLAY_DISTANCE
+    end
     return ThreeD.cameraDistance
 end
 function ThreeD.cameraBasis(w,h)
     local side=ThreeD.cameraSide=="front" and -1 or 1
-    local distance=ThreeD.cameraDistance*viewportFit(w,h)
+    local distance=ThreeD.effectiveCameraDistance()*viewportFit(w,h)
     local target,eye
     if ThreeD.viewMode=="showcase" then
         -- Presentation/inspection only: entire upright cabinet and 4 legs.
@@ -302,8 +311,9 @@ function ThreeD.project(x,y,z,w,h)
 end
 -- Authoritative projected contact markers: the highlighted toe centers are
 -- read from the SAME model.foot used by ball/foot collision resolution.
-function ThreeD.playerIndicators(match,w,h)
-    local r=assert(match.rods[match.selected],"selected physical rod missing")
+function ThreeD.playerIndicators(match,w,h,index)
+    -- Optional slot lets DOPPIA highlight both physical feet independently.
+    local r=assert(match.rods[index or match.selected],"selected physical rod missing")
     local x1,y1=ThreeD.project(r.x,ThreeD.axisHeight,0,w,h)
     local x2,y2=ThreeD.project(r.x,ThreeD.axisHeight,560,w,h)
     local feet={}
@@ -384,24 +394,29 @@ function ThreeD.draw(match,w,h)
         -- Minimal world-anchored feedback: distinguish the selected rod,
         -- its *physical* striking feet, and the actual moving ball.
         -- No changes to native mesh, angle, slide or collision rectangles.
-        local marker=ThreeD.playerIndicators(match,w,h)
-        local shaft=marker.shaft
-        if shaft[1] and shaft[3] then
-            lg.setLineWidth(5)
-            lg.setColor(0.01,0.025,0.04,0.80)
-            lg.line(shaft[1],shaft[2],shaft[3],shaft[4])
-            lg.setLineWidth(2.2)
-            lg.setColor(1,0.77,0.28,0.85)
-            lg.line(shaft[1],shaft[2],shaft[3],shaft[4])
-        end
-        for _,foot in ipairs(marker.feet) do
-            if foot.x then
+        local slots=match.controlMode=="dual" and Model.DUAL_RODS or {match.selected}
+        for _,slot in ipairs(slots) do
+            -- Each indicator follows its own actual foot/contact geometry,
+            -- not a duplicated screen-space marker or an imagined hit.
+            local marker=ThreeD.playerIndicators(match,w,h,slot)
+            local shaft=marker.shaft
+            if shaft[1] and shaft[3] then
+                lg.setLineWidth(5)
                 lg.setColor(0.01,0.025,0.04,0.80)
-                lg.setLineWidth(3.0)
-                lg.circle("line",foot.x,foot.y,8)
-                lg.setColor(1,0.78,0.29,0.95)
-                lg.setLineWidth(1.8)
-                lg.circle("line",foot.x,foot.y,7)
+                lg.line(shaft[1],shaft[2],shaft[3],shaft[4])
+                lg.setLineWidth(2.2)
+                lg.setColor(1,0.77,0.28,0.85)
+                lg.line(shaft[1],shaft[2],shaft[3],shaft[4])
+            end
+            for _,foot in ipairs(marker.feet) do
+                if foot.x then
+                    lg.setColor(0.01,0.025,0.04,0.80)
+                    lg.setLineWidth(3.0)
+                    lg.circle("line",foot.x,foot.y,8)
+                    lg.setColor(1,0.78,0.29,0.95)
+                    lg.setLineWidth(1.8)
+                    lg.circle("line",foot.x,foot.y,7)
+                end
             end
         end
         local ball=ThreeD.ballIndicator(match,w,h)

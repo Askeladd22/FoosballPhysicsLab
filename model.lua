@@ -4,8 +4,11 @@ local M={}
 -- Native LÖVE sees foosball/ as its root; isolated root-based Lua tests do not.
 local RodSelector=require("rod_selector")
 local Ramps=require("ramps")
+-- One mouse, two independent physical player rods: defence and attack.
+local DUAL_DEFENCE,DUAL_ATTACK=2,4
 M.Ramps=Ramps
 M.W,M.H=1000,560
+M.DUAL_RODS={DUAL_DEFENCE,DUAL_ATTACK}
 M.GOAL_HALF=94
 M.BALL_RADIUS=10
 M.FOOT_RADIUS=13 -- legacy nominal radius; geometry below owns the collision
@@ -96,6 +99,8 @@ function Game:reset()
     for _,def in ipairs(layout) do self.rods[#self.rods+1]=newRod(def) end
     self.selected=4
     self.controlMode="auto"
+    self.dualPreviousMode=nil
+    self.dualPreviousSelected=nil
     self.controlHoldUntil=0
     self.mouseGestureDistance=0
     self.lastMouseMovedAt=-math.huge
@@ -150,10 +155,37 @@ function Game:recoverDeadBall()
     -- Intentionally preserve the score, rod states, running match clock and phase.
     return team
 end
+function Game:isRodControlled(slot)
+    if self.controlMode=="dual" then
+        return slot==DUAL_DEFENCE or slot==DUAL_ATTACK
+    end
+    return slot==self.selected
+end
+function Game:toggleDualRod()
+    if self.controlMode=="dual" then
+        self.controlMode=self.dualPreviousMode or "auto"
+        self.selected=self.dualPreviousSelected or DUAL_ATTACK
+        self.dualPreviousMode,self.dualPreviousSelected=nil,nil
+    else
+        self.dualPreviousMode=self.controlMode
+        self.dualPreviousSelected=self.selected
+        self.controlMode="dual"
+        -- Keep attack as primary UI label; both rods are equally controlled.
+        self.selected=DUAL_ATTACK
+    end
+    self.controlHoldUntil=0
+    self.mouseGestureDistance=0
+    self.lastMouseMovedAt=-math.huge
+    self.rodSwitchedAt=-1
+    self.autoRodNotice=nil
+    if self.controlMode=="auto" then RodSelector.update(self,true) end
+    return self.controlMode
+end
 function Game:selectRod(slot)
-    if slot>=1 and slot<=4 and slot==math.floor(slot) then
+    if type(slot)=="number" and slot>=1 and slot<=4 and slot==math.floor(slot) then
         self.selected=slot
         self.controlMode="manual"
+        self.dualPreviousMode,self.dualPreviousSelected=nil,nil
         self.rodSwitchedAt=self.clock
         self.autoRodNotice=nil
         return true
@@ -162,6 +194,7 @@ function Game:selectRod(slot)
 end
 function Game:toggleAutoRod()
     self.controlMode=self.controlMode=="auto" and "manual" or "auto"
+    self.dualPreviousMode,self.dualPreviousSelected=nil,nil
     self.controlHoldUntil=0
     self.mouseGestureDistance=0
     self.lastMouseMovedAt=-math.huge
@@ -193,13 +226,28 @@ function Game:mouseMoved(dx,dy)
             end
         end
     end
-    -- Y translates the entire rod; X rotates all its figures about that rod.
-    r.targetSlide=clamp(r.targetSlide+dy*self.mouseSensitivity.slide,-r.travel,r.travel)
-    r.targetAngle=clamp(r.targetAngle+dx*self.mouseSensitivity.angle,limits.min,limits.max)
+    -- Both targets have their OWN travel limits and servo state. Never
+    -- copy physical slide/vy/omega or apply a fabricated shooting impulse.
+    local function applyInput(rod)
+        rod.targetSlide=clamp(rod.targetSlide+dy*self.mouseSensitivity.slide,
+            -rod.travel,rod.travel)
+        rod.targetAngle=clamp(rod.targetAngle+dx*self.mouseSensitivity.angle,
+            limits.min,limits.max)
+    end
+    if self.controlMode=="dual" then
+        applyInput(self.rods[DUAL_DEFENCE])
+        applyInput(self.rods[DUAL_ATTACK])
+    else
+        applyInput(r)
+    end
 end
 function Game:neutralRod()
-    local r=self.rods[self.selected]
-    r.targetAngle=0
+    if self.controlMode=="dual" then
+        self.rods[DUAL_DEFENCE].targetAngle=0
+        self.rods[DUAL_ATTACK].targetAngle=0
+    else
+        self.rods[self.selected].targetAngle=0
+    end
 end
 local function updateAI(s)
     local b=s.ball

@@ -19,8 +19,10 @@ ThreeD.setViewMode("showcase")
 -- source reference here, while test_foosball_world_yaw.lua covers the actual
 -- rotated game and its selection-marker projection.
 ThreeD.setSceneYaw(0)
-assert(ThreeD.cameraSide=="front" and close(ThreeD.cameraDistance,1))
+assert(ThreeD.cameraSide=="front" and close(ThreeD.cameraDistance,0.78))
 assert(close(ThreeD.fovDegrees,35),"default upright view fov unexpectedly changed")
+assert(close(ThreeD.gameplayFovDegrees,43),
+    "closer camera must not distort GAMEPLAY perspective via a new FOV")
 for _,window in ipairs(windows) do
     local w,h=window[1],window[2]
     local top,vh=ThreeD.viewport(w,h)
@@ -61,12 +63,12 @@ assert(width()<normalWidth,"PageDown (zoom out) did not reduce table size")
 assert(ThreeD.zoomCamera(-0.48)<1)
 assert(width()>normalWidth,"PageUp (zoom in) did not enlarge table")
 ThreeD.zoomCamera(-99)
-assert(close(ThreeD.cameraDistance,0.8),"minimum camera distance not clamped")
+assert(close(ThreeD.cameraDistance,0.70),"minimum camera distance not clamped")
 ThreeD.zoomCamera(99)
 assert(close(ThreeD.cameraDistance,1.8),"maximum camera distance not clamped")
 assert(ThreeD.flipCamera()=="back")
 ThreeD.resetCamera()
-assert(ThreeD.cameraSide=="front" and close(ThreeD.cameraDistance,1),
+assert(ThreeD.cameraSide=="front" and close(ThreeD.cameraDistance,0.78),
     "Home did not reset camera to safe view")
 assert(physical.ball.x==ballX and physical.ball.y==ballY and
     physical.score[1]==score1 and physical.score[2]==score2,

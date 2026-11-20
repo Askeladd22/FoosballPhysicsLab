@@ -57,7 +57,9 @@ local graphics={
     setShader=function() end,
     setColor=function() end,
     setLineWidth=function() end,
-    circle=function() end,line=function() end,
+    circle=function(mode)
+        if mode=="line" then fake.markerCircleCount=(fake.markerCircleCount or 0)+1 end
+    end,line=function() end,
     draw=function(thing)
         fake.draws[#fake.draws+1]=thing
     end
@@ -191,5 +193,16 @@ fake.sends={}
 assert(ThreeD.draw(match,1280,850))
 assert(gpuFocal() and math.abs(gpuFocal()-targetFocal(43))<1e-7,
     "F4 must restore the front GAMEPLAY perspective without misaligning GPU/CPU")
+-- DOPPIA must draw TWO separately projected physical rods, not just
+-- mutate invisible targets while retaining a single golden marker.
+fake.markerCircleCount=0
+assert(match:toggleDualRod()=="dual")
+assert(ThreeD.draw(match,1280,850))
+-- Defence has two feet and attack has three: each gets an outer and
+-- inner gold ring (10), while the white ball retains its two rings.
+assert(fake.markerCircleCount>=12,
+    "DUAL mode did not render both physically selected 3D rod/foot markers")
+assert(match:toggleDualRod()=="manual" and match.selected==4,
+    "D must return to the explicitly selected manual rod")
 love=oldLove
-print("PASS: GPU source/oriented world toggles, 8 moving rigs, ball, depth and perspective")
+print("PASS: GPU world toggle, dual physical rod markers, ball, depth and perspective")

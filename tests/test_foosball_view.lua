@@ -73,16 +73,31 @@ assert(ThreeD.viewMode=="gameplay","F4 must restore playing field")
 love.keypressed("f2",nil,false)
 assert(ThreeD.cameraSide=="back")
 love.keypressed("pagedown",nil,false)
-assert(ThreeD.cameraDistance>1)
+assert(ThreeD.cameraDistance>0.78)
 love.keypressed("pageup",nil,false)
 love.keypressed("f3",nil,false)
 assert(ThreeD.sceneYaw==0,"F3 must compare the source orientation")
 love.keypressed("f3",nil,false)
 assert(ThreeD.sceneYaw==180,"F3 must restore the requested 180-degree turn")
 love.keypressed("home",nil,false)
-assert(ThreeD.cameraSide=="front" and ThreeD.cameraDistance==1)
+assert(ThreeD.cameraSide=="front" and math.abs(ThreeD.cameraDistance-0.78)<1e-7)
 assert(ThreeD.sceneYaw==180,"Home must also reset table orientation")
 assert(ThreeD.viewMode=="gameplay","Home should reset to playable camera")
+love.keypressed("d",nil,false)
+drawing={}
+love.draw()
+local dualHUD=false
+for _,label in ipairs(drawing) do
+    if label:find("DOPPIA",1,true) and label:find("DIFESA",1,true) then
+        dualHUD=true
+    end
+end
+assert(dualHUD,"D key did not expose simultaneous defence+attack on the HUD")
+love.keypressed("d",nil,false)
+drawing={}
+love.draw()
+assert(not table.concat(drawing," "):find("DOPPIA  /",1,true),
+    "D key did not leave the dual control mode")
 love.keypressed("g",nil,false)
 local before=glowCalls
 drawing={}
