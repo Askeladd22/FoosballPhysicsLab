@@ -69,5 +69,5 @@
 - [x] Tavolo completo + 4 supporti y=-740 dentro viewport a 900×650, 1271×874, 1280×850, 1650×895, 1920×1080, entrambi i lati e yaw 0/180; indicatori fisici non scollegati.
 - [x] Vista ESPOSIZIONE F4 originale preservata; nessuna modifica a IA, dinamica, rampette, score, input o NEON11.
 - [x] [GitHub Actions #44789804738](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44789804738) **7/7 PASS** sul codice iniziale, modello CC BY GLB vero con **4/4 gambe** e **62/99** campioni verdi in PARTITA, 67/99 in ESPOSIZIONE. [Due screenshot GPU nativi](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44789804738/artifacts/14655132976).
-- [ ] Ricontrollare ultima CI del gate più severo verde 55% dopo commit dedicato.
+- [x] [CI 44790760084](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44790760084) **7/7 PASS** su codice `185a59e`, compreso gate GAMEPLAY >55% verde, 4/4 supporti real GLB nativo, Foosball Lua5.4/LuaJIT e NEON11.
 - [ ] UAT Windows: confronto alla foto di riferimento e dieci tiri con mouse, controllando visibilità e risposta della pallina.
