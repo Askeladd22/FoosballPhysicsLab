@@ -1,19 +1,24 @@
 # PAUL State — FoosballPhysicsLab
 
-**Prodotto principale:** Foosball Lab — codici e moduli LÖVE nella root.
-**Frozen / conservato:** NEON 11 (11vs11) — `legacy/neon11/`.
-**Fase:** 22, separazione fisica repository.
+**Gioco attivo:** Foosball Lab direttamente nella root.
+**Gioco congelato:** NEON 11 (11vs11), isolato in `legacy/neon11/`.
+**Fase:** 22 — migrazione fisica delle cartelle.
 **Branch:** `refactor/foosball-root-neon11-legacy`.
-**Stato:** APPLY/VERIFY; UAT grafica e mouse Windows NOT_RUN.
+**Stato:** `DONE_WITH_CONCERNS` (codice e regressioni PASS; UAT Windows/LÖVE NOT_RUN).
+**Data:** 2026-11-20.
 
-## Decisioni SEED
-- `love .` apre direttamente Foosball; `love legacy/neon11` l'originale NEON 11.
-- I moduli e test originali del 11vs11 vengono spostati con gli stessi blob; nessuna logica di gioco riscritta.
-- I vecchi documenti PAUL e le ricerche FM24 sono nella stessa cartella legacy.
-- Le pose 2.5D restano facoltative e ignorate da Git in `local_assets/`.
-- La suite CI Foosball e quella 11vs11 hanno due job distinti su Lua5.4 e LuaJIT.
+## Verifica
+[PLAN](phases/22-directory-split/22-01-PLAN.md) · [SUMMARY](phases/22-directory-split/22-01-SUMMARY.md).
 
-## PAUL
-[PLAN 22](phases/22-directory-split/22-01-PLAN.md).
-I risultati verificati vanno nel SUMMARY al termine della CI; nessun playtest umano dichiarato.
-**Next:** Windows/LÖVE `love .` e `love legacy/neon11` + dieci tiri con AUTO.
+- `love .` avvia il vero gioco Foosball dalla root.
+- `love legacy/neon11` avvia NEON 11 da un progetto LÖVE indipendente; `love . --legacy` resta opzionale.
+- 16 moduli e 32 test storici spostati bitwise-identici, insieme alla texture e alla documentazione.
+- I moduli Foosball sono `main.lua`, `model.lua`, `layout.lua`, `theme.lua`, `mesh_art.lua`, `rod_selector.lua`.
+- Table Soccer: file privati 2.5D in `local_assets/`, ignorati da Git; baker local-only; nessuna redistribuzione.
+- [CI 44707375249](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44707375249): **4 job PASS** (Foosball + NEON11, Lua 5.4 + LuaJIT). Non sono stati dichiarati playtest umani.
+
+## Scopo SEED
+Focalizzarsi su fisica, mouse, IA avversaria semplice, leggibilità e sessioni brevi. Nessuna carriera, classifica, espansione 11vs11 o riapertura di Project Folio da questo repo.
+
+## Unica prossima azione
+Avviare `love .` e `love legacy/neon11` sul PC Windows e verificare i controlli del biliardino durante dieci tiri.
