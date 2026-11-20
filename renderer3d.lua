@@ -9,8 +9,8 @@ local ThreeD={
     source="local_assets/3d/",stride=28,
     axisHeight=(83.2-76.64)*(560/83.56),
     ballHeight=16.5,ballScale=0.68,
-    fovDegrees=35, -- user's 1271x874 three-quarter screenshot reference
-    gameplayFovDegrees=35, -- deliberate: SAME photographed FOV as SHOWCASE
+    fovDegrees=35, -- original 3/4 SHOWCASE camera preserved
+    gameplayFovDegrees=43, -- front long-rail full-table frame including legs
     cameraSide="front",
     cameraDistance=1,
     viewMode="gameplay", -- default: readable feet/ball and enlarged green pitch
@@ -165,15 +165,17 @@ function ThreeD.cameraBasis(w,h)
              target[2]+2119.05*distance,
              target[3]+side*1795.20*distance}
     else
-        -- User's photographed 1271x874 reference: genuine three-quarter
-        -- oblique view from a LONG edge, not a near-zenith 70-degree view.
-        -- Preserve the slight X-axis skew and visible near cabinet rim.
-        -- This is the same verified camera that produced the user image;
-        -- do not silently replace it with a top-down editorial composition.
-        target={500,10,280}
-        eye={target[1]-100*distance,
-             target[2]+1060*distance,
-             target[3]+side*780*distance}
+        -- The real-table PHOTO shows the cabinet head-on from the LONG
+        -- edge. Centre X on the table so both horizontal rails look level.
+        -- Aim below the pitch to include its cabinet and four real legs.
+        -- ~50-degree elevation retains a view of the green field, unlike
+        -- either the old skewed 3/4 camera or a near-vertical overhead.
+        -- At 1271x874 the extreme rear rim and leg tips project inside
+        -- the 112..734 gameplay viewport with margin.
+        target={500,-200,280}
+        eye={target[1],
+             target[2]+1100*distance,
+             target[3]+side*915*distance}
     end
     local fx,fy,fz=norm(target[1]-eye[1],target[2]-eye[2],target[3]-eye[3])
     local rx,ry,rz=norm(cross(fx,fy,fz,0,1,0))
@@ -475,7 +477,11 @@ function ThreeD.assertFieldVisible()
     end
     print(("3D FIELD visibility: green=%d/%d, near=%d/%d, far=%d/%d"):format(
         green,total,nearGreen,nearTotal,farGreen,farTotal))
-    assert(total>=75 and green>=math.floor(total*0.46)
+    -- Front-on GAMEPLAY must retain a readable green pitch even while
+    -- showing the full cabinet and support legs. Preserve the older
+    -- SHOWCASE threshold because that mode prioritises furniture.
+    local minimumGreen=ThreeD.viewMode=="gameplay" and 0.55 or 0.46
+    assert(total>=75 and green>=math.floor(total*minimumGreen)
         and nearGreen>=math.floor(nearTotal*0.25)
         and farGreen>=math.floor(farTotal*0.25),
         "3D PITCH OCCLUDED: actual green playing surface not visible. Check perspective/rail geometry, not only frame pixels.")

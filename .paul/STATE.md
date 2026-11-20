@@ -2,9 +2,9 @@
 
 **Active:** Foosball Lab in root, real CC BY GLB true 3D as default, Neon Glass 2D fallback.
 **Frozen:** NEON 11 with full source, test and documentation in `legacy/neon11/`.
-**Current phase:** 35 — screenshot-accurate three-quarter GAMEPLAY camera.
-**Branch:** `fix/foosball-gameplay-camera-composition`, [draft PR #33](https://github.com/Askeladd22/FoosballPhysicsLab/pull/33).
-**Status:** `VERIFIED_AUTOMATED / UAT_NOT_RUN`; phase 35 photo-accurate camera code passed 7/7 GitHub Actions on commit d38f2096, including real CC BY GLB GPU. Windows photo comparison/playtest NOT_RUN.
+**Current phase:** 36 — actual centered front-of-long-rail photo camera with four visible legs.
+**Branch:** `fix/foosball-front-long-side-photo-camera`, [draft PR #34](https://github.com/Askeladd22/FoosballPhysicsLab/pull/34).
+**Status:** `VERIFIED_AUTOMATED / UAT_NOT_RUN`; phase 36 camera and stricter field-visibility gate passed [CI 44790760084](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44790760084) **7/7** on code 185a59e, 4/4 real CC BY GLB legs. Windows mouse/visual UAT NOT_RUN.
 **Date:** 2026-11-20.
 
 ## SEED decisions
@@ -16,10 +16,10 @@
 - No additional career, rankings, multiplayer, 11vs11 gameplay or Project Folio changes.
 
 ## Evidence
-[PLAN phase 35](phases/35-gameplay-camera-composition/35-01-PLAN.md) · [UNIFY phase 35](phases/35-gameplay-camera-composition/35-01-SUMMARY.md) · [CI 44786693825](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44786693825) 7/7 PASS on screenshot-accurate camera and focal uniform tests. Native human playtest NOT_RUN.
+[PLAN phase 36](phases/36-front-long-side-photo-camera/36-01-PLAN.md) · [UNIFY phase 36](phases/36-front-long-side-photo-camera/36-01-SUMMARY.md) · [CI 44790760084](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44790760084) 7/7 PASS for real front long-rail camera with >55% green GPU coverage gate. Native human playtest NOT_RUN.
 
 ## Next single action
-Native Windows playtest: at 1271×874 confirm screenshot-matching three-quarter GAMEPLAY composition, then ten precise ball-foot contacts with mouse and F4 SHOWCASE comparison.
+Native Windows playtest: at 1271×874 compare GAMEPLAY screenshot with the earlier commercial-table photo, verify horizontal sponde and all real support legs, then ten aimed mouse shots; compare SHOWCASE via F4.
 
 
 ## Phase 24 — Oblique 2.5D camera and physical shoe linkage
@@ -114,3 +114,10 @@ The **whole world** yaw is now 180° about upright Y, rigidly rotating the actua
 **Proof:** [7/7 GitHub Actions #44786693825](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44786693825) on source commit `d38f2096` including seven photo landmark anchors, HUD cropping, markers, F4 and native real GLB.
 **Game Design Lab:** objective framing can be regression-tested; gameplay readability and pleasure still require ten human strokes. F2, F3, Home and SHOWCASE untouched.
 **Next:** compare a newly captured Windows screenshot 1271×874 to the user reference and perform a ten-shot ball-foot test.
+
+### PAUL phase 36 — correction after user screenshot complaint (2026-11-20)
+**Root problem:** previous PR #33 was merged but made no meaningful camera composition change. The supplied photo shows a centered view from a LONG edge with straight horizontal rails and complete support legs; the in-game diagonal camera was not the right reference.
+**Changed GAMEPLAY:** target `{500,-200,280}`, eye offset `{0,+1100,side*915}`, FOV43°, pitch~50°, compared with old target `{500,10,280}`, eye `{-100,+1060,side*780}`, FOV35°. SHOWCASE remains original FOV35.
+**Native proof:** [CI 44789804738](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44789804738) **7/7 PASS**, native LÖVE true CC BY GLB shows 4/4 real legs and 62/99 field-green samples in GAMEPLAY. Real screenshots [artifact](https://github.com/Askeladd22/FoosballPhysicsLab/actions/runs/44789804738/artifacts/14655132976). New post-commit gate ≥55% green.
+**Matt Pocock, Simplify, CCteam QA, Trail of Bits spec compliance, Unlazy:** photo requirements audited against actual source/diff, front rails and support legs regression verified with both Lua VMs and GPU CI, no C++ file involved. No extra camera subsystem or physics changes.
+**UAT:** Windows physical feel and comparison to image not yet run. [PLAN](phases/36-front-long-side-photo-camera/36-01-PLAN.md); [SUMMARY](phases/36-front-long-side-photo-camera/36-01-SUMMARY.md).
