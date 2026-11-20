@@ -27,3 +27,9 @@
 - [x] Pallina fisica resa più leggibile con bordo bianco e traiettoria breve.
 - [x] Regressioni Lua 5.4/LuaJIT, renderer 3D/GLB, legacy NEON11, entrambe le viste native PASS.
 - [ ] UAT Windows: 10 colpi mirati, capacità di leggere contatto/tiro, cambi stecca accidentali e FPS.
+
+## Fase 32 — Palla irraggiungibile in ricochet
+- [x] Recupero dopo 2 secondi di irraggiungibilità geometrica anche quando la palla rimbalza verticalmente.
+- [x] Regressione: tiro orizzontale raggiunge una stecca prima della scadenza senza false rimesse.
+- [x] CI Lua5.4/LuaJIT, NEON11 e smoke GPU/GLB: 7/7 PASS.
+- [ ] UAT Windows: palla incastrata in corridoio, 10 tiri ordinari, percezione di equità della rimessa.
